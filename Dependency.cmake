@@ -1,7 +1,13 @@
 include_guard(GLOBAL)
 
+if (WIN32)
+  set(FIND_DEPENDENCY_ENV_HOME $ENV{USERPROFILE})
+else()
+  set(FIND_DEPENDENCY_ENV_HOME $ENV{HOME})
+endif()
+
 if (NOT FIND_DEPENDENCY_PATH)
-  set(FIND_DEPENDENCY_PATH        "$ENV{HOME}/.cmake_deps")
+  set(FIND_DEPENDENCY_PATH        "${FIND_DEPENDENCY_ENV_HOME}/.cmake_deps")
 endif()
 set(FIND_DEPENDENCY_PATH ${FIND_DEPENDENCY_PATH} CACHE INTERNAL "path to the downloaded dependencies")
 
@@ -221,6 +227,14 @@ macro(_find_dependency_collect_targets)
   endforeach()
 endmacro()
 
+macro(_find_dependency_set_folder target)
+  set_target_properties(${target}
+    PROPERTIES
+      FOLDER
+        "Dependency/${DEPENDENCY_TARGET_NAME}"
+  )
+endmacro()
+
 macro(_find_dependency_add_target)
   add_library(${DEPENDENCY_TARGET_NAME} INTERFACE)
 
@@ -244,7 +258,7 @@ macro(_find_dependency_add_target)
 
   add_custom_target(${DEPENDENCY_TARGET_NAME}-generate
     COMMAND
-      ${CMAKE_COMMAND} ${DEPENDENCY_SOURCE_PATH} -DFIND_DEPENDENCY_PATH=${FIND_DEPENDENCY_PATH} ${DEPENDENCY_BUILD_OPTIONS}
+      ${CMAKE_COMMAND} ${DEPENDENCY_SOURCE_PATH} ${DEPENDENCY_BUILD_OPTIONS}
     WORKING_DIRECTORY
       ${DEPENDENCY_BINARY_PATH}
     COMMENT
@@ -253,7 +267,7 @@ macro(_find_dependency_add_target)
 
   add_custom_target(${DEPENDENCY_TARGET_NAME}-build
     COMMAND
-      ${CMAKE_COMMAND} ${DEPENDENCY_SOURCE_PATH} -DFIND_DEPENDENCY_PATH=${FIND_DEPENDENCY_PATH} ${DEPENDENCY_BUILD_OPTIONS}
+      ${CMAKE_COMMAND} ${DEPENDENCY_SOURCE_PATH} ${DEPENDENCY_BUILD_OPTIONS}
     WORKING_DIRECTORY
       ${DEPENDENCY_BINARY_PATH}
     COMMENT
@@ -268,6 +282,12 @@ macro(_find_dependency_add_target)
     COMMENT
       "Build ${DEPENDENCY_TARGET_NAME}"
   )
+
+  _find_dependency_set_folder(${DEPENDENCY_TARGET_NAME})
+  _find_dependency_set_folder(${DEPENDENCY_TARGET_NAME}-pull)
+  _find_dependency_set_folder(${DEPENDENCY_TARGET_NAME}-generate)
+  _find_dependency_set_folder(${DEPENDENCY_TARGET_NAME}-build)
+  _find_dependency_set_folder(${DEPENDENCY_TARGET_NAME}-clean)
 endmacro()
 
 macro(_find_dependency_store_metadata)
