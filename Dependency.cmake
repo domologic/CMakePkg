@@ -174,7 +174,7 @@ macro(_find_domo_package_gen_build)
   message("Generating build files for dependency ${DEPENDENCY_GROUP}::${DEPENDENCY_PROJECT}...")
   execute_process(
     COMMAND
-      ${CMAKE_COMMAND} ${DEPENDENCY_SOURCE_PATH} ${DEPENDENCY_BUILD_OPTIONS}
+      ${CMAKE_COMMAND} ${DEPENDENCY_SOURCE_PATH} -DFIND_DEPENDENCY_PATH="${FIND_DEPENDENCY_PATH}" ${DEPENDENCY_BUILD_OPTIONS}
     WORKING_DIRECTORY
       ${DEPENDENCY_BINARY_PATH}
     RESULT_VARIABLE
@@ -258,7 +258,7 @@ macro(_find_dependency_add_target)
 
   add_custom_target(${DEPENDENCY_TARGET_NAME}-generate
     COMMAND
-      ${CMAKE_COMMAND} ${DEPENDENCY_SOURCE_PATH} ${DEPENDENCY_BUILD_OPTIONS}
+      ${CMAKE_COMMAND} ${DEPENDENCY_SOURCE_PATH} -DFIND_DEPENDENCY_PATH="${FIND_DEPENDENCY_PATH}" ${DEPENDENCY_BUILD_OPTIONS}
     WORKING_DIRECTORY
       ${DEPENDENCY_BINARY_PATH}
     COMMENT
@@ -283,7 +283,6 @@ macro(_find_dependency_add_target)
       "Build ${DEPENDENCY_TARGET_NAME}"
   )
 
-  _find_dependency_set_folder(${DEPENDENCY_TARGET_NAME})
   _find_dependency_set_folder(${DEPENDENCY_TARGET_NAME}-pull)
   _find_dependency_set_folder(${DEPENDENCY_TARGET_NAME}-generate)
   _find_dependency_set_folder(${DEPENDENCY_TARGET_NAME}-build)
