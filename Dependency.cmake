@@ -1,6 +1,9 @@
 include_guard(GLOBAL)
 
-set(FIND_DEPENDENCY_PATH        "$ENV{HOME}/.cmake_deps")
+if (NOT FIND_DEPENDENCY_PATH)
+  set(FIND_DEPENDENCY_PATH        "$ENV{HOME}/.cmake_deps")
+endif()
+set(FIND_DEPENDENCY_PATH ${FIND_DEPENDENCY_PATH} CACHE INTERNAL "path to the downloaded dependencies")
 
 find_package(Git REQUIRED)
 
@@ -145,10 +148,9 @@ endmacro()
 
 macro(_find_domo_package_git_clone)
   message("Cloning Dependency ${DEPENDENCY_GROUP}::${DEPENDENCY_PROJECT}...")
-  message("${GIT_EXECUTABLE} clone ${DEPENDENCY_URL} --branch ${DEPENDENCY_BRANCH} --depth 1 ${DEPENDENCY_SOURCE_PATH}")
   execute_process(
     COMMAND
-      ${GIT_EXECUTABLE} clone ${DEPENDENCY_URL} --branch ${DEPENDENCY_BRANCH} --depth 1 ${DEPENDENCY_SOURCE_PATH}
+      ${GIT_EXECUTABLE} clone ${DEPENDENCY_URL} --branch ${DEPENDENCY_BRANCH} --depth 1 --recursive ${DEPENDENCY_SOURCE_PATH}
     WORKING_DIRECTORY
       ${DEPENDENCY_SOURCE_PATH}
     RESULT_VARIABLE
