@@ -1,63 +1,6 @@
 include_guard(GLOBAL)
 
-if (WIN32)
-  set(FIND_DEPENDENCY_ENV_HOME $ENV{USERPROFILE})
-else()
-  set(FIND_DEPENDENCY_ENV_HOME $ENV{HOME})
-endif()
-
-if (NOT FIND_DEPENDENCY_PATH)
-  set(FIND_DEPENDENCY_PATH        "${FIND_DEPENDENCY_ENV_HOME}/.cmake_deps")
-endif()
-set(FIND_DEPENDENCY_PATH ${FIND_DEPENDENCY_PATH} CACHE INTERNAL "path to the downloaded dependencies")
-
 find_package(Git REQUIRED)
-
-function(_get_git_url_origin)
-  execute_process(
-    COMMAND
-      ${GIT_EXECUTABLE} remote get-url origin
-    WORKING_DIRECTORY
-      ${CMAKE_SOURCE_DIR}
-    OUTPUT_VARIABLE
-      FIND_DEPENDENCY_GIT_URL
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-    ERROR_QUIET
-  )
-
-  if (NOT FIND_DEPENDENCY_GIT_URL)
-    message(FATAL_ERROR "Could not get current git remote origin url!")
-  endif()
-
-  set(FIND_DEPENDENCY_GIT_URL     ${FIND_DEPENDENCY_GIT_URL}      CACHE STRING "find_dependency git remote origin url")
-endfunction()
-
-function(_get_git_url_domain)
-  execute_process(
-    COMMAND
-      bash -c "echo ${FIND_DEPENDENCY_GIT_URL} | awk -F[/:] '{print $4}'"
-    WORKING_DIRECTORY
-      ${CMAKE_SOURCE_DIR}
-    OUTPUT_VARIABLE
-      FIND_DEPENDENCY_GIT_DOMAIN
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-    ERROR_QUIET
-  )
-
-  if (NOT FIND_DEPENDENCY_GIT_DOMAIN)
-    message(FATAL_ERROR "Could not get git remote origin url!")
-  endif()
-
-  set(FIND_DEPENDENCY_GIT_DOMAIN  ${FIND_DEPENDENCY_GIT_DOMAIN}   CACHE STRING "find_dependency git remote origin domain")
-endfunction()
-
-if (NOT FIND_DEPENDENCY_GIT_URL)
-  _get_git_url_origin()
-endif()
-
-if (NOT FIND_DEPENDENCY_GIT_DOMAIN)
-  _get_git_url_domain()
-endif()
 
 macro(_find_dependency_parse_args)
   set(_options              USE_SSH USE_HTTPS)
@@ -84,11 +27,11 @@ macro(_find_dependency_parse_args)
 
   if (NOT DEPENDENCY_URL)
     if (${ARG_USE_SSH})
-      set(DEPENDENCY_URL "git@${FIND_DEPENDENCY_GIT_DOMAIN}:${DEPENDENCY_GROUP}/${DEPENDENCY_PROJECT}.git")
+      set(DEPENDENCY_URL "git@${CMAKE_DEPENDENCY_GIT_DOMAIN}:${DEPENDENCY_GROUP}/${DEPENDENCY_PROJECT}.git")
     elseif (${ARG_USE_HTTPS})
-      set(DEPENDENCY_URL "https://${FIND_DEPENDENCY_GIT_DOMAIN}/${DEPENDENCY_GROUP}/${DEPENDENCY_PROJECT}.git")
+      set(DEPENDENCY_URL "https://${CMAKE_DEPENDENCY_GIT_DOMAIN}/${DEPENDENCY_GROUP}/${DEPENDENCY_PROJECT}.git")
     else()
-      set(DEPENDENCY_URL "http://${FIND_DEPENDENCY_GIT_DOMAIN}/${DEPENDENCY_GROUP}/${DEPENDENCY_PROJECT}.git")
+      set(DEPENDENCY_URL "http://${CMAKE_DEPENDENCY_GIT_DOMAIN}/${DEPENDENCY_GROUP}/${DEPENDENCY_PROJECT}.git")
     endif()
   endif()
 
@@ -98,12 +41,25 @@ macro(_find_dependency_parse_args)
 endmacro()
 
 macro(_find_dependency_get_path)
-  string(SHA3_512 DEPENDENCY_PATH "${CMAKE_VERSION}${CMAKE_SYSTEM}${CMAKE_TOOLCHAIN_FILE}${DEPENDENCY_GROUP}${DEPENDENCY_PROJECT}")
+  string(SHA1 DEPENDENCY_PATH "${CMAKE_VERSION}${CMAKE_SYSTEM}${CMAKE_TOOLCHAIN_FILE}${DEPENDENCY_GROUP}${DEPENDENCY_PROJECT}")
 
-  set(DEPENDENCY_PATH "${FIND_DEPENDENCY_PATH}/${DEPENDENCY_PATH}")
+  set(DEPENDENCY_PATH "${CMAKE_DEPENDENCY_PATH}/${DEPENDENCY_PATH}")
 
   if (NOT EXISTS ${DEPENDENCY_PATH})
     file(MAKE_DIRECTORY ${DEPENDENCY_PATH})
+  endif()
+endmacro()
+
+macro(_find_dependency_set_helper_vars)
+  set(DEPENDENCY_SOURCE_PATH ${DEPENDENCY_PATH}/Source)
+  set(DEPENDENCY_BINARY_PATH ${DEPENDENCY_PATH}/Binary)
+
+  if (NOT EXISTS ${DEPENDENCY_SOURCE_PATH})
+    file(MAKE_DIRECTORY ${DEPENDENCY_SOURCE_PATH})
+  endif()
+
+  if (NOT EXISTS ${DEPENDENCY_BINARY_PATH})
+    file(MAKE_DIRECTORY ${DEPENDENCY_BINARY_PATH})
   endif()
 endmacro()
 
@@ -139,19 +95,6 @@ macro(_find_dependency_git_timestamp)
   endif()
 endmacro()
 
-macro(_find_dependency_set_helper_vars)
-  set(DEPENDENCY_SOURCE_PATH ${DEPENDENCY_PATH}/Source)
-  set(DEPENDENCY_BINARY_PATH ${DEPENDENCY_PATH}/Binary)
-
-  if (NOT EXISTS ${DEPENDENCY_SOURCE_PATH})
-    file(MAKE_DIRECTORY ${DEPENDENCY_SOURCE_PATH})
-  endif()
-
-  if (NOT EXISTS ${DEPENDENCY_BINARY_PATH})
-    file(MAKE_DIRECTORY ${DEPENDENCY_BINARY_PATH})
-  endif()
-endmacro()
-
 macro(_find_domo_package_git_clone)
   message("Cloning Dependency ${DEPENDENCY_GROUP}::${DEPENDENCY_PROJECT}...")
   execute_process(
@@ -174,7 +117,7 @@ macro(_find_domo_package_gen_build)
   message("Generating build files for dependency ${DEPENDENCY_GROUP}::${DEPENDENCY_PROJECT}...")
   execute_process(
     COMMAND
-      ${CMAKE_COMMAND} ${DEPENDENCY_SOURCE_PATH} -DFIND_DEPENDENCY_PATH="${FIND_DEPENDENCY_PATH}" ${DEPENDENCY_BUILD_OPTIONS}
+      ${CMAKE_COMMAND} ${DEPENDENCY_SOURCE_PATH} ${DEPENDENCY_BUILD_OPTIONS}
     WORKING_DIRECTORY
       ${DEPENDENCY_BINARY_PATH}
     RESULT_VARIABLE
@@ -258,7 +201,7 @@ macro(_find_dependency_add_target)
 
   add_custom_target(${DEPENDENCY_TARGET_NAME}-generate
     COMMAND
-      ${CMAKE_COMMAND} ${DEPENDENCY_SOURCE_PATH} -DFIND_DEPENDENCY_PATH="${FIND_DEPENDENCY_PATH}" ${DEPENDENCY_BUILD_OPTIONS}
+      ${CMAKE_COMMAND} ${DEPENDENCY_SOURCE_PATH} ${DEPENDENCY_BUILD_OPTIONS}
     WORKING_DIRECTORY
       ${DEPENDENCY_BINARY_PATH}
     COMMENT
