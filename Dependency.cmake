@@ -163,8 +163,7 @@ macro(_find_dependency_collect_targets)
   foreach (DEPENDENCY_TARGET ${DEPENDENCY_TARGETS})
     include(${DEPENDENCY_TARGET})
     get_filename_component(DEPENDENCY_NAME ${DEPENDENCY_TARGET} NAME_WE)
-    get_filename_component(DEPENDENCY_FILE ${DEPENDENCY_TARGET} NAME)
-    file(COPY ${DEPENDENCY_TARGET} DESTINATION ${CMAKE_BINARY_DIR}/${DEPENDENCY_FILE})
+    file(COPY ${DEPENDENCY_TARGET} DESTINATION ${CMAKE_BINARY_DIR})
     set(DEPENDENCY_TARGET_NAMES
       ${DEPENDENCY_TARGET_NAMES}
       ${DEPENDENCY_NAME}
@@ -300,11 +299,58 @@ endfunction()
 
 # register_dependency(<dependency name>)
 function(register_dependency dependency_name)
+  get_target_property(DEPENDENCY_LINKS ${dependency_name} LINK_LIBRARIES)
+  message("DEPENDENCY_LINKS = ${DEPENDENCY_LINKS}")
+  if ("${DEPENDENCY_LINKS}" STREQUAL "DEPENDENCY_LINKS-NOTFOUND")
+    unset(DEPENDENCY_LINKS)
+    message("DEPENDENCY_LINKS NOTFOUND")
+  else()
+    string(REPLACE "::" "-" DEPENDENCY_LINKS "${DEPENDENCY_LINKS}")
+    message("DEPENDENCY_LINKS = ${DEPENDENCY_LINKS}")
+  endif()
   export(TARGETS
       ${dependency_name}
+      ${DEPENDENCY_LINKS}
     FILE
       ${dependency_name}.dep.cmake
-    APPEND
-    EXPORT_LINK_INTERFACE_LIBRARIES
   )
+endfunction()
+
+function(add_dep_library library_name)
+  set(_options              )
+  set(_ove_value_keywords   )
+  set(_multi_value_keywords SOURCE DEPENDENCIES)
+
+  cmake_parse_arguments(_ARG
+    "${_options}"
+    "${_ove_value_keywords}"
+    "${_multi_value_keywords}"
+    ${ARGN}
+  )
+
+  add_library(${library_name}
+    ${_ARG_SOURCE}
+  )
+
+  if (_ARG_DEPENDENCIES)
+    foreach(DEPENDENCY ${_ARG_DEPENDENCIES})
+      string(REPLACE "::" ";" DEPENDENCY_LIST "${DEPENDENCY}")
+      list(GET ${DEPENDENCY_LIST} 0 DEPENDENCY_GROUP)
+      list(GET ${DEPENDENCY_LIST} 1 DEPENDENCY_PROJECT)
+
+      find_dependency(
+        GROUP
+          ${DEPENDENCY_GROUP}
+        PROJECT
+          ${DEPENDENCY_PROJECT}
+      )
+      
+    endforeach()
+
+    target_link_libraries(${library_name}
+      ${_ARG_DEPENDENCIES}
+    )
+  endif()
+
+  register_dependency(${library_name})
 endfunction()
