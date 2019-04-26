@@ -17,7 +17,7 @@ function(_find_dependency_collect_targets targets)
       ${TARGET_NAMES}
       ${TARGET_NAME}
     )
-    message("${TARGET} = ${CMAKE_CURRENT_BINARY_DIR}")
+
     file(COPY ${TARGET} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
   endforeach()
   set(${targets} ${TARGET_NAMES} PARENT_SCOPE)
