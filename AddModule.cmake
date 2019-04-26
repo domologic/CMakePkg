@@ -72,12 +72,6 @@ macro(_add_module)
     )
   endif()
 
-  if (ARG_DEPENDENCIES)
-    string(REPLACE "::" "-" ARG_DEPENDENCIES ${ARG_DEPENDENCIES})
-  endif()
-  register_dependency(${module_name}
-    ${ARG_DEPENDENCIES}
-  )
 endmacro()
 
 function(add_module_library module_name type)
@@ -92,6 +86,13 @@ function(add_module_library module_name type)
   endif()
 
   _add_module()
+
+  if (ARG_DEPENDENCIES)
+    string(REPLACE "::" "-" ARG_DEPENDENCIES ${ARG_DEPENDENCIES})
+  endif()
+  register_dependency(${module_name}
+    ${ARG_DEPENDENCIES}
+  )
 endfunction()
 
 function(add_module_executable module_name)
