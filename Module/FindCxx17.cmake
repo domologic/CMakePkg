@@ -1,5 +1,8 @@
 set(Cxx17_FOUND FALSE)
 
+enable_language(C)
+enable_language(CXX)
+
 set(CMAKE_CXX_STANDARD 17)
 
 find_package(Threads REQUIRED)
