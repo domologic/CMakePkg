@@ -7,10 +7,6 @@ macro(_add_module_parse_args)
     "SOURCES;COMPILE_DEFINITIONS;COMPILE_FEATURES;COMPILE_OPTIONS;INCLUDE_DIRECTORIES;LINK_DIRECTORIES;LINK_LIBRARIES;LINK_OPTIONS;DEPENDENCIES"
     ${ARGN}
   )
-
-  if (NOT ARG_SOURCES)
-    message(FATAL_ERROR "add_module_library SOURCES argument missing!")
-  endif()
 endmacro()
 
 macro(_add_module)
@@ -87,9 +83,13 @@ endmacro()
 function(add_module_library module_name type)
   _add_module_parse_args(${ARGN})
 
-  add_library(${module_name} ${type}
-    ${ARG_SOURCES}
-  )
+  if ("${type}" STREQUAL "INTERFACE")
+    add_library(${module_name} ${type})
+  else()
+    add_library(${module_name} ${type}
+      ${ARG_SOURCES}
+    )
+  endif()
 
   _add_module()
 endfunction()
