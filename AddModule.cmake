@@ -88,7 +88,7 @@ function(add_module_library module_name type)
   _add_module()
 
   if (ARG_DEPENDENCIES)
-    string(REPLACE "::" "-" ARG_DEPENDENCIES ${ARG_DEPENDENCIES})
+    string(REPLACE "::" "-" ARG_DEPENDENCIES "${ARG_DEPENDENCIES}")
   endif()
   register_dependency(${module_name}
     ${ARG_DEPENDENCIES}
