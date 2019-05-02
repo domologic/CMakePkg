@@ -1,12 +1,42 @@
 include_guard(GLOBAL)
 
 macro(_add_module_parse_args)
+  set(_MULTI_OPTIONS
+    SOURCE_DIR
+    SOURCES
+    COMPILE_DEFINITIONS
+    COMPILE_FEATURES
+    COMPILE_OPTIONS
+    INCLUDE_DIRECTORIES
+    LINK_DIRECTORIES
+    LINK_LIBRARIES
+    LINK_OPTIONS
+    PROPERTIES
+    DEPENDENCIES
+  )
   cmake_parse_arguments(ARG
     ""
     ""
-    "SOURCES;COMPILE_DEFINITIONS;COMPILE_FEATURES;COMPILE_OPTIONS;INCLUDE_DIRECTORIES;LINK_DIRECTORIES;LINK_LIBRARIES;LINK_OPTIONS;DEPENDENCIES"
+    "${_MULTI_OPTIONS}"
     ${ARGN}
   )
+endmacro()
+
+macro(_add_module_collect_sources)
+  if (ARG_SOURCE_DIR)
+    list(GET ARG_SOURCE_DIR 0 SOURCE_DIR)
+    list(GET ARG_SOURCE_DIR 1 EXCLUDES)
+
+    collect_source_files(
+      ${SOURCE_DIR}
+      COLLECTED_SOURCES
+      ${EXCLUDES}
+    )
+    set(ARG_SOURCES
+      ${ARG_SOURCES}
+      ${COLLECTED_SOURCES}
+    )
+  endif()
 endmacro()
 
 macro(_add_module)
@@ -72,6 +102,11 @@ macro(_add_module)
     )
   endif()
 
+  set_target_properties(${module_name}
+    PROPERTIES
+      RUNTIME_OUTPUT_DIRECTORY
+        ${CMAKE_BINARY_DIR}/bin
+  )
 endmacro()
 
 function(add_module_library module_name type)
@@ -80,6 +115,7 @@ function(add_module_library module_name type)
   if ("${type}" STREQUAL "INTERFACE")
     add_library(${module_name} ${type})
   else()
+    _add_module_collect_sources()
     add_library(${module_name} ${type}
       ${ARG_SOURCES}
     )
@@ -90,6 +126,7 @@ function(add_module_library module_name type)
   if (ARG_DEPENDENCIES)
     string(REPLACE "::" "-" ARG_DEPENDENCIES "${ARG_DEPENDENCIES}")
   endif()
+
   register_dependency(${module_name}
     ${ARG_DEPENDENCIES}
   )
@@ -97,6 +134,7 @@ endfunction()
 
 function(add_module_executable module_name)
   _add_module_parse_args(${ARGN})
+  _add_module_collect_sources()
 
   add_executable(${module_name}
     ${ARG_SOURCES}
@@ -104,3 +142,40 @@ function(add_module_executable module_name)
 
   _add_module()
 endfunction()
+
+function(add_module_docs project_name)
+  cmake_parse_arguments(ARG
+    "DOXYGEN"
+    "SOURCE_DIR;OUTPUT_DIR"
+    ""
+    ${ARGN}
+  )
+
+  if (NOT EXISTS ${ARG_OUTPUT_DIR})
+    file(MAKE_DIRECTORY ${ARG_OUTPUT_DIR})
+  endif()
+
+  if (ARG_DOXYGEN)
+    find_package(Doxygen REQUIRED
+      OPTIONAL_COMPONENTS
+        dot
+        mscgen
+        dia
+    )
+
+    cmake_parse_arguments(DOXYGEN
+      ""
+      ""
+      "CONFIG"
+      ${ARGN}
+    )
+
+    doxygen_add_docs(${project_name}-docs
+        ${ARG_SOURCE_DIR}/*
+      WORKING_DIRECTORY
+        ${ARG_OUTPUT_DIR}
+      COMMENT
+        "Generate doxygen docs for ${project_name}"
+    )
+  endif()
+endif()
