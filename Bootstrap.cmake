@@ -45,6 +45,19 @@ if (NOT EXISTS ${CMAKE_SCRIPT_PATH})
   if (NOT ${RESULT} EQUAL "0")
     message(FATAL_ERROR "Could not download cmake scripts!")
   endif()
+else()
+  execute_process(
+    COMMAND
+      ${GIT_EXECUTABLE} pull
+    WORKING_DIRECTORY
+      ${CMAKE_SCRIPT_PATH}
+    RESULT_VARIABLE
+      RESULT
+  )
+
+  if (NOT ${RESULT} EQUAL "0")
+    message(WARNING "Could not update cmake scripts!")
+  endif()
 endif()
 
 include(${CMAKE_SCRIPT_PATH}/Init.cmake)
