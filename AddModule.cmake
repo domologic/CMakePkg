@@ -178,4 +178,4 @@ function(add_module_docs project_name)
         "Generate doxygen docs for ${project_name}"
     )
   endif()
-endif()
+endfunction()
