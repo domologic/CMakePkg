@@ -61,16 +61,6 @@ macro(_add_module_process_resources)
       DESTINATION
         ${OUTPUT_DIRECTORY}
     )
-    file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/resources.dep.cmake
-      "install("
-      "  FILES"
-      "    ${RESOURCES_DEBUG}"
-      "  CONFIGURATIONS"
-      "    Debug"
-      "  DESTINATION"
-      "    ${OUTPUT_DIRECTORY}"
-      ")"
-    )
   endif()
   if (RESOURCES_RELEASE)
     install(
@@ -81,32 +71,60 @@ macro(_add_module_process_resources)
       DESTINATION
         ${OUTPUT_DIRECTORY}
     )
-    file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/resources.dep.cmake
-      "install("
-      "  FILES"
-      "    ${RESOURCES_RELEASE}"
-      "  CONFIGURATIONS"
-      "    Release"
-      "  DESTINATION"
-      "    ${OUTPUT_DIRECTORY}"
-      ")"
-    )
   endif()
   if (RESOURCES_UNPARSED_ARGUMENTS)
+    set(RESOURCES_ALL ${RESOURCES_UNPARSED_ARGUMENTS})
     install(
       FILES
         ${RESOURCES_UNPARSED_ARGUMENTS}
       DESTINATION
         ${OUTPUT_DIRECTORY}
     )
-    file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/resources.dep.cmake
-      "install("
-      "  FILES"
-      "    ${RESOURCES_UNPARSED_ARGUMENTS}"
-      "  DESTINATION"
-      "    ${OUTPUT_DIRECTORY}"
-      ")"
-    )
+  endif()
+endmacro()
+
+macro(_add_module_process_resource_dirs)
+  cmake_parse_arguments(RESOURCE_DIRS
+    ""
+    ""
+    "RELEASE;DEBUG"
+    ${ARG_RESOURCE_DIRS}
+  )
+
+  if (RESOURCE_DIRS_DEBUG)
+    foreach (RESOURCE_DIR ${RESOURCE_DIRS_DEBUG})
+      install(
+        DIRECTORY
+          ${RESOURCE_DIR}
+        CONFIGURATIONS
+          Debug
+        DESTINATION
+          ${OUTPUT_DIRECTORY}
+      )
+    endforeach()
+  endif()
+  if (RESOURCE_DIRS_RELEASE)
+    foreach (RESOURCE_DIR ${RESOURCE_DIRS_RELEASE})
+      install(
+        DIRECTORY
+          ${RESOURCE_DIR}
+        CONFIGURATIONS
+          Release
+        DESTINATION
+          ${OUTPUT_DIRECTORY}
+      )
+    endforeach()
+  endif()
+  if (RESOURCE_DIRS_UNPARSED_ARGUMENTS)
+    set(RESOURCE_DIRS_ALL ${RESOURCE_DIRS_UNPARSED_ARGUMENTS})
+    foreach (RESOURCE_DIR ${RESOURCE_DIRS_ALL})
+      install(
+        DIRECTORY
+          ${RESOURCE_DIR}
+        DESTINATION
+          ${OUTPUT_DIRECTORY}
+      )
+    endforeach()
   endif()
 endmacro()
 
@@ -175,6 +193,18 @@ macro(_add_module)
 
   if (ARG_RESOURCES)
     _add_module_process_resources()
+  endif()
+
+  if (ARG_RESOURCE_DIRS)
+    _add_module_process_resource_dirs()
+  endif()
+
+  if (ARG_RESOURCES OR ARG_RESOURCE_DIRS)
+    configure_file(
+      ${CMAKE_SCRIPT_PATH}/Resources.in.dep.cmake
+      ${CMAKE_CURRENT_BINARY_DIR}/Resources.dep.cmake
+      @ONLY
+    )
   endif()
 
   if (NOT "${type}" STREQUAL "INTERFACE")
