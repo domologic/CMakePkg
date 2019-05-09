@@ -103,7 +103,7 @@ macro(_add_module)
     )
   endif()
 
-  if (ARG_RESOURCES)
+  if (ARG_RESOURCES AND NOT "${ARG_RESOURCES}" STREQUAL "")
     define_property(TARGET
       PROPERTY
         RESOURCES_LIST
