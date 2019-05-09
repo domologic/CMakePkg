@@ -1,5 +1,10 @@
 include_guard(GLOBAL)
 
+if (NOT OUTPUT_DIRECTORY)
+  set(OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+endif()
+set(OUTPUT_DIRECTORY ${OUTPUT_DIRECTORY} CACHE PATH "output directory path")
+
 macro(_add_module_parse_args)
   set(_MULTI_OPTIONS
     SOURCE_DIR
@@ -36,6 +41,71 @@ macro(_add_module_collect_sources)
     set(ARG_SOURCES
       ${ARG_SOURCES}
       ${COLLECTED_SOURCES}
+    )
+  endif()
+endmacro()
+
+macro(_add_module_process_resources)
+  cmake_parse_arguments(RESOURCES
+   ""
+   ""
+   "RELEASE;DEBUG"
+   ${ARG_RESOURCES}
+  )
+  if (RESOURCES_DEBUG)
+    install(
+      FILES
+        ${RESOURCES_DEBUG}
+      CONFIGURATIONS
+        Debug
+      DESTINATION
+        ${OUTPUT_DIRECTORY}
+    )
+    file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/resources.dep.cmake
+      "install("
+      "  FILES"
+      "    ${RESOURCES_DEBUG}"
+      "  CONFIGURATIONS"
+      "    Debug"
+      "  DESTINATION"
+      "    ${OUTPUT_DIRECTORY}"
+      ")"
+    )
+  endif()
+  if (RESOURCES_RELEASE)
+    install(
+      FILES
+        ${RESOURCES_RELEASE}
+      CONFIGURATIONS
+        Release
+      DESTINATION
+        ${OUTPUT_DIRECTORY}
+    )
+    file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/resources.dep.cmake
+      "install("
+      "  FILES"
+      "    ${RESOURCES_RELEASE}"
+      "  CONFIGURATIONS"
+      "    Release"
+      "  DESTINATION"
+      "    ${OUTPUT_DIRECTORY}"
+      ")"
+    )
+  endif()
+  if (RESOURCES_UNPARSED_ARGUMENTS)
+    install(
+      FILES
+        ${RESOURCES_UNPARSED_ARGUMENTS}
+      DESTINATION
+        ${OUTPUT_DIRECTORY}
+    )
+    file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/resources.dep.cmake
+      "install("
+      "  FILES"
+      "    ${RESOURCES_UNPARSED_ARGUMENTS}"
+      "  DESTINATION"
+      "    ${OUTPUT_DIRECTORY}"
+      ")"
     )
   endif()
 endmacro()
@@ -103,26 +173,14 @@ macro(_add_module)
     )
   endif()
 
-  if (ARG_RESOURCES AND NOT "${ARG_RESOURCES}" STREQUAL "")
-    define_property(TARGET
-      PROPERTY
-        RESOURCES_LIST
-      BRIEF_DOCS
-        "Resource list"
-      FULL_DOCS
-        "List of resources to copy"
-    )
-    set_target_properties(${module_name}
-      PROPERTIES
-        RESOURCES_LIST
-          ${ARG_RESOURCES}
-    )
+  if (ARG_RESOURCES)
+    _add_module_process_resources()
   endif()
 
   set_target_properties(${module_name}
     PROPERTIES
       RUNTIME_OUTPUT_DIRECTORY
-        ${CMAKE_BINARY_DIR}/bin
+        ${OUTPUT_DIRECTORY}
   )
 endmacro()
 
