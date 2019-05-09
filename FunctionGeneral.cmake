@@ -95,7 +95,17 @@ function(select_compiler_config)
   )
 
   if (ARG_${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR})
-    include(${ARG_${CMAKE_SYSTEM_NAME}::${CMAKE_SYSTEM_PROCESSOR}})
+    include(${ARG_${CMAKE_SYSTEM_NAME}::${CMAKE_SYSTEM_PROCESSOR}}
+      OPTIONAL
+      RESULT_VARIABLE
+        CONFIG_AVAILABLE
+    )
+  endif()
+
+  if ("${CONFIG_AVAILABLE}" STREQUAL "NOTFOUND")
+    message(STATUS "Configuring ${CMAKE_SYSTEM_NAME}::${CMAKE_SYSTEM_PROCESSOR}")
+  else()
+    message(WARNING "Configuration file ${CMAKE_SYSTEM_NAME}::${CMAKE_SYSTEM_PROCESSOR} missing!")
   endif()
 
   if (FLAGS_C)
