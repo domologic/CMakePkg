@@ -13,6 +13,7 @@ macro(_add_module_parse_args)
     LINK_OPTIONS
     PROPERTIES
     DEPENDENCIES
+    RESOURCES
   )
   cmake_parse_arguments(ARG
     ""
@@ -99,6 +100,18 @@ macro(_add_module)
   if (ARG_LINK_OPTIONS)
     target_link_options(${module_name}
       ${ARG_LINK_OPTIONS}
+    )
+  endif()
+
+  if (ARG_RESOURCES)
+    define_property(TARGET
+      PROPERTY
+        RESOURCES_LIST
+    )
+    set_target_properties(${module_name}
+      PROPERTIES
+        RESOURCES_LIST
+          ${ARG_RESOURCES}
     )
   endif()
 
