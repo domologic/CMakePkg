@@ -9,11 +9,11 @@ find_package(Threads REQUIRED)
 
 set(CXX17_THREAD_LIBRARY     "${CMAKE_THREAD_LIBS_INIT}")
 set(CXX17_FILESYSTEM_LIBRARY "-lstdc++fs")
+set(CXX17_FOUND              TRUE)
 
 find_package_handle_standard_args(Cxx17
   DEFAULT_MSG
-  CXX17_THREAD_LIBRARY
-  CXX17_FILESYSTEM_LIBRARY
+  CXX17_FOUND
 )
 
 if (Cxx17_FOUND)
@@ -39,5 +39,6 @@ if (Cxx17_FOUND)
   mark_as_advanced(
     CXX17_THREAD_LIBRARY
     CXX17_FILESYSTEM_LIBRARY
+    CXX17_LIBRARIES
   )
 endif()
