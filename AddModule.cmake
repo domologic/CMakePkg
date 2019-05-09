@@ -177,11 +177,13 @@ macro(_add_module)
     _add_module_process_resources()
   endif()
 
-  set_target_properties(${module_name}
-    PROPERTIES
-      RUNTIME_OUTPUT_DIRECTORY
-        ${OUTPUT_DIRECTORY}
-  )
+  if (NOT "${type}" STREQUAL "INTERFACE")
+    set_target_properties(${module_name}
+      PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY
+          ${OUTPUT_DIRECTORY}
+    )
+  endif()
 endmacro()
 
 function(add_module_library module_name type)
