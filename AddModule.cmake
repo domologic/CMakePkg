@@ -1,10 +1,5 @@
 include_guard(GLOBAL)
 
-if (NOT OUTPUT_DIRECTORY)
-  set(OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
-endif()
-set(OUTPUT_DIRECTORY ${OUTPUT_DIRECTORY} CACHE PATH "output directory path")
-
 macro(_add_module_parse_args)
   set(_MULTI_OPTIONS
     SOURCE_DIR
@@ -45,86 +40,64 @@ macro(_add_module_collect_sources)
   endif()
 endmacro()
 
-macro(_add_module_process_resources)
-  cmake_parse_arguments(RESOURCES
-   ""
-   ""
-   "RELEASE;DEBUG"
-   ${ARG_RESOURCES}
+macro(_add_module_process_resource_group)
+  cmake_parse_arguments(ARG_RESG
+    "UNIX;WIN32;RESOURCE_DIRS"
+    ""
+    "DEBUG;RELEASE"
+    ${ARGN}
   )
-  if (RESOURCES_DEBUG)
-    install(
-      FILES
-        ${RESOURCES_DEBUG}
-      CONFIGURATIONS
-        Debug
-      DESTINATION
-        ${OUTPUT_DIRECTORY}
-    )
-  endif()
-  if (RESOURCES_RELEASE)
-    install(
-      FILES
-        ${RESOURCES_RELEASE}
-      CONFIGURATIONS
-        Release
-      DESTINATION
-        ${OUTPUT_DIRECTORY}
-    )
-  endif()
-  if (RESOURCES_UNPARSED_ARGUMENTS)
-    set(RESOURCES_ALL ${RESOURCES_UNPARSED_ARGUMENTS})
-    install(
-      FILES
-        ${RESOURCES_UNPARSED_ARGUMENTS}
-      DESTINATION
-        ${OUTPUT_DIRECTORY}
-    )
+
+  if (ARG_RESG_RESOURCE_DIRS)
+    if (ARG_RESG_UNIX)
+      set(RESOURCE_DIRS_UNIX_DEBUG    ${ARG_RESG_DEBUG})
+      set(RESOURCE_DIRS_UNIX_RELEASE  ${ARG_RESG_RELEASE})
+      set(RESOURCE_DIRS_UNIX_ALL      ${ARG_RESG_UNPARSED_ARGUMENTS})
+    elseif(ARG_RESG_WIN32)
+      set(RESOURCE_DIRS_DEBUG         ${ARG_RESG_DEBUG})
+      set(RESOURCE_DIRS_RELEASE       ${ARG_RESG_RELEASE})
+      set(RESOURCE_DIRS_ALL           ${ARG_RESG_UNPARSED_ARGUMENTS})
+    else()
+      set(RESOURCE_DIRS_WIN32_DEBUG   ${ARG_RESG_DEBUG})
+      set(RESOURCE_DIRS_WIN32_RELEASE ${ARG_RESG_RELEASE})
+      set(RESOURCE_DIRS_WIN32_ALL     ${ARG_RESG_UNPARSED_ARGUMENTS})
+    endif()
+  else()
+    if (ARG_RESG_UNIX)
+      set(RESOURCES_UNIX_DEBUG        ${ARG_RESG_DEBUG})
+      set(RESOURCES_UNIX_RELEASE      ${ARG_RESG_RELEASE})
+      set(RESOURCES_UNIX_ALL          ${ARG_RESG_UNPARSED_ARGUMENTS})
+    elseif(ARG_RESG_WIN32)
+      set(RESOURCES_WIN32_DEBUG       ${ARG_RESG_DEBUG})
+      set(RESOURCES_WIN32_RELEASE     ${ARG_RESG_RELEASE})
+      set(RESOURCES_WIN32_ALL         ${ARG_RESG_UNPARSED_ARGUMENTS})
+    else()
+      set(RESOURCES_DEBUG             ${ARG_RESG_DEBUG})
+      set(RESOURCES_RELEASE           ${ARG_RESG_RELEASE})
+      set(RESOURCES_ALL               ${ARG_RESG_UNPARSED_ARGUMENTS})
+    endif()
   endif()
 endmacro()
 
-macro(_add_module_process_resource_dirs)
-  cmake_parse_arguments(RESOURCE_DIRS
+macro(_add_module_process_resources)
+  cmake_parse_arguments(ARG_RES
+    "RESOURCE_DIRS"
     ""
-    ""
-    "RELEASE;DEBUG"
-    ${ARG_RESOURCE_DIRS}
+    "UNIX;WIN32"
+    ${ARG_RESOURCES}
   )
+  if (ARG_RES_RESOURCE_DIRS)
+    set(TYPE RESOURCE_DIRS)
+  endif()
 
-  if (RESOURCE_DIRS_DEBUG)
-    foreach (RESOURCE_DIR ${RESOURCE_DIRS_DEBUG})
-      install(
-        DIRECTORY
-          ${RESOURCE_DIR}
-        CONFIGURATIONS
-          Debug
-        DESTINATION
-          ${OUTPUT_DIRECTORY}
-      )
-    endforeach()
+  if (ARG_RES_UNIX)
+    _add_module_process_resource_group(${TYPE} UNIX  ${ARG_RES_UNIX})
   endif()
-  if (RESOURCE_DIRS_RELEASE)
-    foreach (RESOURCE_DIR ${RESOURCE_DIRS_RELEASE})
-      install(
-        DIRECTORY
-          ${RESOURCE_DIR}
-        CONFIGURATIONS
-          Release
-        DESTINATION
-          ${OUTPUT_DIRECTORY}
-      )
-    endforeach()
+  if (ARG_RES_WIN32)
+    _add_module_process_resource_group(${TYPE} WIN32 ${ARG_RES_UNIX})
   endif()
-  if (RESOURCE_DIRS_UNPARSED_ARGUMENTS)
-    set(RESOURCE_DIRS_ALL ${RESOURCE_DIRS_UNPARSED_ARGUMENTS})
-    foreach (RESOURCE_DIR ${RESOURCE_DIRS_ALL})
-      install(
-        DIRECTORY
-          ${RESOURCE_DIR}
-        DESTINATION
-          ${OUTPUT_DIRECTORY}
-      )
-    endforeach()
+  if (ARG_RES_UNPARSED_ARGUMENTS)
+    _add_module_process_resource_group(${TYPE} ${ARG_RES_UNPARSED_ARGUMENTS})
   endif()
 endmacro()
 
@@ -196,7 +169,7 @@ macro(_add_module)
   endif()
 
   if (ARG_RESOURCE_DIRS)
-    _add_module_process_resource_dirs()
+    _add_module_process_resources(RESOURCE_DIRS)
   endif()
 
   if (ARG_RESOURCES OR ARG_RESOURCE_DIRS)
@@ -205,6 +178,7 @@ macro(_add_module)
       ${CMAKE_CURRENT_BINARY_DIR}/Resources.dep.cmake
       @ONLY
     )
+    include(${CMAKE_CURRENT_BINARY_DIR}/Resources.dep.cmake)
   endif()
 
   if (NOT "${type}" STREQUAL "INTERFACE")
