@@ -107,6 +107,10 @@ macro(_add_module)
     define_property(TARGET
       PROPERTY
         RESOURCES_LIST
+      BRIEF_DOCS
+        "Resource list"
+      FULL_DOCS
+        "List of resources to copy"
     )
     set_target_properties(${module_name}
       PROPERTIES
