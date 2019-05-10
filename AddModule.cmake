@@ -124,7 +124,7 @@ macro(_add_module_link_libraries)
     if (LIBRARY_LIST_INTERFACE)
       set(LIBRARIES_INTERFACE "INTERFACE;${LIBRARY_LIST_INTERFACE}")
     endif()
-    message("LIBRARIES_PUBLIC ${LIBRARIES_PUBLIC}")
+
     target_link_libraries(${module_name}
       PUBLIC
         ${LIBRARY_LIST_PUBLIC}
