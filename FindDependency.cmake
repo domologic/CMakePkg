@@ -18,7 +18,9 @@ function(_find_dependency_collect_targets targets)
       ${TARGET_NAME}
     )
 
-    file(COPY ${TARGET} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+    if (NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/${TARGET}.dep.cmake")
+      file(COPY ${TARGET} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+    endif()
   endforeach()
   set(${targets} ${TARGET_NAMES} PARENT_SCOPE)
 endfunction()
