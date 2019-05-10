@@ -184,10 +184,10 @@ macro(_add_module)
   if (ARG_RESOURCES OR ARG_RESOURCE_DIRS)
     configure_file(
       ${CMAKE_SCRIPT_PATH}/Resources.in.dep.cmake
-      ${CMAKE_CURRENT_BINARY_DIR}/${module_name}.res.dep.cmake
+      ${CMAKE_CURRENT_BINARY_DIR}/${module_name}-res.dep.cmake
       @ONLY
     )
-    include(${CMAKE_CURRENT_BINARY_DIR}/${module_name}.res.dep.cmake)
+    include(${CMAKE_CURRENT_BINARY_DIR}/${module_name}-res.dep.cmake)
   endif()
 
   if (NOT "${type}" STREQUAL "INTERFACE")
