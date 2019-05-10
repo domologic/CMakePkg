@@ -193,6 +193,10 @@ endmacro()
 function(add_module_library module_name type)
   _add_module_parse_args(${ARGN})
 
+  if (NOT EXISTS ${OUTPUT_DIRECTORY})
+    file(MAKE_DIRECTORY ${OUTPUT_DIRECTORY})
+  endif()
+
   if ("${type}" STREQUAL "INTERFACE")
     add_library(${module_name} ${type})
   else()
