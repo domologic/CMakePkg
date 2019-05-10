@@ -102,6 +102,10 @@ macro(_add_module_process_resources)
 endmacro()
 
 macro(_add_module)
+  if (NOT EXISTS ${OUTPUT_DIRECTORY})
+    file(MAKE_DIRECTORY ${OUTPUT_DIRECTORY})
+  endif()
+
   if (ARG_DEPENDENCIES)
     foreach(DEPENDENCY ${ARG_DEPENDENCIES})
       string(REPLACE "::" ";" DEPENDENCY_GROUP_PROJECT ${DEPENDENCY})
@@ -201,10 +205,6 @@ endmacro()
 
 function(add_module_library module_name type)
   _add_module_parse_args(${ARGN})
-
-  if (NOT EXISTS ${OUTPUT_DIRECTORY})
-    file(MAKE_DIRECTORY ${OUTPUT_DIRECTORY})
-  endif()
 
   if ("${type}" STREQUAL "INTERFACE")
     add_library(${module_name} INTERFACE)
