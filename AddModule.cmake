@@ -25,13 +25,17 @@ endmacro()
 
 macro(_add_module_collect_sources)
   if (ARG_SOURCE_DIR)
-    list(GET ARG_SOURCE_DIR 0 SOURCE_DIR)
-    list(GET ARG_SOURCE_DIR 1 EXCLUDES)
+    cmake_parse_arguments(SOURCE_DIR
+      ""
+      "PATH"
+      "EXCLUDES"
+      ${ARG_SOURCE_DIR}
+    )
 
     collect_source_files(
-      ${SOURCE_DIR}
+      ${SOURCE_DIR_PATH}
       COLLECTED_SOURCES
-      ${EXCLUDES}
+      ${SOURCE_DIR_EXCLUDES}
     )
     set(ARG_SOURCES
       ${ARG_SOURCES}
