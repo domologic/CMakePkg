@@ -109,16 +109,25 @@ macro(_add_module)
       list(GET DEPENDENCY_GROUP_PROJECT 0 DEPENDENCY_GROUP)
       list(GET DEPENDENCY_GROUP_PROJECT 1 DEPENDENCY_PROJECT)
 
+      message(STATUS "Building dependency ${DEPENDENCY}...")
       find_dependency(
         GROUP
           ${DEPENDENCY_GROUP}
         PROJECT
           ${DEPENDENCY_PROJECT}
       )
+      message(STATUS "Dependency ${DEPENDENCY} loaded.")
     endforeach()
 
+    if ("${type}" STREQUAL "INTERFACE")
+      set(VISIBILITY INTERFACE)
+    else()
+      set(VISIBILITY PUBLIC)
+    endif()
+
     target_link_libraries(${module_name}
-      ${ARG_DEPENDENCIES}
+      ${VISIBILITY}
+        ${ARG_DEPENDENCIES}
     )
   endif()
 
@@ -198,7 +207,7 @@ function(add_module_library module_name type)
   endif()
 
   if ("${type}" STREQUAL "INTERFACE")
-    add_library(${module_name} ${type})
+    add_library(${module_name} INTERFACE)
   else()
     _add_module_collect_sources()
     add_library(${module_name} ${type}
