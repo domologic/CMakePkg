@@ -13,10 +13,12 @@ function(_find_dependency_collect_targets targets)
   foreach (TARGET ${TARGETS})
     include(${TARGET})
     get_filename_component(TARGET_NAME ${TARGET} NAME_WE)
-    set(TARGET_NAMES
-      ${TARGET_NAMES}
-      ${TARGET_NAME}
-    )
+    if (NOT ${TARGET} MATCHES ".*-res")
+      set(TARGET_NAMES
+        ${TARGET_NAMES}
+        ${TARGET_NAME}
+      )
+    endif()
 
     if (NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/${TARGET}.dep.cmake")
       file(COPY ${TARGET} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
@@ -196,5 +198,5 @@ function(find_dependency)
   endif()
 
   _find_dependency_collect_targets(TARGETS)
-  _find_dependency_add_target(${TARGETS})
+  _find_dependency_add_target("${TARGETS}")
 endfunction()
