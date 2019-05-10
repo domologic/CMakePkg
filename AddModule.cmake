@@ -101,6 +101,40 @@ macro(_add_module_process_resources)
   endif()
 endmacro()
 
+macro(_add_module_link_libraries)
+  cmake_parse_arguments(LIBRARY_LIST
+    ""
+    ""
+    "PUBLIC;PRIVATE;INTERFACE"
+    ${ARGN}
+  )
+
+  if ("${type}" STREQUAL "INTERFACE")
+    target_link_libraries(${module_name}
+      INTERFACE
+        ${LIBRARY_LIST_PUBLIC}
+        ${LIBRARY_LIST_PRIVATE}
+        ${LIBRARY_LIST_INTERFACE}
+        ${ARG_DEPENDENCIES}
+    )
+  else()
+    if (LIBRARY_LIST_PRIVATE)
+      set(LIBRARIES_PRIVATE "PRIVATE;${LIBRARY_LIST_PRIVATE}")
+    endif()
+    if (LIBRARY_LIST_INTERFACE)
+      set(LIBRARIES_INTERFACE "INTERFACE;${LIBRARY_LIST_INTERFACE}")
+    endif()
+    message("LIBRARIES_PUBLIC ${LIBRARIES_PUBLIC}")
+    target_link_libraries(${module_name}
+      PUBLIC
+        ${LIBRARY_LIST_PUBLIC}
+        ${ARG_DEPENDENCIES}
+      ${LIBRARIES_PRIVATE}
+      ${LIBRARIES_INTERFACE}
+    )
+  endif()
+endmacro()
+
 macro(_add_module)
   if (NOT EXISTS ${OUTPUT_DIRECTORY})
     file(MAKE_DIRECTORY ${OUTPUT_DIRECTORY})
@@ -122,18 +156,9 @@ macro(_add_module)
       )
       message(STATUS "Dependency ${DEPENDENCY} loaded.")
     endforeach()
-
-    if ("${type}" STREQUAL "INTERFACE")
-      set(VISIBILITY INTERFACE)
-    else()
-      set(VISIBILITY PUBLIC)
-    endif()
-
-    target_link_libraries(${module_name}
-      ${VISIBILITY}
-        ${ARG_DEPENDENCIES}
-    )
   endif()
+
+  _add_module_link_libraries(${ARG_LINK_LIBRARIES})
 
   if (ARG_COMPILE_DEFINITIONS)
     target_compile_definitions(${module_name}
@@ -162,12 +187,6 @@ macro(_add_module)
   if (ARG_LINK_DIRECTORIES)
     target_link_directories(${module_name}
       ${ARG_LINK_DIRECTORIES}
-    )
-  endif()
-
-  if (ARG_LINK_LIBRARIES)
-    target_link_libraries(${module_name}
-      ${ARG_LINK_LIBRARIES}
     )
   endif()
 
