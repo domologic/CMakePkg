@@ -34,12 +34,12 @@ macro(_add_module_collect_sources)
 
     collect_source_files(
       ${SOURCE_DIR_PATH}
-      COLLECTED_SOURCES
+      SOURCES
       ${SOURCE_DIR_EXCLUDES}
     )
     set(ARG_SOURCES
       ${ARG_SOURCES}
-      ${COLLECTED_SOURCES}
+      ${SOURCES}
     )
   endif()
 endmacro()
