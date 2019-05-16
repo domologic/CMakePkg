@@ -60,8 +60,11 @@ function(find_dependency)
     file(MAKE_DIRECTORY ${PATH})
   endif()
 
-  set(SRC_PATH ${PATH}/src)
-  set(BIN_PATH ${PATH}/bin)
+  set(SRC_PATH "${PATH}/src")
+  set(BIN_PATH "${PATH}/bin")
+
+  file(TO_CMAKE_PATH "${SRC_PATH}" SRC_PATH)
+  file(TO_CMAKE_PATH "${BIN_PATH}" BIN_PATH)
 
   if (NOT EXISTS ${SRC_PATH})
     file(MAKE_DIRECTORY ${SRC_PATH})

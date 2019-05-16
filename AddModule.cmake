@@ -62,7 +62,7 @@ macro(_add_module_link_libraries)
     include(${DEPENDENCY})
     get_filename_component(DEPENDENCY_NAME ${DEPENDENCY} NAME_WE)
     if (NOT ${DEPENDENCY} MATCHES ".*-res")
-      set (DEPS
+      set(DEPS
         ${DEPS}
         ${DEPENDENCY_NAME}
       )
