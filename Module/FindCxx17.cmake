@@ -3,9 +3,10 @@ include(FindPackageHandleStandardArgs)
 enable_language(C)
 enable_language(CXX)
 
+set(CMAKE_C_STANDARD   11)
 set(CMAKE_CXX_STANDARD 17)
 
-find_package(Threads REQUIRED)
+find_package(Threads QUIET)
 
 set(CXX17_THREAD_LIBRARY     "${CMAKE_THREAD_LIBS_INIT}")
 set(CXX17_FILESYSTEM_LIBRARY "-lstdc++fs")
@@ -14,6 +15,8 @@ set(CXX17_FOUND              TRUE)
 find_package_handle_standard_args(Cxx17
   DEFAULT_MSG
   CXX17_FOUND
+  CXX17_THREAD_LIBRARY
+  CXX17_FILESYSTEM_LIBRARY
 )
 
 if (Cxx17_FOUND)

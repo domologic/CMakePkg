@@ -16,7 +16,7 @@ macro(_add_module_parse_args)
     RESOURCES
   )
   cmake_parse_arguments(ARG
-    ""
+    "MFC"
     ""
     "${_MULTI_OPTIONS}"
     ${ARGN}
@@ -41,67 +41,7 @@ macro(_add_module_collect_sources)
       ${ARG_SOURCES}
       ${SOURCES}
     )
-  endif()
-endmacro()
-
-macro(_add_module_process_resource_group)
-  cmake_parse_arguments(ARG_RESG
-    "UNIX;WIN32;RESOURCE_DIRS"
-    ""
-    "DEBUG;RELEASE"
-    ${ARGN}
-  )
-
-  if (ARG_RESG_RESOURCE_DIRS)
-    if (ARG_RESG_UNIX)
-      set(RESOURCE_DIRS_UNIX_DEBUG    ${ARG_RESG_DEBUG})
-      set(RESOURCE_DIRS_UNIX_RELEASE  ${ARG_RESG_RELEASE})
-      set(RESOURCE_DIRS_UNIX_ALL      ${ARG_RESG_UNPARSED_ARGUMENTS})
-    elseif(ARG_RESG_WIN32)
-      set(RESOURCE_DIRS_DEBUG         ${ARG_RESG_DEBUG})
-      set(RESOURCE_DIRS_RELEASE       ${ARG_RESG_RELEASE})
-      set(RESOURCE_DIRS_ALL           ${ARG_RESG_UNPARSED_ARGUMENTS})
-    else()
-      set(RESOURCE_DIRS_WIN32_DEBUG   ${ARG_RESG_DEBUG})
-      set(RESOURCE_DIRS_WIN32_RELEASE ${ARG_RESG_RELEASE})
-      set(RESOURCE_DIRS_WIN32_ALL     ${ARG_RESG_UNPARSED_ARGUMENTS})
-    endif()
-  else()
-    if (ARG_RESG_UNIX)
-      set(RESOURCES_UNIX_DEBUG        ${ARG_RESG_DEBUG})
-      set(RESOURCES_UNIX_RELEASE      ${ARG_RESG_RELEASE})
-      set(RESOURCES_UNIX_ALL          ${ARG_RESG_UNPARSED_ARGUMENTS})
-    elseif(ARG_RESG_WIN32)
-      set(RESOURCES_WIN32_DEBUG       ${ARG_RESG_DEBUG})
-      set(RESOURCES_WIN32_RELEASE     ${ARG_RESG_RELEASE})
-      set(RESOURCES_WIN32_ALL         ${ARG_RESG_UNPARSED_ARGUMENTS})
-    else()
-      set(RESOURCES_DEBUG             ${ARG_RESG_DEBUG})
-      set(RESOURCES_RELEASE           ${ARG_RESG_RELEASE})
-      set(RESOURCES_ALL               ${ARG_RESG_UNPARSED_ARGUMENTS})
-    endif()
-  endif()
-endmacro()
-
-macro(_add_module_process_resources)
-  cmake_parse_arguments(ARG_RES
-    "RESOURCE_DIRS"
-    ""
-    "UNIX;WIN32"
-    ${ARG_RESOURCES}
-  )
-  if (ARG_RES_RESOURCE_DIRS)
-    set(TYPE RESOURCE_DIRS)
-  endif()
-
-  if (ARG_RES_UNIX)
-    _add_module_process_resource_group(${TYPE} UNIX  ${ARG_RES_UNIX})
-  endif()
-  if (ARG_RES_WIN32)
-    _add_module_process_resource_group(${TYPE} WIN32 ${ARG_RES_UNIX})
-  endif()
-  if (ARG_RES_UNPARSED_ARGUMENTS)
-    _add_module_process_resource_group(${TYPE} ${ARG_RES_UNPARSED_ARGUMENTS})
+    group_sources(${SOURCE_DIR_PATH})
   endif()
 endmacro()
 
@@ -113,13 +53,29 @@ macro(_add_module_link_libraries)
     ${ARGN}
   )
 
+  file(GLOB_RECURSE
+    DEPENDENCIES
+      ${CMAKE_CURRENT_BINARY_DIR}/*.dep.cmake
+  )
+
+  foreach (DEPENDENCY ${DEPENDENCIES})
+    include(${DEPENDENCY})
+    get_filename_component(DEPENDENCY_NAME ${DEPENDENCY} NAME_WE)
+    if (NOT ${DEPENDENCY} MATCHES ".*-res")
+      set (DEPS
+        ${DEPS}
+        ${DEPENDENCY_NAME}
+      )
+    endif()
+  endforeach()
+
   if ("${type}" STREQUAL "INTERFACE")
     target_link_libraries(${module_name}
       INTERFACE
         ${LIBRARY_LIST_PUBLIC}
         ${LIBRARY_LIST_PRIVATE}
         ${LIBRARY_LIST_INTERFACE}
-        ${ARG_DEPENDENCIES}
+        ${DEPS}
     )
   else()
     if (LIBRARY_LIST_PRIVATE)
@@ -132,7 +88,7 @@ macro(_add_module_link_libraries)
     target_link_libraries(${module_name}
       PUBLIC
         ${LIBRARY_LIST_PUBLIC}
-        ${ARG_DEPENDENCIES}
+        ${DEPS}
       ${LIBRARIES_PRIVATE}
       ${LIBRARIES_INTERFACE}
     )
@@ -201,25 +157,31 @@ macro(_add_module)
   endif()
 
   if (ARG_RESOURCES)
-    _add_module_process_resources()
-  endif()
-
-  if (ARG_RESOURCE_DIRS)
-    _add_module_process_resources(RESOURCE_DIRS)
-  endif()
-
-  if (ARG_RESOURCES OR ARG_RESOURCE_DIRS)
-    configure_file(
-      ${CMAKE_SCRIPT_PATH}/Resources.in.dep.cmake
-      ${CMAKE_CURRENT_BINARY_DIR}/${module_name}-res.dep.cmake
-      @ONLY
-    )
-    include(${CMAKE_CURRENT_BINARY_DIR}/${module_name}-res.dep.cmake)
+    foreach (RESOURCE ${ARG_RESOURCES})
+      if (IS_DIRECTORY ${RESOURCE})
+        file(GLOB
+          SUBRESOURCES
+            ${RESOURCE}/*
+        )
+        
+        foreach (SUBRESOURCE ${SUBRESOURCES})
+          file(COPY ${SUBRESOURCE} DESTINATION ${OUTPUT_DIRECTORY})
+        endforeach()
+      else()
+        file(COPY ${SUBRESOURCE} DESTINATION ${OUTPUT_DIRECTORY})
+      endif()
+    endforeach()
   endif()
 
   if (NOT "${type}" STREQUAL "INTERFACE")
     set_target_properties(${module_name}
       PROPERTIES
+        ARCHIVE_OUTPUT_DIRECTORY
+          ${OUTPUT_DIRECTORY}
+        LIBRARY_OUTPUT_DIRECTORY
+          ${OUTPUT_DIRECTORY}
+        PDB_OUTPUT_DIRECTORY
+          ${OUTPUT_DIRECTORY}
         RUNTIME_OUTPUT_DIRECTORY
           ${OUTPUT_DIRECTORY}
     )
@@ -240,20 +202,19 @@ function(add_module_library module_name type)
 
   _add_module()
 
-  if (ARG_DEPENDENCIES)
-    string(REPLACE "::" "-" ARG_DEPENDENCIES "${ARG_DEPENDENCIES}")
-  endif()
-
-  register_dependency(${module_name}
-    ${ARG_DEPENDENCIES}
-  )
+  register_dependency(${module_name})
 endfunction()
 
 function(add_module_executable module_name)
   _add_module_parse_args(${ARGN})
   _add_module_collect_sources()
 
-  add_executable(${module_name}
+  if (ARG_MFC)
+    set(CMAKE_MFC_FLAG 2)
+    set(EXE_TYPE WIN32)
+  endif()
+
+  add_executable(${module_name} ${EXE_TYPE}
     ${ARG_SOURCES}
   )
 

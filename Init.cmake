@@ -7,9 +7,9 @@ set(CMAKE_MODULE_PATH
   ${CMAKE_CURRENT_LIST_DIR}/Module
 )
 
-set(CMAKE_DISABLE_SOURCE_CHANGES  ON)
-set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_DISABLE_SOURCE_CHANGES    ON)
+set(CMAKE_DISABLE_IN_SOURCE_BUILD   ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS   ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(Cxx17 REQUIRED)
@@ -32,7 +32,5 @@ load_script(FunctionGeneral)
 load_script(FunctionGit)
 load_script(FunctionBuild)
 
-load_script(FindDependency)
-load_script(RegisterDependency)
-
+load_script(Dependency)
 load_script(AddModule)
