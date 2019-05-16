@@ -15,8 +15,6 @@ set(CXX17_FOUND              TRUE)
 find_package_handle_standard_args(Cxx17
   DEFAULT_MSG
   CXX17_FOUND
-  CXX17_THREAD_LIBRARY
-  CXX17_FILESYSTEM_LIBRARY
 )
 
 if (Cxx17_FOUND)
