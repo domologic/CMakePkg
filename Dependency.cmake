@@ -93,26 +93,9 @@ function(find_dependency)
         ${SRC_PATH}
       BINARY_PATH
         ${BIN_PATH}
-      RESULT
-        BUILD_GENERATE_RESULT
       OPTIONS
         ${ARG_OPTIONS}
     )
-  
-    if (NOT ${BUILD_GENERATE_RESULT})
-      message(FATAL_ERROR "Generating ${ARG_GROUP}::${ARG_PROJECT} build failed!")
-    endif()
-  
-    build_start(
-      PATH
-        ${BIN_PATH}
-      RESULT
-        BUILD_RESULT
-    )
-  
-    if (NOT ${BUILD_RESULT})
-      message(FATAL_ERROR "Build for ${ARG_GROUP}::${ARG_PROJECT} failed!")
-    endif()  
   endif()
 
   file(GLOB_RECURSE
