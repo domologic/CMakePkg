@@ -14,7 +14,7 @@ include_guard(GLOBAL)
 function(build_generate)
   cmake_parse_arguments(ARG
     ""
-    "SOURCE_PATH;BINARY_PATH;RESULT"
+    "SOURCE_PATH;BINARY_PATH"
     "OPTIONS"
     ${ARGN}
   )
@@ -40,39 +40,8 @@ function(build_generate)
       ${CMAKE_COMMAND} -S ${ARG_SOURCE_PATH} -B${ARG_BINARY_PATH} -T "${CMAKE_TOOLCHAIN_FILE}" -G "${CMAKE_GENERATOR}" ${PLATFORM_FLAGS} -DOUTPUT_DIRECTORY=${OUTPUT_DIRECTORY} ${ARG_OPTIONS}
     WORKING_DIRECTORY
       ${ARG_BINARY_PATH}
-    RESULT_VARIABLE
-      RESULT
     OUTPUT_QUIET
   )
-
-  if (RESULT EQUAL "0")
-    set(${ARG_RESULT} TRUE PARENT_SCOPE)
-  else()
-    set(${ARG_RESULT} FALSE PARENT_SCOPE)
-  endif()
-endfunction()
-
-# build_start(
-#   PATH
-#     <path>
-#   RESULT
-#     <result>
-# )
-macro(build_start)
-  cmake_parse_arguments(ARG
-    ""
-    "PATH;RESULT"
-    ""
-    ${ARGN}
-  )
-
-  if (NOT ARG_PATH)
-    message(FATAL_ERROR "build_generate PATH argument missing!")
-  endif()
-
-  if (NOT ARG_RESULT)
-    message(FATAL_ERROR "build_generate RESULT argument missing!")
-  endif()
 
   if (WIN32)
     set(PLATFORM_FLAGS --config ${BUILD_TYPE})
@@ -83,14 +52,6 @@ macro(build_start)
       ${CMAKE_COMMAND} --build ${ARG_PATH} ${PLATFORM_FLAGS}
     WORKING_DIRECTORY
       ${ARG_PATH}
-    RESULT_VARIABLE
-      RESULT
     OUTPUT_QUIET
   )
-
-  if (RESULT EQUAL "0")
-    set(${ARG_RESULT} TRUE PARENT_SCOPE)
-  else()
-    set(${ARG_RESULT} FALSE PARENT_SCOPE)
-  endif()
 endmacro()
