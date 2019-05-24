@@ -41,9 +41,9 @@ function(build_generate)
 
   execute_process(
     COMMAND
-      ${CMAKE_COMMAND} --build ${ARG_SOURCE_PATH} --config ${BUILD_TYPE}
+      ${CMAKE_COMMAND} --build ${ARG_BINARY_PATH} --config ${BUILD_TYPE}
     WORKING_DIRECTORY
-      ${ARG_SOURCE_PATH}
+      ${ARG_BINARY_PATH}
     OUTPUT_QUIET
   )
 endfunction()
