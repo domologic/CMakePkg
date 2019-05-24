@@ -27,10 +27,6 @@ function(build_generate)
     message(FATAL_ERROR "build_generate BINARY_PATH argument missing!")
   endif()
 
-  if (NOT ARG_RESULT)
-    message(FATAL_ERROR "build_generate RESULT argument missing!")
-  endif()
-
   if (UNIX)
     set(PLATFORM_FLAGS "-DCMAKE_BUILD_TYPE=${BUILD_TYPE}")
   endif()
@@ -54,4 +50,4 @@ function(build_generate)
       ${ARG_PATH}
     OUTPUT_QUIET
   )
-endmacro()
+endfunction()
