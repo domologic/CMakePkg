@@ -39,15 +39,11 @@ function(build_generate)
     OUTPUT_QUIET
   )
 
-  if (WIN32)
-    set(BUILD_FLAGS --config ${BUILD_TYPE})
-  endif()
-
   execute_process(
     COMMAND
-      ${CMAKE_COMMAND} --build ${ARG_PATH} ${BUILD_FLAGS}
+      ${CMAKE_COMMAND} --build ${ARG_SOURCE_PATH} --config ${BUILD_TYPE}
     WORKING_DIRECTORY
-      ${ARG_PATH}
+      ${ARG_SOURCE_PATH}
     OUTPUT_QUIET
   )
 endfunction()
