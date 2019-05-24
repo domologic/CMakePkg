@@ -12,6 +12,14 @@ set(CMAKE_DISABLE_IN_SOURCE_BUILD   ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS   ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+if (NOT BUILD_TYPE)
+  set(BUILD_TYPE "Release")
+endif()
+
+if (UNIX)
+  set(CMAKE_BUILD_TYPE "${BUILD_TYPE}")
+endif()
+
 find_package(Cxx17 REQUIRED)
 
 set_property(GLOBAL
