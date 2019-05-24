@@ -81,7 +81,7 @@ function(find_dependency)
     )
 
     if (NOT ${GIT_CLONE_RESULT})
-      message(FATAL_ERROR "Cloning repository failed!")
+      message(FATAL_ERROR "Cloning ${ARG_GROUP}::${ARG_PROJECT} repository failed!")
     endif()
   endif()
 
@@ -100,7 +100,7 @@ function(find_dependency)
     )
   
     if (NOT ${BUILD_GENERATE_RESULT})
-      message(FATAL_ERROR "Generating build failed!")
+      message(FATAL_ERROR "Generating ${ARG_GROUP}::${ARG_PROJECT} build failed!")
     endif()
   
     build_start(
@@ -111,7 +111,7 @@ function(find_dependency)
     )
   
     if (NOT ${BUILD_RESULT})
-      message(FATAL_ERROR "Build for ${ARG_ALIAS_NAME} failed!")
+      message(FATAL_ERROR "Build for ${ARG_GROUP}::${ARG_PROJECT} failed!")
     endif()  
   endif()
 

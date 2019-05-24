@@ -31,9 +31,13 @@ function(build_generate)
     message(FATAL_ERROR "build_generate RESULT argument missing!")
   endif()
 
+  if (UNIX)
+    set(PLATFORM_FLAGS "-DCMAKE_BUILD_TYPE=${BUILD_TYPE}")
+  endif()
+
   execute_process(
     COMMAND
-      ${CMAKE_COMMAND} -S ${ARG_SOURCE_PATH} -B${ARG_BINARY_PATH} -T "${CMAKE_TOOLCHAIN_FILE}" -G "${CMAKE_GENERATOR}" -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DOUTPUT_DIRECTORY=${OUTPUT_DIRECTORY} ${ARG_OPTIONS}
+      ${CMAKE_COMMAND} -S ${ARG_SOURCE_PATH} -B${ARG_BINARY_PATH} -T "${CMAKE_TOOLCHAIN_FILE}" -G "${CMAKE_GENERATOR}" ${PLATFORM_FLAGS} -DOUTPUT_DIRECTORY=${OUTPUT_DIRECTORY} ${ARG_OPTIONS}
     WORKING_DIRECTORY
       ${ARG_BINARY_PATH}
     RESULT_VARIABLE
@@ -70,9 +74,13 @@ macro(build_start)
     message(FATAL_ERROR "build_generate RESULT argument missing!")
   endif()
 
+  if (WIN32)
+    set(PLATFORM_FLAGS --config ${BUILD_TYPE})
+  endif()
+
   execute_process(
     COMMAND
-      ${CMAKE_COMMAND} --build ${ARG_PATH} --config ${CMAKE_BUILD_TYPE}
+      ${CMAKE_COMMAND} --build ${ARG_PATH} ${PLATFORM_FLAGS}
     WORKING_DIRECTORY
       ${ARG_PATH}
     RESULT_VARIABLE
