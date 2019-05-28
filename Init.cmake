@@ -42,5 +42,3 @@ load_script(FunctionBuild)
 
 load_script(Dependency)
 load_script(AddModule)
-
-configure_compiler()
