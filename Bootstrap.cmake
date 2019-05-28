@@ -1,18 +1,12 @@
 include_guard(GLOBAL)
 
 if (WIN32)
-  set(CMAKE_DEPENDENCY_PATH "$ENV{USERPROFILE}/.cmake")
+  set(CMAKE_DEPENDENCY_PATH "$ENV{USERPROFILE}/.cmake" CACHE INTERNAL "path to the downloaded dependencies")
 else()
-  set(CMAKE_DEPENDENCY_PATH "$ENV{HOME}/.cmake")
+  set(CMAKE_DEPENDENCY_PATH "$ENV{HOME}/.cmake"        CACHE INTERNAL "path to the downloaded dependencies")
 endif()
 
-set(CMAKE_SCRIPT_PATH "${CMAKE_DEPENDENCY_PATH}/Scripts")
-
-file(TO_CMAKE_PATH "${CMAKE_DEPENDENCY_PATH}" CMAKE_DEPENDENCY_PATH)
-file(TO_CMAKE_PATH "${CMAKE_SCRIPT_PATH}"     CMAKE_SCRIPT_PATH)
-
-set(CMAKE_DEPENDENCY_PATH "${CMAKE_DEPENDENCY_PATH}" CACHE INTERNAL "path to cmake dependencies")
-set(CMAKE_SCRIPT_PATH     "${CMAKE_SCRIPT_PATH}"     CACHE INTERNAL "path to cmake scripts")
+set(CMAKE_SCRIPT_PATH "${CMAKE_DEPENDENCY_PATH}/Scripts" CACHE INTERNAL "path to cmake scripts")
 
 find_package(Git QUIET)
 
@@ -22,7 +16,7 @@ execute_process(
   WORKING_DIRECTORY
     ${CMAKE_SOURCE_DIR}
   OUTPUT_VARIABLE
-    URL
+  URL
   OUTPUT_STRIP_TRAILING_WHITESPACE
   ERROR_QUIET
 )

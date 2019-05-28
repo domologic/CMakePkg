@@ -85,32 +85,3 @@ macro(group_sources dir)
     endif()
   endforeach()
 endmacro()
-
-function(configure_compiler)
-  include(${CMAKE_SCRIPT_PATH}/Compiler/${CMAKE_SYSTEM_NAME}_${CMAKE_SYSTEM_PROCESSOR}.cmake
-    OPTIONAL
-    RESULT_VARIABLE
-      CONFIG_AVAILABLE
-  )
-
-  if (NOT "${CONFIG_AVAILABLE}" STREQUAL "NOTFOUND")
-    message(STATUS "Loading ${CMAKE_SYSTEM_NAME}::${CMAKE_SYSTEM_PROCESSOR} configuration")
-
-    load_compiler_config()
-
-    set(CMAKE_C_FLAGS                  ${CMAKE_C_FLAGS}                  ${FLAGS}                ${DEFINE}                ${FLAGS_C})
-    set(CMAKE_C_FLAGS_DEBUG            ${CMAKE_C_FLAGS_DEBUG}            ${FLAGS_DEBUG}          ${DEFINE_DEBUG}          ${FLAGS_C_DEBUG})
-    set(CMAKE_C_FLAGS_RELWITHDEBINFO   ${CMAKE_C_FLAGS_RELWITHDEBINFO}   ${FLAGS_RELWITHDEBINFO} ${DEFINE_RELWITHDEBINFO} ${FLAGS_C_RELWITHDEBINFO})
-    set(CMAKE_C_FLAGS_RELEASE          ${CMAKE_C_FLAGS_RELEASE}          ${FLAGS_RELEASE}        ${DEFINE_RELEASE}        ${FLAGS_C_RELEASE})
-    set(CMAKE_CXX_FLAGS                ${CMAKE_CXX_FLAGS}                ${FLAGS}                ${DEFINE}                ${FLAGS_CXX})
-    set(CMAKE_CXX_FLAGS_DEBUG          ${CMAKE_CXX_FLAGS_DEBUG}          ${FLAGS_DEBUG}          ${DEFINE_DEBUG}          ${FLAGS_CXX_DEBUG})
-    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO ${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${FLAGS_RELWITHDEBINFO} ${DEFINE_RELWITHDEBINFO} ${FLAGS_CXX_RELWITHDEBINFO})
-    set(CMAKE_CXX_FLAGS_RELEASE        ${CMAKE_CXX_FLAGS_RELEASE}        ${FLAGS_RELEASE}        ${DEFINE_RELEASE}        ${FLAGS_CXX_RELEASE})
-
-    foreach(LANG C CXX)
-      foreach(CONFIG FLAGS FLAGS_DEBUG FLAGS_RELWITHDEBINFO FLAGS_RELEASE)
-        list(REMOVE_DUPLICATES CMAKE_${LANG}_${CONFIG})
-      endforeach()
-    endforeach()
-  endif()
-endfunction()
