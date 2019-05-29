@@ -16,7 +16,7 @@ macro(_add_module_parse_args)
     RESOURCES
   )
   cmake_parse_arguments(ARG
-    "MFC"
+    ""
     ""
     "${_MULTI_OPTIONS}"
     ${ARGN}
@@ -268,8 +268,7 @@ function(add_module_executable module_name)
   _add_module_parse_args(${ARGN})
   _add_module_collect_sources()
 
-  if (ARG_MFC)
-    set(CMAKE_MFC_FLAG 2)
+  if (WIN32)
     set(EXE_TYPE WIN32)
   endif()
 
