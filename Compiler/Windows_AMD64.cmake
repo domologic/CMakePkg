@@ -8,6 +8,7 @@ macro(load_compiler_config)
     _WINDOWS
     WIN32_LEAN_AND_MEAN
     VC_EXTRALEAN
+    OEMRESOURCE
     NOMINMAX
     UNICODE
     _UNICODE
