@@ -1,11 +1,6 @@
 macro(load_compiler_config)
   # preprocessor definitions
   set(DEFINE
-    WIN32
-    _WIN32
-    WIN64
-    _WIN64
-    _WINDOWS
     WIN32_LEAN_AND_MEAN
     VC_EXTRALEAN
     OEMRESOURCE
@@ -15,24 +10,19 @@ macro(load_compiler_config)
   )
   set(DEFINE_DEBUG
     DEBUG
-    _DEBUG
   )
-  #set(DEFINE_RELWITHDEBINFO)
   set(DEFINE_RELEASE
-    NODEBUG
-    _NODEBUG
     NDEBUG
+    _NDEBUG
   )
 
   # global flags
   set(FLAGS
-    /JMC
     /Oi
     /Ot
     /GT
     /GF
     /arch:AVX2
-    /favor:INTEL64
     /permissive-
     /Zc:inline
     /Zc:rvalueCast
@@ -42,7 +32,6 @@ macro(load_compiler_config)
     /volatile:iso
     /GR
     /GA
-    /std:c++17
     /EHsc
     /d2FH4
     /bigobj
@@ -54,16 +43,6 @@ macro(load_compiler_config)
     /Ob0
     /RTC1
     /MDd
-  )
-  set(FLAGS_RELWITHDEBINFO
-    /Zi
-    /MP
-    /GL
-    /O2
-    /guard:cf
-    /Gy
-    /Qpar
-    /Qfast_transcendentals
   )
   set(FLAGS_RELEASE
     /MP
@@ -80,7 +59,6 @@ macro(load_compiler_config)
     /TC
   )
   #set(FLAGS_C_DEBUG            "")
-  #set(FLAGS_C_RELWITHDEBINFO   "")
   #set(FLAGS_C_RELEASE          "")
 
   # c++ flags
@@ -88,7 +66,6 @@ macro(load_compiler_config)
     /TP
   )
   #set(FLAGS_CXX_DEBUG          "")
-  #set(FLAGS_CXX_RELWITHDEBINFO "")
   #set(FLAGS_CXX_RELEASE        "")
 
   #set(LINK                     "")
@@ -96,12 +73,6 @@ macro(load_compiler_config)
     /OPT:NOREF
     /OPT:NOICF
     /DEBUG:FULL
-  )
-  set(LINK_RELWITHDEBINFO
-    /OPT:REF
-    /OPT:ICF
-    /DEBUG
-    /LTCG
   )
   set(LINK_RELEASE
     /OPT:REF

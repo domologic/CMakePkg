@@ -1,11 +1,5 @@
 include(FindPackageHandleStandardArgs)
 
-enable_language(C)
-enable_language(CXX)
-
-set(CMAKE_C_STANDARD   11)
-set(CMAKE_CXX_STANDARD 17)
-
 find_package(Threads QUIET)
 
 set(CXX17_THREAD_LIBRARY     "${CMAKE_THREAD_LIBS_INIT}")

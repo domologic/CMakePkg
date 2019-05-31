@@ -23,6 +23,98 @@ macro(_add_module_parse_args)
   )
 endmacro()
 
+function(_add_module_collect_source_files CURRENT_DIR VARIABLE)
+  list(FIND ARGN "${CURRENT_DIR}" IS_EXCLUDED)
+  if (IS_EXCLUDED EQUAL -1)
+    file(GLOB COLLECTED_SOURCES
+      ${CURRENT_DIR}/*.c
+      ${CURRENT_DIR}/*.cpp
+      ${CURRENT_DIR}/*.cxx
+      ${CURRENT_DIR}/*.c++
+      ${CURRENT_DIR}/*.cc
+      ${CURRENT_DIR}/*.h
+      ${CURRENT_DIR}/*.hpp
+      ${CURRENT_DIR}/*.hxx
+      ${CURRENT_DIR}/*.h++
+      ${CURRENT_DIR}/*.hh
+      ${CURRENT_DIR}/*.inl
+      ${CURRENT_DIR}/*.inc
+      ${CURRENT_DIR}/*.inl.hpp
+      ${CURRENT_DIR}/*.inc.hpp
+    )
+    list(APPEND ${VARIABLE} ${COLLECTED_SOURCES})
+
+    file(GLOB SUB_DIRECTORIES ${CURRENT_DIR}/*)
+    foreach(SUB_DIRECTORY ${SUB_DIRECTORIES})
+      if (IS_DIRECTORY ${SUB_DIRECTORY})
+        _add_module_collect_source_files(${SUB_DIRECTORY} ${VARIABLE} ${ARGN})
+      endif()
+    endforeach()
+    set(${VARIABLE} ${${VARIABLE}} PARENT_SCOPE)
+  endif()
+endfunction()
+
+function(_add_module_load_dependency DEPENDENCY)
+  string(REPLACE "::" ";" DEPENDENCY_GROUP_PROJECT ${DEPENDENCY})
+
+  list(GET DEPENDENCY_GROUP_PROJECT 0 GROUP)
+  list(GET DEPENDENCY_GROUP_PROJECT 1 PROJECT)
+
+  set(SRC_PATH "${DOMOLOGIC_DEPENDENCY_PATH}/Source/${GROUP}/${PROJECT}")
+  set(BIN_PATH "${DOMOLOGIC_DEPENDENCY_PATH}/Binary/${GROUP}/${PROJECT}")
+
+  if (NOT EXISTS ${SRC_PATH})
+    file(MAKE_DIRECTORY ${SRC_PATH})
+
+    execute_process(
+      COMMAND
+        ${GIT_EXECUTABLE} clone "git@${DOMOLOGIC_DEPENDENCY_GIT_DOMAIN}:${GROUP}/${PROJECT}.git" --depth 1 --recursive ${SRC_PATH}
+      WORKING_DIRECTORY
+        ${CMAKE_CURRENT_BINARY_DIR}
+      RESULT_VARIABLE
+        RESULT
+      OUTPUT_QUIET
+      ERROR_QUIET
+    )
+
+    if (NOT ${RESULT} EQUAL "0")
+      message(FATAL_ERROR "Could not clone ${GROUP}::${PROJECT}!")
+    endif()
+  endif()
+
+  if (NOT EXISTS ${BIN_PATH})
+    file(MAKE_DIRECTORY ${BIN_PATH})
+
+    execute_process(
+      COMMAND
+        ${CMAKE_COMMAND}
+        -S ${SRC_PATH}
+        -B ${BIN_PATH}
+        -T "${CMAKE_TOOLCHAIN_FILE}"
+        -G "${CMAKE_GENERATOR}"
+        -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+        -DDOMOLOGIC_DEPENDENCY_PATH=${DOMOLOGIC_DEPENDENCY_PATH}
+      WORKING_DIRECTORY
+        ${BIN_PATH}
+      OUTPUT_QUIET
+    )
+
+    execute_process(
+      COMMAND
+        ${CMAKE_COMMAND} --build ${BIN_PATH}
+      WORKING_DIRECTORY
+        ${BIN_PATH}
+      OUTPUT_QUIET
+    )
+  endif()
+
+  file(GLOB DEPENDENCIES ${BIN_PATH}/*.dep.cmake)
+  foreach(DEPENDENCY ${DEPENDENCIES})
+    file(COPY ${DEPENDENCY} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+  endforeach()
+endfunction()
+
 macro(_add_module_collect_sources)
   if (ARG_SOURCE_DIR)
     cmake_parse_arguments(SOURCE_DIR
@@ -32,16 +124,8 @@ macro(_add_module_collect_sources)
       ${ARG_SOURCE_DIR}
     )
 
-    collect_source_files(
-      ${SOURCE_DIR_PATH}
-      SOURCES
-      ${SOURCE_DIR_EXCLUDES}
-    )
-    set(ARG_SOURCES
-      ${ARG_SOURCES}
-      ${SOURCES}
-    )
-    group_sources(${SOURCE_DIR_PATH})
+    _add_module_collect_source_files(${SOURCE_DIR_PATH} SOURCES ${SOURCE_DIR_EXCLUDES})
+    set(ARG_SOURCES ${ARG_SOURCES} ${SOURCES})
   endif()
 endmacro()
 
@@ -61,12 +145,10 @@ macro(_add_module_link_libraries)
   foreach (DEPENDENCY ${DEPENDENCIES})
     include(${DEPENDENCY})
     get_filename_component(DEPENDENCY_NAME ${DEPENDENCY} NAME_WE)
-    if (NOT ${DEPENDENCY} MATCHES ".*-res")
-      set(DEPS
-        ${DEPS}
-        ${DEPENDENCY_NAME}
-      )
-    endif()
+    set(DEPS
+      ${DEPS}
+      ${DEPENDENCY_NAME}
+    )
   endforeach()
 
   if ("${type}" STREQUAL "INTERFACE")
@@ -95,58 +177,35 @@ macro(_add_module_link_libraries)
   endif()
 endmacro()
 
-macro(_add_module_compile_definitions)
-  if (ARG_COMPILE_DEFINITIONS)
-    target_compile_definitions(${module_name}
-      ${ARG_COMPILE_DEFINITIONS}
-    )
-  endif()
+macro(_add_module)
+  include(${DOMOLOGIC_SCRIPT_PATH}/Compiler/${CMAKE_SYSTEM_NAME}_${CMAKE_SYSTEM_PROCESSOR}.cmake
+    OPTIONAL
+    RESULT_VARIABLE
+      CONFIG_AVAILABLE
+  )
 
-  if (NOT "${type}" STREQUAL "INTERFACE")
+  if (NOT "${type}" STREQUAL "INTERFACE" AND NOT "${CONFIG_AVAILABLE}" STREQUAL "NOTFOUND")
+    message(STATUS "Loading ${CMAKE_SYSTEM_NAME}::${CMAKE_SYSTEM_PROCESSOR} configuration")
+    load_compiler_config()
+
     target_compile_definitions(${module_name}
       PRIVATE
         $<$<BOOL:"${DEFINE}">:${DEFINE}>
         $<$<AND:$<BOOL:"${DEFINE_DEBUG}">,$<CONFIG:Debug>>:${DEFINE_DEBUG}>
-        $<$<AND:$<BOOL:"${DEFINE_RELWITHDEBINFO}">,$<CONFIG:RelWithDebInfo>>:${DEFINE_RELWITHDEBINFO}>
         $<$<AND:$<BOOL:"${DEFINE_RELEASE}">,$<CONFIG:Release>>:${DEFINE_RELEASE}>
     )
-  endif()
-endmacro()
-
-macro(_add_module_compile_options)
-  if (ARG_COMPILE_OPTIONS)
-    target_compile_options(${module_name}
-      ${ARG_COMPILE_OPTIONS}
-    )
-  endif()
-
-  if (NOT "${type}" STREQUAL "INTERFACE")
     target_compile_options(${module_name}
       PRIVATE
         $<$<BOOL:"${FLAGS}">:${FLAGS}>
         $<$<AND:$<BOOL:"${FLAGS_DEBUG}">,$<CONFIG:Debug>>:${FLAGS_DEBUG}>
-        $<$<AND:$<BOOL:"${FLAGS_RELWITHDEBINFO}">,$<CONFIG:RelWithDebInfo>>:${FLAGS_RELWITHDEBINFO}>
         $<$<AND:$<BOOL:"${FLAGS_RELEASE}">,$<CONFIG:Release>>:${FLAGS_RELEASE}>
         $<$<AND:$<BOOL:"${FLAGS_C}">,$<COMPILE_LANGUAGE:C>>:${FLAGS_C}>
         $<$<AND:$<BOOL:"${FLAGS_C_DEBUG}">,$<COMPILE_LANGUAGE:C>,$<CONFIG:Debug>>:${FLAGS_C_DEBUG}>
-        $<$<AND:$<BOOL:"${FLAGS_C_RELWITHDEBINFO}">,$<COMPILE_LANGUAGE:C>,$<CONFIG:RelWithDebInfo>>:${FLAGS_C_RELWITHDEBINFO}>
         $<$<AND:$<BOOL:"${FLAGS_C_RELEASE}">,$<COMPILE_LANGUAGE:C>,$<CONFIG:Release>>:${FLAGS_C_RELEASE}>
         $<$<AND:$<BOOL:"${FLAGS_CXX}">,$<COMPILE_LANGUAGE:CXX>>:${FLAGS_CXX}>
         $<$<AND:$<BOOL:"${FLAGS_CXX_DEBUG}">,$<COMPILE_LANGUAGE:CXX>,$<CONFIG:Debug>>:${FLAGS_CXX_DEBUG}>
-        $<$<AND:$<BOOL:"${FLAGS_CXX_RELWITHDEBINFO}">,$<COMPILE_LANGUAGE:CXX>,$<CONFIG:RelWithDebInfo>>:${FLAGS_CXX_RELWITHDEBINFO}>
         $<$<AND:$<BOOL:"${FLAGS_CXX_RELEASE}">,$<COMPILE_LANGUAGE:CXX>,$<CONFIG:Release>>:${FLAGS_CXX_RELEASE}>
     )
-  endif()
-endmacro()
-
-macro(_add_module_link_options)
-  if (ARG_LINK_OPTIONS)
-    target_link_options(${module_name}
-      ${ARG_LINK_OPTIONS}
-    )
-  endif()
-
-  if (NOT "${type}" STREQUAL "INTERFACE")
     target_link_options(${module_name}
       PRIVATE
         $<$<BOOL:"${LINK}">:${LINK}>
@@ -154,45 +213,38 @@ macro(_add_module_link_options)
         $<$<AND:$<BOOL:"${LINK_RELWITHDEBINFO}">,$<CONFIG:RelWithDebInfo>>:${LINK_RELWITHDEBINFO}>
         $<$<AND:$<BOOL:"${LINK_RELEASE}">,$<CONFIG:Release>>:${LINK_RELEASE}>
     )
-  endif()
-endmacro()
-
-macro(_add_module)
-  if (NOT EXISTS ${OUTPUT_DIRECTORY})
-    file(MAKE_DIRECTORY ${OUTPUT_DIRECTORY})
-  endif()
-
-  include(${CMAKE_SCRIPT_PATH}/Compiler/${CMAKE_SYSTEM_NAME}_${CMAKE_SYSTEM_PROCESSOR}.cmake
-    OPTIONAL
-    RESULT_VARIABLE
-      CONFIG_AVAILABLE
-  )
-
-  if (NOT "${CONFIG_AVAILABLE}" STREQUAL "NOTFOUND")
-    message(STATUS "Loading ${CMAKE_SYSTEM_NAME}::${CMAKE_SYSTEM_PROCESSOR} configuration")
-    load_compiler_config()
+    set_target_properties(${module_name}
+      PROPERTIES
+        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_INSTALL_PREFIX}
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_INSTALL_PREFIX}
+    )
   endif()
 
   foreach(DEPENDENCY ${ARG_DEPENDENCIES})
-    string(REPLACE "::" ";" DEPENDENCY_GROUP_PROJECT ${DEPENDENCY})
-
-    list(GET DEPENDENCY_GROUP_PROJECT 0 DEPENDENCY_GROUP)
-    list(GET DEPENDENCY_GROUP_PROJECT 1 DEPENDENCY_PROJECT)
-
     message(STATUS "Building dependency ${DEPENDENCY}...")
-    find_dependency(
-      GROUP
-        ${DEPENDENCY_GROUP}
-      PROJECT
-        ${DEPENDENCY_PROJECT}
-    )
+    _add_module_load_dependency(${DEPENDENCY})
     message(STATUS "Dependency ${DEPENDENCY} loaded.")
   endforeach()
 
   _add_module_link_libraries(${ARG_LINK_LIBRARIES})
-  _add_module_compile_definitions()
-  _add_module_compile_options()
-  _add_module_link_options()
+
+  if (ARG_COMPILE_DEFINITIONS)
+    target_compile_definitions(${module_name}
+      ${ARG_COMPILE_DEFINITIONS}
+    )
+  endif()
+
+  if (ARG_COMPILE_OPTIONS)
+    target_compile_options(${module_name}
+      ${ARG_COMPILE_OPTIONS}
+    )
+  endif()
+
+  if (ARG_LINK_OPTIONS)
+    target_link_options(${module_name}
+      ${ARG_LINK_OPTIONS}
+    )
+  endif()
 
   if (ARG_COMPILE_FEATURES)
     target_compile_features(${module_name}
@@ -221,29 +273,12 @@ macro(_add_module)
         )
         
         foreach (SUBRESOURCE ${SUBRESOURCES})
-          file(COPY ${SUBRESOURCE} DESTINATION ${OUTPUT_DIRECTORY})
+          file(COPY ${SUBRESOURCE} DESTINATION ${CMAKE_INSTALL_PREFIX})
         endforeach()
       else()
-        file(COPY ${SUBRESOURCE} DESTINATION ${OUTPUT_DIRECTORY})
+        file(COPY ${RESOURCE} DESTINATION ${CMAKE_INSTALL_PREFIX})
       endif()
     endforeach()
-  endif()
-
-  if (NOT "${type}" STREQUAL "INTERFACE")
-    foreach(OUTPUT_TYPE ARCHIVE LIBRARY PDB RUNTIME)
-      foreach(CONFIG Y Y_DEBUG Y_RELWITHDEBINFO Y_RELEASE)
-        set(OUTPUT_DIRECTORY_PROPERTY
-          ${OUTPUT_DIRECTORY_PROPERTY}
-          ${OUTPUT_TYPE}_OUTPUT_DIRECTOR${CONFIG}
-            ${OUTPUT_DIRECTORY}
-        )
-      endforeach()
-    endforeach()
-
-    set_target_properties(${module_name}
-      PROPERTIES
-        ${OUTPUT_DIRECTORY_PROPERTY}
-    )  
   endif()
 endmacro()
 
@@ -261,18 +296,20 @@ function(add_module_library module_name type)
 
   _add_module()
 
-  register_dependency(${module_name})
+  export(
+    TARGETS
+      ${module_name}
+    FILE
+      ${module_name}.dep.cmake
+    EXPORT_LINK_INTERFACE_LIBRARIES
+  )
 endfunction()
 
 function(add_module_executable module_name)
   _add_module_parse_args(${ARGN})
   _add_module_collect_sources()
 
-  if (WIN32)
-    set(EXE_TYPE WIN32)
-  endif()
-
-  add_executable(${module_name} ${EXE_TYPE}
+  add_executable(${module_name}
     ${ARG_SOURCES}
   )
 

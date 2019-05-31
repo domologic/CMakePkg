@@ -1,5 +1,0 @@
-#pragma once
-
-#define @GIT_PROJECT@_COMMIT_ID "@GIT_COMMIT_ID@"
-#define @GIT_PROJECT@_TIMESTAMP "@GIT_TIMESTAMP@"
-#define @GIT_PROJECT@_BRANCH    "@GIT_BRANCH@"

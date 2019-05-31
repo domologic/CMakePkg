@@ -2,23 +2,17 @@ include_guard(GLOBAL)
 
 message(STATUS "Loading DOMOLOGIC build system")
 
-set(CMAKE_MODULE_PATH
-  ${CMAKE_MODULE_PATH}
-  ${CMAKE_CURRENT_LIST_DIR}/Module
-)
+enable_language(C)
+enable_language(CXX)
 
+set(CMAKE_MODULE_PATH               ${CMAKE_CURRENT_LIST_DIR}/Module)
+set(CMAKE_CONFIGURATION_TYPES       "Debug;Release" CACHE STRING "" FORCE)
 set(CMAKE_DISABLE_SOURCE_CHANGES    ON)
 set(CMAKE_DISABLE_IN_SOURCE_BUILD   ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS   ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-
-if (NOT BUILD_TYPE)
-  set(BUILD_TYPE "Release")
-endif()
-
-if (UNIX)
-  set(CMAKE_BUILD_TYPE "${BUILD_TYPE}")
-endif()
+set(CMAKE_C_STANDARD                11)
+set(CMAKE_CXX_STANDARD              17)
 
 find_package(Cxx17 REQUIRED)
 
@@ -27,18 +21,4 @@ set_property(GLOBAL
     USE_FOLDERS ON
 )
 
-function(load_script name)
-  include(${CMAKE_CURRENT_LIST_DIR}/${name}.cmake)
-endfunction()
-
-if (NOT OUTPUT_DIRECTORY)
-  set(OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
-endif()
-set(OUTPUT_DIRECTORY ${OUTPUT_DIRECTORY} CACHE PATH "output directory path")
-
-load_script(FunctionGeneral)
-load_script(FunctionGit)
-load_script(FunctionBuild)
-
-load_script(Dependency)
-load_script(AddModule)
+include(${CMAKE_CURRENT_LIST_DIR}/AddModule.cmake)
