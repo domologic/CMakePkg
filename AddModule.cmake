@@ -178,13 +178,9 @@ macro(_add_module_link_libraries)
 endmacro()
 
 macro(_add_module)
-  include(${DOMOLOGIC_SCRIPT_PATH}/Compiler/${CMAKE_SYSTEM_NAME}_${CMAKE_SYSTEM_PROCESSOR}.cmake
-    OPTIONAL
-    RESULT_VARIABLE
-      CONFIG_AVAILABLE
-  )
+  include(${DOMOLOGIC_SCRIPT_PATH}/Compiler/${CMAKE_SYSTEM_NAME}_${CMAKE_SYSTEM_PROCESSOR}.cmake)
 
-  if (NOT "${type}" STREQUAL "INTERFACE" AND NOT "${CONFIG_AVAILABLE}" STREQUAL "NOTFOUND")
+  if (NOT "${type}" STREQUAL "INTERFACE")
     message(STATUS "Loading ${CMAKE_SYSTEM_NAME}::${CMAKE_SYSTEM_PROCESSOR} configuration")
     load_compiler_config()
 
@@ -210,7 +206,6 @@ macro(_add_module)
       PRIVATE
         $<$<BOOL:"${LINK}">:${LINK}>
         $<$<AND:$<BOOL:"${LINK_DEBUG}">,$<CONFIG:Debug>>:${LINK_DEBUG}>
-        $<$<AND:$<BOOL:"${LINK_RELWITHDEBINFO}">,$<CONFIG:RelWithDebInfo>>:${LINK_RELWITHDEBINFO}>
         $<$<AND:$<BOOL:"${LINK_RELEASE}">,$<CONFIG:Release>>:${LINK_RELEASE}>
     )
     set_target_properties(${module_name}

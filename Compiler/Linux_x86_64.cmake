@@ -1,0 +1,64 @@
+macro(load_compiler_config)
+  # preprocessor definitions
+  #set(DEFINE)
+  set(DEFINE_DEBUG
+    DEBUG
+  )
+  set(DEFINE_RELEASE
+    NDEBUG
+    _NDEBUG
+  )
+
+  # global flags
+  set(FLAGS
+    -rdynamic
+    -shared-libgcc
+  )
+  set(FLAGS_DEBUG
+    -ggdb
+    -Og
+  )
+  set(FLAGS_RELEASE
+    -O3
+    -fmerge-all-constants
+    -faggressive-loop-optimizations
+    -s
+  )
+
+  # c flags
+  #set(FLAGS_C)
+  #set(FLAGS_C_DEBUG)
+  #set(FLAGS_C_RELEASE)
+
+  # c++ flags
+  #set(FLAGS_CXX)
+  #set(FLAGS_CXX_DEBUG)
+  #set(FLAGS_CXX_RELEASE)
+
+  #set(LINK)
+  #set(LINK_DEBUG)
+  #set(LINK_RELEASE)
+endmacro()
+# global flags
+set(FLAGS "-rdynamic -shared-libgcc")
+set(FLAGS_DEBUG "-ggdb -Og")
+set(FLAGS_RELWITHDEBINFO "-g1 -Og -fmerge-all-constants")
+set(FLAGS_RELEASE "-O3 -fmerge-all-constants -faggressive-loop-optimizations -s")
+
+# preprocessor definitions
+set(FLAGS "${FLAGS} -DPLATFORM_ARM")
+set(FLAGS_DEBUG "${FLAGS_DEBUG} -DDEBUG -DRP_DEBUG")
+set(FLAGS_RELWITHDEBINFO "${FLAGS_RELWITHDEBINFO}")
+set(FLAGS_RELEASE "${FLAGS_RELEASE} -DNDEBUG")
+
+# c flags
+set(FLAGS_C "${FLAGS} -std=c11")
+set(FLAGS_C_DEBUG "${FLAGS_DEBUG}")
+set(FLAGS_C_RELWITHDEBINFO "${FLAGS_RELWITHDEBINFO}")
+set(FLAGS_C_RELEASE "${FLAGS_RELEASE}")
+
+# c++ flags
+set(FLAGS_CXX "${FLAGS} -std=c++17")
+set(FLAGS_CXX_DEBUG "${FLAGS_DEBUG}")
+set(FLAGS_CXX_RELWITHDEBINFO "${FLAGS_RELWITHDEBINFO}")
+set(FLAGS_CXX_RELEASE "${FLAGS_RELEASE}")

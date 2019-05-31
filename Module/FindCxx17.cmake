@@ -1,8 +1,8 @@
 include(FindPackageHandleStandardArgs)
 
-find_package(Threads QUIET)
+enable_language(CXX)
 
-set(CXX17_THREAD_LIBRARY     "${CMAKE_THREAD_LIBS_INIT}")
+set(CXX17_THREAD_LIBRARY     "-lpthread")
 set(CXX17_FILESYSTEM_LIBRARY "-lstdc++fs")
 set(CXX17_FOUND              TRUE)
 
