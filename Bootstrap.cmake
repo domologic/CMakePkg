@@ -1,12 +1,10 @@
 include_guard(GLOBAL)
 
-if (WIN32)
-  set(CMAKE_DEPENDENCY_PATH "$ENV{USERPROFILE}/.cmake" CACHE INTERNAL "path to the downloaded dependencies")
-else()
-  set(CMAKE_DEPENDENCY_PATH "$ENV{HOME}/.cmake"        CACHE INTERNAL "path to the downloaded dependencies")
+if (NOT DOMOLOGIC_DEPENDENCY_PATH)
+  set(DOMOLOGIC_DEPENDENCY_PATH "${CMAKE_CURRENT_BINARY_DIR}/Domologic"     CACHE INTERNAL "path to the downloaded dependencies")
 endif()
 
-set(CMAKE_SCRIPT_PATH "${CMAKE_DEPENDENCY_PATH}/Scripts" CACHE INTERNAL "path to cmake scripts")
+set(DOMOLOGIC_SCRIPT_PATH     "${DOMOLOGIC_DEPENDENCY_PATH}/Scripts"  CACHE INTERNAL "path to cmake scripts")
 
 find_package(Git QUIET)
 
@@ -25,19 +23,19 @@ if (NOT URL)
   message(FATAL_ERROR "Could not get current git remote origin url!")
 endif()
 
-string(REGEX REPLACE "git@|https://|http://" "" CMAKE_DEPENDENCY_GIT_DOMAIN ${URL})
-string(REGEX REPLACE "[:/].*"                "" CMAKE_DEPENDENCY_GIT_DOMAIN ${CMAKE_DEPENDENCY_GIT_DOMAIN})
+string(REGEX REPLACE "git@|https://|http://" "" DOMOLOGIC_DEPENDENCY_GIT_DOMAIN ${URL})
+string(REGEX REPLACE "[:/].*"                "" DOMOLOGIC_DEPENDENCY_GIT_DOMAIN ${DOMOLOGIC_DEPENDENCY_GIT_DOMAIN})
 
-set(CMAKE_DEPENDENCY_GIT_DOMAIN ${CMAKE_DEPENDENCY_GIT_DOMAIN} CACHE STRING "git domain")
+set(DOMOLOGIC_DEPENDENCY_GIT_DOMAIN ${DOMOLOGIC_DEPENDENCY_GIT_DOMAIN} CACHE STRING "git domain")
 
-if (NOT EXISTS ${CMAKE_SCRIPT_PATH})
-  file(MAKE_DIRECTORY ${CMAKE_SCRIPT_PATH})
+if (NOT EXISTS ${DOMOLOGIC_SCRIPT_PATH})
+  file(MAKE_DIRECTORY ${DOMOLOGIC_SCRIPT_PATH})
 
   execute_process(
     COMMAND
-      ${GIT_EXECUTABLE} clone "http://${CMAKE_DEPENDENCY_GIT_DOMAIN}/domologic/CMakeModule.git" --depth 1 ${CMAKE_SCRIPT_PATH}
+      ${GIT_EXECUTABLE} clone "http://${DOMOLOGIC_DEPENDENCY_GIT_DOMAIN}/domologic/CMakeModule.git" --depth 1 ${DOMOLOGIC_SCRIPT_PATH}
     WORKING_DIRECTORY
-      ${CMAKE_SCRIPT_PATH}
+      ${DOMOLOGIC_SCRIPT_PATH}
     RESULT_VARIABLE
       RESULT
     OUTPUT_QUIET
@@ -47,21 +45,6 @@ if (NOT EXISTS ${CMAKE_SCRIPT_PATH})
   if (NOT ${RESULT} EQUAL "0")
     message(FATAL_ERROR "Could not download cmake scripts!")
   endif()
-else()
-  execute_process(
-    COMMAND
-      ${GIT_EXECUTABLE} pull
-    WORKING_DIRECTORY
-      ${CMAKE_SCRIPT_PATH}
-    RESULT_VARIABLE
-      RESULT
-    OUTPUT_QUIET
-    ERROR_QUIET
-  )
-
-  if (NOT ${RESULT} EQUAL "0")
-    message(WARNING "Could not update cmake scripts!")
-  endif()
 endif()
 
-include(${CMAKE_SCRIPT_PATH}/Init.cmake)
+include(${DOMOLOGIC_SCRIPT_PATH}/Init.cmake)
