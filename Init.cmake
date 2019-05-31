@@ -2,9 +2,6 @@ include_guard(GLOBAL)
 
 message(STATUS "Loading DOMOLOGIC build system")
 
-enable_language(C)
-enable_language(CXX)
-
 set(CMAKE_MODULE_PATH               ${CMAKE_CURRENT_LIST_DIR}/Module)
 set(CMAKE_CONFIGURATION_TYPES       "Debug;Release" CACHE STRING "" FORCE)
 set(CMAKE_DISABLE_SOURCE_CHANGES    ON)
