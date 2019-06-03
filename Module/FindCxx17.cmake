@@ -1,7 +1,5 @@
 include(FindPackageHandleStandardArgs)
 
-enable_language(CXX)
-
 set(CXX17_THREAD_LIBRARY     "-lpthread")
 set(CXX17_FILESYSTEM_LIBRARY "-lstdc++fs")
 set(CXX17_FOUND              TRUE)
