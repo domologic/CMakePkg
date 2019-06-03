@@ -314,13 +314,14 @@ endfunction()
 function(add_module_docs project_name)
   cmake_parse_arguments(ARG
     "DOXYGEN"
-    "SOURCE_DIR;OUTPUT_DIR"
+    "SOURCE_DIR"
     ""
     ${ARGN}
   )
 
-  if (NOT EXISTS ${ARG_OUTPUT_DIR})
-    file(MAKE_DIRECTORY ${ARG_OUTPUT_DIR})
+  set(OUTPUT_DIR "${CMAKE_INSTALL_PREFIX}/docs")
+  if (NOT EXISTS ${OUTPUT_DIR})
+    file(MAKE_DIRECTORY ${OUTPUT_DIR})
   endif()
 
   if (ARG_DOXYGEN)
@@ -341,9 +342,10 @@ function(add_module_docs project_name)
     doxygen_add_docs(${project_name}-docs
         ${ARG_SOURCE_DIR}/*
       WORKING_DIRECTORY
-        ${ARG_OUTPUT_DIR}
+        ${OUTPUT_DIR}
       COMMENT
         "Generate doxygen docs for ${project_name}"
+      ALL
     )
   endif()
 endfunction()
