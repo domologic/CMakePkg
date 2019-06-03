@@ -21,7 +21,7 @@ set_property(GLOBAL
 include(ProcessorCount)
 ProcessorCount(N)
 if (NOT N EQUAL 0)
-  set(CMAKE_BUILD_PARALLEL_LEVEL ${N})
+  set(ENV{CMAKE_BUILD_PARALLEL_LEVEL} ${N})
 endif()
 
 include(${CMAKE_CURRENT_LIST_DIR}/AddModule.cmake)
