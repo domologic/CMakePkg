@@ -1,16 +1,16 @@
 include(FindPackageHandleStandardArgs)
 
 find_package(PkgConfig QUIET)
-pkg_check_modules(PKG_CONFIG_CAIRO cairo QUIET)
+pkg_check_modules(PC_CAIRO cairo QUIET)
 
-set(CAIRO_VERSION ${PKG_CONFIG_CAIRO_VERSION})
+set(CAIRO_VERSION ${PC_CAIRO_VERSION})
 
 find_path(CAIRO_INCLUDE_DIR
   NAMES
     cairo.h
   HINTS
-    ${PKG_CONFIG_CAIRO_INCLUDEDIR}
-    ${PKG_CONFIG_CAIRO_INCLUDE_DIRS}
+    ${PC_CAIRO_INCLUDEDIR}
+    ${PC_CAIRO_INCLUDE_DIRS}
   PATH_SUFFIXES
     cairo
 )
@@ -19,8 +19,8 @@ find_library(CAIRO_LIBRARY
   NAMES
     cairo
   HINTS
-    ${PKG_CONFIG_CAIRO_LIBDIR}
-    ${PKG_CONFIG_CAIRO_LIBRARY_DIRS}
+    ${PC_CAIRO_LIBDIR}
+    ${PC_CAIRO_LIBRARY_DIRS}
 )
 
 find_package_handle_standard_args(Cairo
@@ -31,9 +31,20 @@ find_package_handle_standard_args(Cairo
 )
 
 if (Cairo_FOUND)
+  set(CAIRO_INCLUDE_DIRS
+    ${CAIRO_INCLUDE_DIR}
+  )
+
+  set(CAIRO_LIBRARIES
+    ${CAIRO_LIBRARY}
+  )
+
   mark_as_advanced(
     CAIRO_VERSION
     CAIRO_INCLUDE_DIR
+    CAIRO_INCLUDE_DIRS
     CAIRO_LIBRARY
+    CAIRO_LIBRARIES
   )
+
 endif()
