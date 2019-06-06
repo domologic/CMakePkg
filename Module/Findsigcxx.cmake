@@ -15,6 +15,16 @@ find_path(SIGCXX_INCLUDE_DIR
     sigc++
 )
 
+find_path(SIGCXX_CONFIG_INCLUDE_DIR
+  NAMES
+    sigc++config.h
+  HINTS
+    ${PC_SIGCXX_LIBDIR}
+    ${PC_SIGCXX_LIBRARY_DIRS}
+  PATH_SUFFIXES
+    sigc++-2.0/include
+)
+
 find_library(SIGCXX_LIBRARY
   NAMES
     sigc-2.0
@@ -27,15 +37,14 @@ find_package_handle_standard_args(sigcxx
   DEFAULT_MSG
   SIGCXX_VERSION
   SIGCXX_INCLUDE_DIR
+  SIGCXX_CONFIG_INCLUDE_DIR
   SIGCXX_LIBRARY
 )
-
-message("SIGCXX_INCLUDE_DIR ${SIGCXX_INCLUDE_DIR}")
-message("SIGCXX_LIBRARY     ${SIGCXX_LIBRARY}")
 
 if (sigcxx_FOUND)
   set(SIGCXX_INCLUDE_DIRS
     ${SIGCXX_INCLUDE_DIR}
+    ${SIGCXX_CONFIG_INCLUDE_DIR}
   )
 
   set(SIGCXX_LIBRARY
