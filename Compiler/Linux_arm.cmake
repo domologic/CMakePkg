@@ -11,8 +11,11 @@ macro(load_compiler_config)
 
   # global flags
   set(FLAGS
+    -j$ENV{CMAKE_BUILD_PARALLEL_LEVEL}
     -rdynamic
     -shared-libgcc
+    -lpthread
+    -lstdc++fs
   )
   set(FLAGS_DEBUG
     -ggdb
@@ -35,7 +38,10 @@ macro(load_compiler_config)
   #set(FLAGS_CXX_DEBUG)
   #set(FLAGS_CXX_RELEASE)
 
-  #set(LINK)
+  set(LINK
+    -lpthread
+    -lstdc++fs
+  )
   #set(LINK_DEBUG)
   #set(LINK_RELEASE)
 endmacro()

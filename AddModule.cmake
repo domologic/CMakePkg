@@ -259,19 +259,18 @@ macro(_add_module)
     )
   endif()
 
+  if (ARG_PROPERTIES)
+    set_target_properties(${module_name}
+      ${ARG_PROPERTIES}
+    )
+  endif()
+
   if (ARG_RESOURCES)
     foreach (RESOURCE ${ARG_RESOURCES})
       if (IS_DIRECTORY ${RESOURCE})
-        file(GLOB
-          SUBRESOURCES
-            ${RESOURCE}/*
-        )
-        
-        foreach (SUBRESOURCE ${SUBRESOURCES})
-          file(COPY ${SUBRESOURCE} DESTINATION ${CMAKE_INSTALL_PREFIX})
-        endforeach()
+        add_custom_command(TARGET ${module_name} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${SUBRESOURCE} ${CMAKE_INSTALL_PREFIX})
       else()
-        file(COPY ${RESOURCE} DESTINATION ${CMAKE_INSTALL_PREFIX})
+        add_custom_command(TARGET ${module_name} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${RESOURCE} ${CMAKE_INSTALL_PREFIX})
       endif()
     endforeach()
   endif()
