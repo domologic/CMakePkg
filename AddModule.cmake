@@ -269,9 +269,9 @@ macro(_add_module)
   if (ARG_RESOURCES)
     foreach (RESOURCE ${ARG_RESOURCES})
       if (IS_DIRECTORY ${RESOURCE})
-        add_custom_command(TARGET ${module_name} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${RESOURCE} $<TARGET_FILE_DIR:${module_name}>)
+        add_custom_command(TARGET ${module_name} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${RESOURCE} ${CMAKE_INSTALL_PREFIX})
       else()
-        add_custom_command(TARGET ${module_name} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${RESOURCE} $<TARGET_FILE_DIR:${module_name}>)
+        add_custom_command(TARGET ${module_name} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${RESOURCE} ${CMAKE_INSTALL_PREFIX})
       endif()
     endforeach()
   endif()
@@ -312,40 +312,26 @@ function(add_module_executable module_name)
 endfunction()
 
 function(add_module_docs project_name)
-  cmake_parse_arguments(ARG
-    "DOXYGEN"
-    "SOURCE_DIR"
+  cmake_parse_arguments(DOXYGEN
     ""
+    "SOURCE_DIR"
+    "CONFIG"
     ${ARGN}
   )
 
-  set(OUTPUT_DIR "${CMAKE_INSTALL_PREFIX}/docs")
-  if (NOT EXISTS ${OUTPUT_DIR})
-    file(MAKE_DIRECTORY ${OUTPUT_DIR})
-  endif()
+  find_package(Doxygen REQUIRED
+    OPTIONAL_COMPONENTS
+      dot
+      mscgen
+      dia
+  )
 
-  if (ARG_DOXYGEN)
-    find_package(Doxygen REQUIRED
-      OPTIONAL_COMPONENTS
-        dot
-        mscgen
-        dia
-    )
-
-    cmake_parse_arguments(DOXYGEN
-      ""
-      ""
-      "CONFIG"
-      ${ARGN}
-    )
-
-    doxygen_add_docs(${project_name}-docs
-        ${ARG_SOURCE_DIR}/*
-      WORKING_DIRECTORY
-        ${OUTPUT_DIR}
-      COMMENT
-        "Generate doxygen docs for ${project_name}"
-      ALL
-    )
-  endif()
+  doxygen_add_docs(${project_name}-docs
+      ${DOXYGEN_SOURCE_DIR}
+    WORKING_DIRECTORY
+      ${CMAKE_INSTALL_PREFIX}/docs
+    COMMENT
+      "Generate doxygen docs for ${project_name}"
+    ALL
+  )
 endfunction()
