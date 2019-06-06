@@ -11,7 +11,6 @@ macro(load_compiler_config)
 
   # global flags
   set(FLAGS
-    -j$ENV{CMAKE_BUILD_PARALLEL_LEVEL}
     -rdynamic
     -shared-libgcc
     -lpthread
