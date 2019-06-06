@@ -178,6 +178,10 @@ macro(_add_module_link_libraries)
 endmacro()
 
 macro(_add_module)
+  if (NOT EXISTS ${CMAKE_INSTALL_PREFIX})
+    file(MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX})
+  endif()
+
   include(${DOMOLOGIC_SCRIPT_PATH}/Compiler/${CMAKE_SYSTEM_NAME}_${CMAKE_SYSTEM_PROCESSOR}.cmake)
 
   if (NOT "${type}" STREQUAL "INTERFACE")
