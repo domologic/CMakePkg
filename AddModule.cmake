@@ -261,7 +261,8 @@ macro(_add_module)
 
   if (ARG_PROPERTIES)
     set_target_properties(${module_name}
-      ${ARG_PROPERTIES}
+      PROPERTIES
+        ${ARG_PROPERTIES}
     )
   endif()
 
