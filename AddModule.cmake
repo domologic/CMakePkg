@@ -260,6 +260,7 @@ macro(_add_module)
   endif()
 
   if (ARG_PROPERTIES)
+    string(REPLACE "EMPTY" "\"\"" ARG_PROPERTIES "${ARG_PROPERTIES}")
     set_target_properties(${module_name}
       PROPERTIES
         ${ARG_PROPERTIES}
