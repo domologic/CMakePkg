@@ -312,26 +312,44 @@ function(add_module_executable module_name)
 endfunction()
 
 function(add_module_docs project_name)
-  cmake_parse_arguments(DOXYGEN
+  cmake_parse_arguments(ARG
     ""
-    "SOURCE_DIR"
-    "CONFIG"
+    ""
+    "DOXYGEN"
     ${ARGN}
   )
 
-  find_package(Doxygen REQUIRED
-    OPTIONAL_COMPONENTS
-      dot
-      mscgen
-      dia
-  )
+  if (ARG_DOXYGEN)
+    foreach (CONFIG ${ARG_DOXYGEN})
+      string(REPLACE "=" ";" CONFIG ${CONFIG})
+      list(GET CONFIG 0 KEY)
+      list(GET CONFIG 1 VALUE)
 
-  doxygen_add_docs(${project_name}-docs
-      ${DOXYGEN_SOURCE_DIR}
-    WORKING_DIRECTORY
-      ${CMAKE_INSTALL_PREFIX}/docs
-    COMMENT
-      "Generate doxygen docs for ${project_name}"
-    ALL
-  )
+      set(DOXYGEN_${KEY} ${VALUE})
+    endforeach()
+
+    set(DOXYGEN_OUTPUT_DIRECTORY    "${CMAKE_INSTALL_PREFIX}/docs")
+    set(DOXYGEN_CREATE_SUBDIRS      YES)
+    set(DOXYGEN_BUILTIN_STL_SUPPORT YES)
+    set(DOXYGEN_EXTRACT_ALL         YES)
+    set(DOXYGEN_GENERATE_TREEVIEW   YES)
+
+    find_package(Doxygen REQUIRED
+      OPTIONAL_COMPONENTS
+        dot
+        mscgen
+        dia
+    )
+
+    get_target_property(SOURCE_LIST ${project_name} SOURCES)
+
+    doxygen_add_docs(${project_name}-docs
+        ${SOURCE_LIST}
+      WORKING_DIRECTORY
+        ${CMAKE_CURRENT_SOURCE_DIR}
+      COMMENT
+        "Generate doxygen docs for ${project_name}"
+      ALL
+    )
+  endif()
 endfunction()
