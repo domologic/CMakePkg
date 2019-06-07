@@ -1,6 +1,16 @@
 macro(load_compiler_config)
+  set(CMAKE_CXX_FLAGS                "" CACHE STRING "" FORCE)
+  set(CMAKE_CXX_FLAGS_DEBUG          "" CACHE STRING "" FORCE)
+  set(CMAKE_CXX_FLAGS_DEBUG          "" CACHE STRING "" FORCE)
+
+  set(CMAKE_C_FLAGS                  "" CACHE STRING "" FORCE)
+  set(CMAKE_C_FLAGS_DEBUG            "" CACHE STRING "" FORCE)
+  set(CMAKE_C_FLAGS_RELEASE          "" CACHE STRING "" FORCE)
+
   # preprocessor definitions
   set(DEFINE
+    WIN32
+    _WINDOWS
     WIN32_LEAN_AND_MEAN
     VC_EXTRALEAN
     OEMRESOURCE
@@ -18,6 +28,7 @@ macro(load_compiler_config)
 
   # global flags
   set(FLAGS
+    /W3
     /Oi
     /Ot
     /GT
