@@ -1,7 +1,7 @@
 include(FindPackageHandleStandardArgs)
 
 find_package(PkgConfig QUIET)
-pkg_check_modules(PC_SIGCXX sigc++-2.0 QUIET)
+pkg_check_modules(PC_SIGCXX sigc++-3.0 QUIET)
 
 set(SIGCXX_VERSION ${PC_SIGCXX_VERSION})
 
@@ -12,7 +12,7 @@ find_path(SIGCXX_INCLUDE_DIR
     ${PC_SIGCXX_INCLUDEDIR}
     ${PC_SIGCXX_INCLUDE_DIRS}
   PATH_SUFFIXES
-    sigc++
+    sigc++-3.0
 )
 
 find_path(SIGCXX_CONFIG_INCLUDE_DIR
@@ -22,12 +22,12 @@ find_path(SIGCXX_CONFIG_INCLUDE_DIR
     ${PC_SIGCXX_LIBDIR}
     ${PC_SIGCXX_LIBRARY_DIRS}
   PATH_SUFFIXES
-    sigc++-2.0/include
+    sigc++-3.0/include
 )
 
 find_library(SIGCXX_LIBRARY
   NAMES
-    sigc-2.0
+    sigc-3.0
   HINTS
     ${PC_SIGCXX_LIBDIR}
     ${PC_SIGCXX_LIBRARY_DIRS}

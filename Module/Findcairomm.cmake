@@ -2,7 +2,7 @@ include(FindPackageHandleStandardArgs)
 
 find_package(PkgConfig QUIET)
 
-pkg_check_modules(PC_CAIROMM cairomm-1.0 QUIET)
+pkg_check_modules(PC_CAIROMM cairomm-1.16 QUIET)
 
 set(CAIROMM_VERSION ${PC_CAIROMM_VERSION})
 
@@ -13,7 +13,7 @@ find_path(CAIROMM_INCLUDE_DIR
     ${PC_CAIROMM_INCLUDEDIR}
     ${PC_CAIROMM_INCLUDE_DIRS}
   PATH_SUFFIXES
-    cairomm-1.0
+    cairomm-1.16
 )
 
 find_path(CAIROMM_CONFIG_INCLUDE_DIR
@@ -23,12 +23,12 @@ find_path(CAIROMM_CONFIG_INCLUDE_DIR
     ${PC_CAIROMM_LIBDIR}
     ${PC_CAIROMM_LIBRARY_DIRS}
   PATH_SUFFIXES
-    cairomm-1.0/include
+    cairomm-1.16/include
 )
 
 find_library(CAIROMM_LIBRARY
   NAMES
-    cairomm-1.0
+    cairomm-1.16
   HINTS
     ${PKG_CONFIG_CAIROMM_LIBDIR}
     ${PKG_CONFIG_CAIROMM_LIBRARY_DIRS}
