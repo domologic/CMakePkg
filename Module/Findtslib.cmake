@@ -7,7 +7,7 @@ set(TSLIB_VERSION ${PC_TSLIB_VERSION})
 
 find_path(TSLIB_INCLUDE_DIR
   NAMES
-    tslib.h
+    tslib/tslib.h
   HINTS
     ${PC_TSLIB_INCLUDEDIR}
     ${PC_TSLIB_INCLUDE_DIRS}

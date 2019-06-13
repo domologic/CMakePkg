@@ -7,7 +7,7 @@ set(CAIRO_VERSION ${PC_CAIRO_VERSION})
 
 find_path(CAIRO_INCLUDE_DIR
   NAMES
-    cairo.h
+    cairo/cairo.h
   HINTS
     ${PC_CAIRO_INCLUDEDIR}
     ${PC_CAIRO_INCLUDE_DIRS}
@@ -33,6 +33,7 @@ find_package_handle_standard_args(Cairo
 if (Cairo_FOUND)
   set(CAIRO_INCLUDE_DIRS
     ${CAIRO_INCLUDE_DIR}
+    ${CAIRO_INCLUDE_DIR}/cairo
   )
 
   set(CAIRO_LIBRARIES
