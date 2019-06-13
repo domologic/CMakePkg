@@ -41,6 +41,8 @@ if (tslib_FOUND)
   mark_as_advanced(
     TSLIB_VERSION
     TSLIB_INCLUDE_DIR
+    TSLIB_INCLUDE_DIRS
     TSLIB_LIBRARY
+    TSLIB_LIBRARIES
   )
 endif()
