@@ -34,8 +34,8 @@ if (tslib_FOUND)
     ${TSLIB_INCLUDE_DIR}
   )
 
-  set(TSLIB_LIBRARY
-    ${TSLIB_LIBRARIES}
+  set(TSLIB_LIBRARIES
+    ${TSLIB_LIBRARY}
   )
 
   mark_as_advanced(
