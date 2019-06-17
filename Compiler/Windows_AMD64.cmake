@@ -62,6 +62,7 @@ macro(load_compiler_config)
     /guard:cf
     /Gy
     /Qpar
+    /MD
     /Qfast_transcendentals
   )
 
