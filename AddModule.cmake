@@ -319,6 +319,30 @@ function(add_module_executable module_name)
   _add_module()
 endfunction()
 
+function(add_module_test module_name)
+  _add_module_parse_args(${ARGN})
+  _add_module_collect_sources()
+
+  set(module_name ${module_name}Test)
+  set(ARG_DEPENDENCIES
+    ${ARG_DEPENDENCIES}
+    Extern::Catch2
+  )
+
+  add_executable(${module_name}
+    ${ARG_SOURCES}
+  )
+
+  add_test(
+    NAME
+      ${module_name}
+    COMMAND
+      ${module_name}
+    WORKING_DIRECTORY
+      ${CMAKE_INSTALL_PREFIX}
+  )
+endfunction()
+
 function(add_module_docs project_name)
   cmake_parse_arguments(ARG
     ""

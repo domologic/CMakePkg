@@ -17,6 +17,8 @@ set(CMAKE_SKIP_BUILD_RPATH            ON)
 set(CMAKE_BUILD_WITH_INSTALL_RPATH    OFF)
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH OFF)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS     ON)
+
 set_property(GLOBAL
   PROPERTY
     USE_FOLDERS ON
@@ -29,3 +31,5 @@ if (NOT N EQUAL 0)
 endif()
 
 include(${CMAKE_CURRENT_LIST_DIR}/AddModule.cmake)
+
+enable_testing()
