@@ -333,6 +333,8 @@ function(add_module_test module_name)
     ${ARG_SOURCES}
   )
 
+  _add_module()
+
   add_test(
     NAME
       ${module_name}
