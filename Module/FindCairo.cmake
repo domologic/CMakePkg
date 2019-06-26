@@ -47,5 +47,4 @@ if (Cairo_FOUND)
     CAIRO_LIBRARY
     CAIRO_LIBRARIES
   )
-
 endif()
