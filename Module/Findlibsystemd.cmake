@@ -1,7 +1,7 @@
 include(FindPackageHandleStandardArgs)
 
 find_package(PkgConfig QUIET)
-pkg_check_modules(PC_DBUS libsystemd QUIET)
+pkg_check_modules(PC_LIBSYSTEMD libsystemd QUIET)
 
 set(LIBSYSTEMD_VERSION ${PC_LIBSYSTEMD_VERSION})
 
