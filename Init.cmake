@@ -24,10 +24,12 @@ set_property(GLOBAL
     USE_FOLDERS ON
 )
 
-include(ProcessorCount)
-ProcessorCount(N)
-if (NOT N EQUAL 0)
-  set(ENV{CMAKE_BUILD_PARALLEL_LEVEL} ${N})
+if (UNIX)
+  include(ProcessorCount)
+  ProcessorCount(N)
+  if (NOT N EQUAL 0)
+    set(CMAKE_MAKE_PROGRAM "${CMAKE_MAKE_PROGRAM} -j${N}")
+  endif()
 endif()
 
 include(${CMAKE_CURRENT_LIST_DIR}/AddModule.cmake)
