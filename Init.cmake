@@ -28,7 +28,7 @@ if (UNIX)
   include(ProcessorCount)
   ProcessorCount(N)
   if (NOT N EQUAL 0)
-    set(CMAKE_MAKE_PROGRAM "${CMAKE_MAKE_PROGRAM} -j${N}")
+    #set(CMAKE_MAKE_PROGRAM "${CMAKE_MAKE_PROGRAM} -j${N}")
   endif()
 endif()
 
