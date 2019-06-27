@@ -44,9 +44,7 @@ find_package_handle_standard_args(DBus
 if (DBus_FOUND)
   set(DBUS_INCLUDE_DIRS
     ${DBUS_INCLUDE_DIR}
-    ${DBUS_INCLUDE_DIR}/dbus
     ${DBUS_CONFIG_INCLUDE_DIR}
-    ${DBUS_CONFIG_INCLUDE_DIR}/dbus
   )
 
   set(DBUS_LIBRARIES
