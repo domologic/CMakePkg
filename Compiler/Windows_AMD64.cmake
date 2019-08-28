@@ -33,7 +33,6 @@ macro(load_compiler_config)
     /Ot
     /GT
     /GF
-    /arch:AVX2
     /permissive-
     /Zc:inline
     /Zc:rvalueCast
