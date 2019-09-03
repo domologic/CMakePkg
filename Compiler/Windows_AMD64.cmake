@@ -55,6 +55,7 @@ macro(load_compiler_config)
     /MDd
   )
   set(FLAGS_RELEASE
+    /Zi
     /MP
     /GL
     /O2
@@ -79,11 +80,12 @@ macro(load_compiler_config)
   #set(FLAGS_CXX_DEBUG          "")
   #set(FLAGS_CXX_RELEASE        "")
 
-  #set(LINK                     "")
+  set(LINK
+    /DEBUG:FULL
+  )
   set(LINK_DEBUG
     /OPT:NOREF
     /OPT:NOICF
-    /DEBUG:FULL
   )
   set(LINK_RELEASE
     /OPT:REF
