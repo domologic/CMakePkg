@@ -59,7 +59,7 @@ function(_add_module_generate_revision module_name)
 
   configure_file(
     ${DOMOLOGIC_SCRIPT_PATH}/Revision.hpp.cmake
-    ${CMAKE_BINARY_DIR}/${module_name}/Revision.hpp
+    ${CMAKE_BINARY_DIR}/Revision/${module_name}/Revision.hpp
     @ONLY
   )
 endfunction()
@@ -276,7 +276,7 @@ macro(_add_module)
 
   set(ARG_INCLUDE_DIRECTORIES
     ${ARG_INCLUDE_DIRECTORIES}
-    ${CMAKE_BINARY_DIR}/${module_name}
+    ${CMAKE_BINARY_DIR}/Revision
   )
 
   if (ARG_COMPILE_DEFINITIONS)
