@@ -23,6 +23,47 @@ macro(_add_module_parse_args)
   )
 endmacro()
 
+function(_add_module_generate_revision module_name)
+  find_package(Git QUIET)
+
+  set(MODULE_REVISION "unknown")
+  set(MODULE_DATE     "1970-01-01 00:00:00 +0000")
+  set(MODULE_BRANCH   "unknown")
+  set(MODULE_NAME     "${module_name}")
+
+  if (GIT_EXECUTABLE)
+    execute_process(
+      COMMAND "${GIT_EXECUTABLE}" describe --long --match init --dirty=+ --abbrev=12 --always
+      WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+      OUTPUT_VARIABLE REVISION
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+      ERROR_QUIET
+    )
+
+    execute_process(
+      COMMAND "${GIT_EXECUTABLE}" show -s --format=%ci
+      WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+      OUTPUT_VARIABLE DATE
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+      ERROR_QUIET
+    )
+
+    execute_process(
+      COMMAND "${GIT_EXECUTABLE}" rev-parse --abbrev-ref HEAD
+      WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+      OUTPUT_VARIABLE BRANCH
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+      ERROR_QUIET
+    )
+  endif()
+
+  configure_file(
+    ${DOMOLOGIC_SCRIPT_PATH}/Revision.hpp.cmake
+    ${CMAKE_BINARY_DIR}/${module_name}/Revision.hpp
+    @ONLY
+  )
+endfunction()
+
 function(_add_module_collect_source_files CURRENT_DIR VARIABLE)
   list(FIND ARGN "${CURRENT_DIR}" IS_EXCLUDED)
   if (IS_EXCLUDED EQUAL -1)
@@ -188,6 +229,8 @@ endmacro()
 macro(_add_module)
   include(${DOMOLOGIC_SCRIPT_PATH}/Compiler/${CMAKE_SYSTEM_NAME}_${CMAKE_SYSTEM_PROCESSOR}.cmake)
 
+  _add_module_generate_revision(${module_name})
+
   if (NOT "${type}" STREQUAL "INTERFACE")
     message(STATUS "Loading ${CMAKE_SYSTEM_NAME}::${CMAKE_SYSTEM_PROCESSOR} configuration")
     load_compiler_config()
@@ -230,6 +273,11 @@ macro(_add_module)
   endforeach()
 
   _add_module_link_libraries(${ARG_LINK_LIBRARIES})
+
+  set(ARG_INCLUDE_DIRECTORIES
+    ${ARG_INCLUDE_DIRECTORIES}
+    ${CMAKE_BINARY_DIR}/${module_name}
+  )
 
   if (ARG_COMPILE_DEFINITIONS)
     target_compile_definitions(${module_name}
