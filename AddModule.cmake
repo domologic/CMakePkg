@@ -33,6 +33,7 @@ function(_add_module_generate_revision module_name)
  
   set(MODULE_REVISION  "unknown")
   set(MODULE_TIMESTAMP "1970-01-01 00:00:00 +0000")
+  set(MODULE_DATE      "19700101")
   set(MODULE_BRANCH    "unknown")
 
   if (GIT_EXECUTABLE)
@@ -53,6 +54,14 @@ function(_add_module_generate_revision module_name)
     )
 
     execute_process(
+      COMMAND "${GIT_EXECUTABLE}" show -s --format=%cd --date=short
+      WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+      OUTPUT_VARIABLE MODULE_DATE
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+      ERROR_QUIET
+    )
+
+    execute_process(
       COMMAND "${GIT_EXECUTABLE}" rev-parse --abbrev-ref HEAD
       WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
       OUTPUT_VARIABLE MODULE_BRANCH
@@ -60,6 +69,8 @@ function(_add_module_generate_revision module_name)
       ERROR_QUIET
     )
   endif()
+
+  string(REGEX REPLACE "-" "" MODULE_DATE "${MODULE_DATE}") 
 
   configure_file(
     ${DOMOLOGIC_SCRIPT_PATH}/Revision.hpp.cmake
@@ -269,12 +280,12 @@ macro(_add_module)
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_INSTALL_PREFIX}
     )
     target_include_directories(${module_name}
-      INTERFACE
+      PUBLIC
         ${CMAKE_BINARY_DIR}/Revision
     )
   else()
     target_include_directories(${module_name}
-      PUBLIC
+      INTERFACE
         ${CMAKE_BINARY_DIR}/Revision
     )
   endif()
