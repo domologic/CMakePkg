@@ -26,16 +26,20 @@ endmacro()
 function(_add_module_generate_revision module_name)
   find_package(Git QUIET)
 
-  set(MODULE_REVISION "unknown")
-  set(MODULE_DATE     "1970-01-01 00:00:00 +0000")
-  set(MODULE_BRANCH   "unknown")
-  set(MODULE_NAME     "${module_name}")
+  string(REGEX REPLACE "-"                 "_"       MODULE_NAME "${module_name}") 
+  string(REGEX REPLACE "(.)([A-Z][a-z]+)"  "\\1_\\2" MODULE_NAME "${MODULE_NAME}")
+  string(REGEX REPLACE "([a-z0-9])([A-Z])" "\\1_\\2" MODULE_NAME "${MODULE_NAME}")
+  string(TOUPPER "${MODULE_NAME}" MODULE_NAME)
+ 
+  set(MODULE_REVISION  "unknown")
+  set(MODULE_TIMESTAMP "1970-01-01 00:00:00 +0000")
+  set(MODULE_BRANCH    "unknown")
 
   if (GIT_EXECUTABLE)
     execute_process(
       COMMAND "${GIT_EXECUTABLE}" describe --long --match init --dirty=+ --abbrev=12 --always
       WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-      OUTPUT_VARIABLE REVISION
+      OUTPUT_VARIABLE MODULE_REVISION
       OUTPUT_STRIP_TRAILING_WHITESPACE
       ERROR_QUIET
     )
@@ -43,7 +47,7 @@ function(_add_module_generate_revision module_name)
     execute_process(
       COMMAND "${GIT_EXECUTABLE}" show -s --format=%ci
       WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-      OUTPUT_VARIABLE DATE
+      OUTPUT_VARIABLE MODULE_TIMESTAMP
       OUTPUT_STRIP_TRAILING_WHITESPACE
       ERROR_QUIET
     )
@@ -51,7 +55,7 @@ function(_add_module_generate_revision module_name)
     execute_process(
       COMMAND "${GIT_EXECUTABLE}" rev-parse --abbrev-ref HEAD
       WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-      OUTPUT_VARIABLE BRANCH
+      OUTPUT_VARIABLE MODULE_BRANCH
       OUTPUT_STRIP_TRAILING_WHITESPACE
       ERROR_QUIET
     )
@@ -264,6 +268,15 @@ macro(_add_module)
         LIBRARY_OUTPUT_DIRECTORY ${CMAKE_INSTALL_PREFIX}
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_INSTALL_PREFIX}
     )
+    target_include_directories(${module_name}
+      INTERFACE
+        ${CMAKE_BINARY_DIR}/Revision
+    )
+  else()
+    target_include_directories(${module_name}
+      PUBLIC
+        ${CMAKE_BINARY_DIR}/Revision
+    )
   endif()
 
   foreach(DEPENDENCY ${ARG_DEPENDENCIES})
@@ -273,11 +286,6 @@ macro(_add_module)
   endforeach()
 
   _add_module_link_libraries(${ARG_LINK_LIBRARIES})
-
-  set(ARG_INCLUDE_DIRECTORIES
-    ${ARG_INCLUDE_DIRECTORIES}
-    ${CMAKE_BINARY_DIR}/Revision
-  )
 
   if (ARG_COMPILE_DEFINITIONS)
     target_compile_definitions(${module_name}
