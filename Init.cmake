@@ -32,6 +32,10 @@ if (UNIX)
   endif()
 endif()
 
-include(${CMAKE_CURRENT_LIST_DIR}/AddModule.cmake)
+if (BUILD_NEW)
+  include(${CMAKE_CURRENT_LIST_DIR}/AddModule2.cmake)
+else()
+  include(${CMAKE_CURRENT_LIST_DIR}/AddModule.cmake)
+endif()
 
 enable_testing()
