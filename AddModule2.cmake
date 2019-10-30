@@ -117,15 +117,17 @@ function(_add_module_load_dependency DEPENDENCY)
 
   list(GET DEPENDENCY_GROUP_PROJECT 0 GROUP)
   list(GET DEPENDENCY_GROUP_PROJECT 1 PROJECT)
+  
+  set(DEP_PROJECT_NAME ${GROUP}${PROJECT})
 
   FetchContent_Declare(
-    ${PROJECT}
+    ${DEP_PROJECT_NAME}
     GIT_REPOSITORY http://${DOMOLOGIC_DEPENDENCY_GIT_DOMAIN}/${GROUP}/${PROJECT}.git
   )
-  FetchContent_GetProperties(${PROJECT})
-  if (NOT ${PROJECT}_POPULATED)
-    FetchContent_Populate(${PROJECT})
-    add_subdirectory(${${PROJECT}_SOURCE_DIR} ${${PROJECT}_BINARY_DIR})
+  FetchContent_GetProperties(${DEP_PROJECT_NAME})
+  if (NOT ${DEP_PROJECT_NAME}_POPULATED)
+    FetchContent_Populate(${DEP_PROJECT_NAME})
+    add_subdirectory(${${DEP_PROJECT_NAME}_SOURCE_DIR} ${${DEP_PROJECT_NAME}_BINARY_DIR})
   endif()
 endfunction()
 
@@ -158,11 +160,6 @@ macro(_add_module_link_libraries)
     set(DEPS
       ${DEPS}
       ${DEPENDENCY_NAME}
-    )
-    set_target_properties(${DEPENDENCY_NAME}
-      PROPERTIES
-        FOLDER
-          "Dependencies"
     )
   endforeach()
 
