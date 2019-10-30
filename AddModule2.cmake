@@ -345,14 +345,6 @@ function(add_module_library module_name type)
   endif()
 
   _add_module()
-
-  export(
-    TARGETS
-      ${module_name}
-    FILE
-      ${module_name}.dep.cmake
-    EXPORT_LINK_INTERFACE_LIBRARIES
-  )
 endfunction()
 
 function(add_module_executable module_name)
