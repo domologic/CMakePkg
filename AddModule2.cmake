@@ -136,6 +136,8 @@ function(_add_module_load_dependency DEPENDENCY)
     if (NOT ${RESULT} EQUAL "0")
       message(FATAL_ERROR "Could not clone ${GROUP}::${PROJECT}!")
     endif()
+
+    add_subdirectory(${SRC_PATH} ${BIN_PATH})
   else()
     execute_process(
       COMMAND
@@ -152,8 +154,6 @@ function(_add_module_load_dependency DEPENDENCY)
       message(FATAL_ERROR "Could not pull ${GROUP}::${PROJECT}!")
     endif()
   endif()
-
-  add_subdirectory(${SRC_PATH} ${BIN_PATH})
 endfunction()
 
 macro(_add_module_collect_sources)
