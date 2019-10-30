@@ -117,6 +117,7 @@ function(_add_module_load_dependency DEPENDENCY)
   list(GET DEPENDENCY_GROUP_PROJECT 1 PROJECT)
 
   set(SRC_PATH "${DOMOLOGIC_DEPENDENCY_PATH}/Source/${GROUP}/${PROJECT}")
+  set(BIN_PATH "${DOMOLOGIC_DEPENDENCY_PATH}/Binary/${GROUP}/${PROJECT}")
 
   if (NOT EXISTS ${SRC_PATH})
     file(MAKE_DIRECTORY ${SRC_PATH})
@@ -152,7 +153,7 @@ function(_add_module_load_dependency DEPENDENCY)
     endif()
   endif()
 
-  add_subdirectory(${SRC_PATH} ${CMAKE_BINARY_DIR})
+  add_subdirectory(${SRC_PATH} ${BIN_PATH})
 endfunction()
 
 macro(_add_module_collect_sources)
