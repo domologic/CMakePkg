@@ -119,10 +119,10 @@ function(_add_module_load_dependency DEPENDENCY)
   list(GET DEPENDENCY_GROUP_PROJECT 1 PROJECT)
 
   FetchContent_Declare(
-    ${DEPENDENCY}
+    ${GROUP}${PROJECT}
     GIT_REPOSTIRY http://${DOMOLOGIC_DEPENDENCY_GIT_DOMAIN}/${GROUP}/${PROJECT}.git
   )
-  FetchContent_MakeAvailable(${DEPENDENCY})
+  FetchContent_MakeAvailable(${GROUP}${PROJECT})
 endfunction()
 
 macro(_add_module_collect_sources)
