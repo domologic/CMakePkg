@@ -152,7 +152,7 @@ function(_add_module_load_dependency DEPENDENCY)
     endif()
   endif()
 
-  add_subdirectory(${SRC_PATH})
+  add_subdirectory(${SRC_PATH} ${CMAKE_BINARY_DIR})
 endfunction()
 
 macro(_add_module_collect_sources)
