@@ -117,22 +117,46 @@ function(_add_module_load_dependency DEPENDENCY)
 
   list(GET DEPENDENCY_GROUP_PROJECT 0 GROUP)
   list(GET DEPENDENCY_GROUP_PROJECT 1 PROJECT)
-  
-  set(DEP_PROJECT_NAME ${GROUP}${PROJECT})
 
-  FetchContent_Declare(
-    ${DEP_PROJECT_NAME}
-    GIT_REPOSITORY http://${DOMOLOGIC_DEPENDENCY_GIT_DOMAIN}/${GROUP}/${PROJECT}.git
-  )
-  FetchContent_GetProperties(${DEP_PROJECT_NAME})
-  if (NOT ${DEP_PROJECT_NAME}_POPULATED)
-    FetchContent_Populate(${DEP_PROJECT_NAME})
-    add_subdirectory(${${DEP_PROJECT_NAME}_SOURCE_DIR} ${${DEP_PROJECT_NAME}_BINARY_DIR})
+  set(SRC_PATH "${DOMOLOGIC_DEPENDENCY_PATH}/Source/${GROUP}/${PROJECT}")
+  set(BIN_PATH "${DOMOLOGIC_DEPENDENCY_PATH}/Binary/${GROUP}/${PROJECT}")
+
+  if (NOT EXISTS ${SRC_PATH} AND NOT EXISTS ${BIN_PATH})
+    file(MAKE_DIRECTORY ${SRC_PATH})
+    file(MAKE_DIRECTORY ${BIN_PATH})
+
+    execute_process(
+      COMMAND
+        ${GIT_EXECUTABLE} clone "http://${DOMOLOGIC_DEPENDENCY_GIT_DOMAIN}/${GROUP}/${PROJECT}.git" --depth 1 --recursive ${SRC_PATH}
+      WORKING_DIRECTORY
+        ${CMAKE_CURRENT_BINARY_DIR}
+      RESULT_VARIABLE
+        RESULT
+      OUTPUT_QUIET
+      ERROR_QUIET
+    )
+
+    if (NOT ${RESULT} EQUAL "0")
+      message(FATAL_ERROR "Could not clone ${DEPENDENCY}!")
+    endif()
+
+    add_subdirectory(${SRC_PATH} ${BIN_PATH})
+  else()
+    execute_process(
+      COMMAND
+        ${GIT_EXECUTABLE} pull
+      WORKING_DIRECTORY
+        ${SRC_PATH}
+      RESULT_VARIABLE
+        RESULT
+      OUTPUT_QUIET
+      ERROR_QUIET
+    )
+
+    if (NOT ${RESULT} EQUAL "0")
+      message(FATAL_ERROR "Could not pull ${DEPENDENCY}!")
+    endif()
   endif()
-  message("DEP_PROJECT_NAME ${DEP_PROJECT_NAME}")
-  message("${DEP_PROJECT_NAME}_SOURCE_DIR ${${DEP_PROJECT_NAME}_SOURCE_DIR}")
-  message("${DEP_PROJECT_NAME}_BINARY_DIR ${${DEP_PROJECT_NAME}_BINARY_DIR}")
-
 endfunction()
 
 macro(_add_module_collect_sources)
