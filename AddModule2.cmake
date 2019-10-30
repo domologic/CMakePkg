@@ -118,17 +118,14 @@ function(_add_module_load_dependency DEPENDENCY)
   list(GET DEPENDENCY_GROUP_PROJECT 0 GROUP)
   list(GET DEPENDENCY_GROUP_PROJECT 1 PROJECT)
 
-  set(SRC_PATH "${DOMOLOGIC_DEPENDENCY_PATH}/Source/${GROUP}/${PROJECT}")
-  set(BIN_PATH "${DOMOLOGIC_DEPENDENCY_PATH}/Binary/${GROUP}/${PROJECT}")
-
   FetchContent_Declare(
-    ${GROUP}${PROJECT}
+    ${PROJECT}
     GIT_REPOSITORY http://${DOMOLOGIC_DEPENDENCY_GIT_DOMAIN}/${GROUP}/${PROJECT}.git
   )
   FetchContent_GetProperties(${GROUP}${PROJECT})
-  if (NOT ${GROUP}${PROJECT}_POPULATED)
-    FetchContent_Populate(${GROUP}${PROJECT})
-    add_subdirectory(${${GROUP}${PROJECT}_SOURCE_DIR} ${${GROUP}${PROJECT}_BINARY_DIR})
+  if (NOT ${PROJECT}_POPULATED)
+    FetchContent_Populate(${PROJECT})
+    add_subdirectory(${${PROJECT}_SOURCE_DIR} ${${PROJECT}_BINARY_DIR})
   endif()
 endfunction()
 
