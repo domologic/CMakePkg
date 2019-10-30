@@ -119,8 +119,9 @@ function(_add_module_load_dependency DEPENDENCY)
   set(SRC_PATH "${DOMOLOGIC_DEPENDENCY_PATH}/Source/${GROUP}/${PROJECT}")
   set(BIN_PATH "${DOMOLOGIC_DEPENDENCY_PATH}/Binary/${GROUP}/${PROJECT}")
 
-  if (NOT EXISTS ${SRC_PATH})
+  if (NOT EXISTS ${SRC_PATH} AND NOT EXISTS ${BIN_PATH})
     file(MAKE_DIRECTORY ${SRC_PATH})
+    file(MAKE_DIRECTORY ${BIN_PATH})
 
     execute_process(
       COMMAND
@@ -134,7 +135,7 @@ function(_add_module_load_dependency DEPENDENCY)
     )
 
     if (NOT ${RESULT} EQUAL "0")
-      message(FATAL_ERROR "Could not clone ${GROUP}::${PROJECT}!")
+      message(FATAL_ERROR "Could not clone ${DEPENDENCY}!")
     endif()
 
     add_subdirectory(${SRC_PATH} ${BIN_PATH})
@@ -151,7 +152,7 @@ function(_add_module_load_dependency DEPENDENCY)
     )
 
     if (NOT ${RESULT} EQUAL "0")
-      message(FATAL_ERROR "Could not pull ${GROUP}::${PROJECT}!")
+      message(FATAL_ERROR "Could not pull ${DEPENDENCY}!")
     endif()
   endif()
 endfunction()
@@ -185,6 +186,11 @@ macro(_add_module_link_libraries)
     set(DEPS
       ${DEPS}
       ${DEPENDENCY_NAME}
+    )
+    set_target_properties(${DEPENDENCY_NAME}
+      PROPERTIES
+        FOLDER
+          "Dependencies"
     )
   endforeach()
 
