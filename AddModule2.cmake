@@ -122,7 +122,7 @@ function(_add_module_load_dependency DEPENDENCY)
     ${PROJECT}
     GIT_REPOSITORY http://${DOMOLOGIC_DEPENDENCY_GIT_DOMAIN}/${GROUP}/${PROJECT}.git
   )
-  FetchContent_GetProperties(${GROUP}${PROJECT})
+  FetchContent_GetProperties(${PROJECT})
   if (NOT ${PROJECT}_POPULATED)
     FetchContent_Populate(${PROJECT})
     add_subdirectory(${${PROJECT}_SOURCE_DIR} ${${PROJECT}_BINARY_DIR})
