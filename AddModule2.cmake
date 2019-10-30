@@ -1,5 +1,7 @@
 include_guard(GLOBAL)
 
+include(FetchContent)
+
 macro(_add_module_parse_args)
   set(_MULTI_OPTIONS
     SOURCE_DIR
