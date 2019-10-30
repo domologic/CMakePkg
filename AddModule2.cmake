@@ -121,9 +121,8 @@ function(_add_module_load_dependency DEPENDENCY)
   set(SRC_PATH "${DOMOLOGIC_DEPENDENCY_PATH}/Source/${GROUP}/${PROJECT}")
   set(BIN_PATH "${DOMOLOGIC_DEPENDENCY_PATH}/Binary/${GROUP}/${PROJECT}")
 
-  if (NOT EXISTS ${SRC_PATH} AND NOT EXISTS ${BIN_PATH})
+  if (NOT EXISTS ${SRC_PATH})
     file(MAKE_DIRECTORY ${SRC_PATH})
-    file(MAKE_DIRECTORY ${BIN_PATH})
 
     execute_process(
       COMMAND
@@ -140,7 +139,7 @@ function(_add_module_load_dependency DEPENDENCY)
       message(FATAL_ERROR "Could not clone ${DEPENDENCY}!")
     endif()
 
-    add_subdirectory(${SRC_PATH} ${BIN_PATH})
+    add_subdirectory(${SRC_PATH})
   else()
     execute_process(
       COMMAND
