@@ -120,7 +120,7 @@ function(_add_module_load_dependency DEPENDENCY)
 
   FetchContent_Declare(
     ${GROUP}${PROJECT}
-    GIT_REPOSTIRY http://${DOMOLOGIC_DEPENDENCY_GIT_DOMAIN}/${GROUP}/${PROJECT}.git
+    GIT_REPOSITORY http://${DOMOLOGIC_DEPENDENCY_GIT_DOMAIN}/${GROUP}/${PROJECT}.git
   )
   FetchContent_MakeAvailable(${GROUP}${PROJECT})
 endfunction()
