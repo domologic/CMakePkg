@@ -121,8 +121,9 @@ function(_add_module_load_dependency DEPENDENCY)
   set(SRC_PATH "${DOMOLOGIC_DEPENDENCY_PATH}/Source/${GROUP}/${PROJECT}")
   set(BIN_PATH "${DOMOLOGIC_DEPENDENCY_PATH}/Binary/${GROUP}/${PROJECT}")
 
-  if (NOT EXISTS ${SRC_PATH})
+  if (NOT EXISTS ${SRC_PATH} AND NOT EXISTS ${BIN_PATH})
     file(MAKE_DIRECTORY ${SRC_PATH})
+    file(MAKE_DIRECTORY ${BIN_PATH})
 
     execute_process(
       COMMAND
@@ -139,7 +140,7 @@ function(_add_module_load_dependency DEPENDENCY)
       message(FATAL_ERROR "Could not clone ${DEPENDENCY}!")
     endif()
 
-    add_subdirectory(${SRC_PATH})
+    add_subdirectory(${SRC_PATH} ${BIN_PATH})
   else()
     execute_process(
       COMMAND
@@ -229,8 +230,7 @@ macro(_add_module)
 
   _add_module_generate_revision(${module_name})
 
-  if (NOT "${type}" STREQUAL "INTERFACE" AND NOT DOMOLOGIC_COMPILER_CONFIGURATED)
-    message(STATUS "Loading ${CMAKE_SYSTEM_NAME}::${CMAKE_SYSTEM_PROCESSOR} configuration")
+  if (NOT "${type}" STREQUAL "INTERFACE")
     load_compiler_config()
 
     target_compile_definitions(${module_name}
@@ -266,7 +266,6 @@ macro(_add_module)
       PUBLIC
         ${CMAKE_BINARY_DIR}/Revision
     )
-    set(DOMOLOGIC_COMPILER_CONFIGURATED ON)
   else()
     target_include_directories(${module_name}
       INTERFACE
