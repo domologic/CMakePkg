@@ -129,6 +129,10 @@ function(_add_module_load_dependency DEPENDENCY)
     FetchContent_Populate(${DEP_PROJECT_NAME})
     add_subdirectory(${${DEP_PROJECT_NAME}_SOURCE_DIR} ${${DEP_PROJECT_NAME}_BINARY_DIR})
   endif()
+  message("DEP_PROJECT_NAME ${DEP_PROJECT_NAME}")
+  message("${DEP_PROJECT_NAME}_SOURCE_DIR ${${DEP_PROJECT_NAME}_SOURCE_DIR}")
+  message("${DEP_PROJECT_NAME}_BINARY_DIR ${${DEP_PROJECT_NAME}_BINARY_DIR}")
+
 endfunction()
 
 macro(_add_module_collect_sources)
@@ -202,7 +206,7 @@ macro(_add_module)
 
   _add_module_generate_revision(${module_name})
 
-  if (NOT "${type}" STREQUAL "INTERFACE")
+  if (NOT "${type}" STREQUAL "INTERFACE" AND NOT DOMOLOGIC_COMPILER_CONFIGURATED)
     message(STATUS "Loading ${CMAKE_SYSTEM_NAME}::${CMAKE_SYSTEM_PROCESSOR} configuration")
     load_compiler_config()
 
@@ -239,6 +243,7 @@ macro(_add_module)
       PUBLIC
         ${CMAKE_BINARY_DIR}/Revision
     )
+    set(DOMOLOGIC_COMPILER_CONFIGURATED ON)
   else()
     target_include_directories(${module_name}
       INTERFACE
