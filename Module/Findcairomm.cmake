@@ -1,3 +1,9 @@
+#
+# find_package module for cairomm library
+#
+# Tries to locate the cairomm library with pkgconfig
+#
+
 include(FindPackageHandleStandardArgs)
 
 find_package(PkgConfig QUIET)

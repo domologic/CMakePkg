@@ -1,3 +1,14 @@
+#
+# Provides a wrapper facility which enables the usage of external git repositories for dependency resolution.
+# Every dependency will be downloaded from git and included in the root project.
+#
+# Following functions are available to use:
+#   add_module_library
+#   add_module_executable
+#   add_module_test
+#   add_module_docs
+#
+
 include_guard(GLOBAL)
 
 include(FetchContent)
@@ -301,6 +312,49 @@ macro(_add_module)
   endif()
 endmacro()
 
+#
+# Add a library module to the project using the specified source files.
+#
+# add_module_library(<name> [STATIC | SHARED | MODULE]
+#   [SOURCE_DIR]
+#   [SOURCES]
+#   [COMPILE_DEFINITIONS]
+#   [COMPILE_FEATURES]
+#   [COMPILE_OPTIONS]
+#   [INCLUDE_DIRECTORIES]
+#   [LINK_DIRECTORIES]
+#   [LINK_LIBRARIES]
+#   [LINK_OPTIONS]
+#   [PROPERTIES]
+#   [DEPENDENCIES]
+#   [RESOURCES]
+# )
+#
+# Creates <name> library target with the add_library function.
+#
+# SOURCE_DIR
+#   Path to the directory to collect source files from.
+# SOURCES
+#   List of source files to include.
+# COMPILE_DEFINITIONS
+#   See target_compile_definitions function.
+# COMPILE_FEATURES
+#   See target_compile_features function.
+# COMPILE_OPTIONS
+#   See target_compile_options function.
+# INCLUDE_DIRECTORIES
+#   See target_include_directories function.
+# LINK_DIRECTORIES
+#   See target_link_directories function.
+# LINK_LIBRARIES
+#   See target_link_libraries function.
+# PROPERTIES
+#   See set_target_properties function.
+# DEPENDENCIES
+#   List of dependencies described as <group>::<project> which will be downloaded from git and included in the build process.
+# RESOURCES
+#  List of files or directories which will be copied to the binary folder.
+#
 function(add_module_library module_name type)
   _add_module_parse_args(${ARGN})
 
@@ -316,6 +370,49 @@ function(add_module_library module_name type)
   _add_module()
 endfunction()
 
+#
+# Add a executable module to the project using the specified source files.
+#
+# add_module_executable(<name>
+#   [SOURCE_DIR]
+#   [SOURCES]
+#   [COMPILE_DEFINITIONS]
+#   [COMPILE_FEATURES]
+#   [COMPILE_OPTIONS]
+#   [INCLUDE_DIRECTORIES]
+#   [LINK_DIRECTORIES]
+#   [LINK_LIBRARIES]
+#   [LINK_OPTIONS]
+#   [PROPERTIES]
+#   [DEPENDENCIES]
+#   [RESOURCES]
+# )
+#
+# Creates <name> executable target with the add_executable function.
+#
+# SOURCE_DIR
+#   Path to the directory to collect source files from.
+# SOURCES
+#   List of source files to include.
+# COMPILE_DEFINITIONS
+#   See target_compile_definitions function.
+# COMPILE_FEATURES
+#   See target_compile_features function.
+# COMPILE_OPTIONS
+#   See target_compile_options function.
+# INCLUDE_DIRECTORIES
+#   See target_include_directories function.
+# LINK_DIRECTORIES
+#   See target_link_directories function.
+# LINK_LIBRARIES
+#   See target_link_libraries function.
+# PROPERTIES
+#   See set_target_properties function.
+# DEPENDENCIES
+#   List of dependencies described as <group>::<project> which will be downloaded from git and included in the build process.
+# RESOURCES
+#  List of files or directories which will be copied to the binary folder.
+#
 function(add_module_executable module_name)
   _add_module_parse_args(${ARGN})
   _add_module_collect_sources()
@@ -327,6 +424,49 @@ function(add_module_executable module_name)
   _add_module()
 endfunction()
 
+#
+# Add a test to the project to be run by ctest.
+#
+# add_module_test(<name>
+#   [SOURCE_DIR]
+#   [SOURCES]
+#   [COMPILE_DEFINITIONS]
+#   [COMPILE_FEATURES]
+#   [COMPILE_OPTIONS]
+#   [INCLUDE_DIRECTORIES]
+#   [LINK_DIRECTORIES]
+#   [LINK_LIBRARIES]
+#   [LINK_OPTIONS]
+#   [PROPERTIES]
+#   [DEPENDENCIES]
+#   [RESOURCES]
+# )
+#
+# Creates <name> executable target with the add_executable function and includes it as a test with the add_test function.
+#
+# SOURCE_DIR
+#   Path to the directory to collect source files from.
+# SOURCES
+#   List of source files to include.
+# COMPILE_DEFINITIONS
+#   See target_compile_definitions function.
+# COMPILE_FEATURES
+#   See target_compile_features function.
+# COMPILE_OPTIONS
+#   See target_compile_options function.
+# INCLUDE_DIRECTORIES
+#   See target_include_directories function.
+# LINK_DIRECTORIES
+#   See target_link_directories function.
+# LINK_LIBRARIES
+#   See target_link_libraries function.
+# PROPERTIES
+#   See set_target_properties function.
+# DEPENDENCIES
+#   List of dependencies described as <group>::<project> which will be downloaded from git and included in the build process.
+# RESOURCES
+#  List of files or directories which will be copied to the binary folder.
+#
 function(add_module_test module_name)
   _add_module_parse_args(${ARGN})
   _add_module_collect_sources()
@@ -353,6 +493,21 @@ function(add_module_test module_name)
   )
 endfunction()
 
+#
+# Add a apidocs target for the given module.
+#
+# add_module_docs(<name>
+#   [DOXYGEN <config>]
+# )
+#
+# <name> needs to be a valid module created with add_module_library or add_module_executable
+#
+# DOXYGEN
+#   Use Doxygen as generator. Currently this is the only option supported.
+#
+#   <config>
+#     List of doxygen parameters used for creating Doxyfile
+#
 function(add_module_docs project_name)
   cmake_parse_arguments(ARG
     ""

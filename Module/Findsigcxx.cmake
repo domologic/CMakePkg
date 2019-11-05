@@ -1,3 +1,9 @@
+#
+# find_package module for libsigcxx library
+#
+# Tries to locate the libsigcxx library with pkgconfig
+#
+
 include(FindPackageHandleStandardArgs)
 
 find_package(PkgConfig QUIET)

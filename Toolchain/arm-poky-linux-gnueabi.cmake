@@ -1,3 +1,7 @@
+#
+# Toolchain description file for for Yocto SDK
+#
+
 set(TOOLCHAIN         "/opt/yocto-sdk/sigma/sysroots/x86_64-pokysdk-linux/usr/bin/arm-poky-linux-gnueabi/arm-poky-linux-gnueabi")
 set(TOOLCHAIN_SYSROOT "/opt/yocto-sdk/sigma/sysroots/cortexa7t2hf-neon-poky-linux-gnueabi")
 set(TOOLCHAIN_FLAGS   "-march=armv7-a -mfloat-abi=hard -mcpu=cortex-a9 -mfpu=neon-vfpv3 -mtune=cortex-a9 -mabi=aapcs-linux -mvectorize-with-neon-quad -Wno-psabi")
