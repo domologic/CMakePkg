@@ -1,3 +1,9 @@
+#
+# find_package module for tslib library
+#
+# Tries to locate the tslib library with pkgconfig
+#
+
 include(FindPackageHandleStandardArgs)
 
 find_package(PkgConfig QUIET)

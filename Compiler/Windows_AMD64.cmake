@@ -1,4 +1,9 @@
+#
+# Internal
+# Load compiler configuration for Windows AMD64 platform
+#
 macro(load_compiler_config)
+  # cleanup cmake default flags
   set(CMAKE_CXX_FLAGS                "" CACHE STRING "" FORCE)
   set(CMAKE_CXX_FLAGS_DEBUG          "" CACHE STRING "" FORCE)
   set(CMAKE_CXX_FLAGS_DEBUG          "" CACHE STRING "" FORCE)
@@ -7,7 +12,7 @@ macro(load_compiler_config)
   set(CMAKE_C_FLAGS_DEBUG            "" CACHE STRING "" FORCE)
   set(CMAKE_C_FLAGS_RELEASE          "" CACHE STRING "" FORCE)
 
-  # preprocessor definitions
+  # Preprocessor definitions
   set(DEFINE
     WIN32
     _WINDOWS
@@ -26,7 +31,7 @@ macro(load_compiler_config)
     _NDEBUG
   )
 
-  # global flags
+  # Global flags
   set(FLAGS
     /W3
     /Oi
@@ -66,20 +71,21 @@ macro(load_compiler_config)
     /Qfast_transcendentals
   )
 
-  # c flags
+  # C flags
   set(FLAGS_C
     /TC
   )
   #set(FLAGS_C_DEBUG            "")
   #set(FLAGS_C_RELEASE          "")
 
-  # c++ flags
+  # C++ flags
   set(FLAGS_CXX
     /TP
   )
   #set(FLAGS_CXX_DEBUG          "")
   #set(FLAGS_CXX_RELEASE        "")
 
+  # Linker flags
   set(LINK
     /DEBUG:FULL
   )

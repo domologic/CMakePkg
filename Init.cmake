@@ -1,3 +1,7 @@
+#
+# Init script
+#
+
 include_guard(GLOBAL)
 
 message(STATUS "Loading DOMOLOGIC build system")

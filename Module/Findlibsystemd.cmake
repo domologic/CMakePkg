@@ -1,3 +1,9 @@
+#
+# find_package module for libsystemd library
+#
+# Tries to locate the libsystemd library with pkgconfig
+#
+
 include(FindPackageHandleStandardArgs)
 
 find_package(PkgConfig QUIET)

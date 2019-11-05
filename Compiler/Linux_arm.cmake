@@ -1,5 +1,9 @@
+#
+# Internal
+# Load compiler configuration for Linux arm platform
+#
 macro(load_compiler_config)
-  # preprocessor definitions
+  # Preprocessor definitions
   #set(DEFINE)
   set(DEFINE_DEBUG
     DEBUG
@@ -9,7 +13,7 @@ macro(load_compiler_config)
     _NDEBUG
   )
 
-  # global flags
+  # Global flags
   set(FLAGS
     -rdynamic
     -shared-libgcc
@@ -25,16 +29,17 @@ macro(load_compiler_config)
     -s
   )
 
-  # c flags
+  # C flags
   #set(FLAGS_C)
   #set(FLAGS_C_DEBUG)
   #set(FLAGS_C_RELEASE)
 
-  # c++ flags
+  # C++ flags
   #set(FLAGS_CXX)
   #set(FLAGS_CXX_DEBUG)
   #set(FLAGS_CXX_RELEASE)
 
+  # Linker flags
   #set(LINK)
   #set(LINK_DEBUG)
   #set(LINK_RELEASE)
