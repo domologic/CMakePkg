@@ -37,8 +37,8 @@ if (NOT URL)
 endif()
 
 # extract git domain for dependency fetching
-string(REGEX REPLACE "git@|https://|http://" "" DOMOLOGIC_DEPENDENCY_GIT_DOMAIN ${URL})
-string(REGEX REPLACE "[:/].*"                "" DOMOLOGIC_DEPENDENCY_GIT_DOMAIN ${DOMOLOGIC_DEPENDENCY_GIT_DOMAIN})
+string(REGEX REPLACE "git@|https://|http://"           "" DOMOLOGIC_DEPENDENCY_GIT_DOMAIN ${URL})
+string(REGEX REPLACE "(\/[a-zA-Z-]+\/[a-zA-Z-]+\.git)" "" DOMOLOGIC_DEPENDENCY_GIT_DOMAIN ${DOMOLOGIC_DEPENDENCY_GIT_DOMAIN})
 
 # global git domain
 set(DOMOLOGIC_DEPENDENCY_GIT_DOMAIN ${DOMOLOGIC_DEPENDENCY_GIT_DOMAIN} CACHE STRING "git domain")
