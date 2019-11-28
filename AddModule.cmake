@@ -140,8 +140,8 @@ function(_add_module_load_dependency DEPENDENCY)
         ${CMAKE_CURRENT_BINARY_DIR}
       RESULT_VARIABLE
         RESULT
-      #OUTPUT_QUIET
-      #ERROR_QUIET
+      OUTPUT_QUIET
+      ERROR_QUIET
     )
 
     if (NOT ${RESULT} EQUAL "0")
