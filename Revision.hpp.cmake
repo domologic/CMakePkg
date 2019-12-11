@@ -1,5 +1,9 @@
 #pragma once
 
+#ifndef @MODULE_NAME@_VERSION
+#  define @MODULE_NAME@_VERSION  "@MODULE_VERSION@"
+#endif
+
 #ifndef @MODULE_NAME@_REVISION
 #  define @MODULE_NAME@_REVISION  "@MODULE_REVISION@"
 #endif
