@@ -83,6 +83,8 @@ function(_add_module_generate_revision module_name)
 
   string(REGEX REPLACE "-" "" MODULE_DATE "${MODULE_DATE}") 
 
+  set(MODULE_VERSION ${PROJECT_VERSION})
+
   configure_file(
     ${DOMOLOGIC_SCRIPT_PATH}/Revision.hpp.cmake
     ${CMAKE_BINARY_DIR}/Revision/${module_name}/Revision.hpp
@@ -145,6 +147,7 @@ function(_add_module_load_dependency DEPENDENCY)
     )
 
     if (NOT ${RESULT} EQUAL "0")
+      remove(REMOVE_RECURSE ${SRC_PATH})
       message(FATAL_ERROR "Could not clone ${GROUP}::${PROJECT}!")
     endif()
   endif()
