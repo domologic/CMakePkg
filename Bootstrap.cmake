@@ -20,28 +20,32 @@ set(DOMOLOGIC_SCRIPT_PATH     "${DOMOLOGIC_DEPENDENCY_PATH}/Scripts"  CACHE INTE
 
 find_package(Git QUIET)
 
-# query git remote url which will be used to locate dependencies
-execute_process(
-  COMMAND
-    ${GIT_EXECUTABLE} remote get-url origin
-  WORKING_DIRECTORY
-    ${CMAKE_SOURCE_DIR}
-  OUTPUT_VARIABLE
-  URL
-  OUTPUT_STRIP_TRAILING_WHITESPACE
-  ERROR_QUIET
-)
+if (GITLAB_PIPELINE)
+  set(DOMOLOGIC_DEPENDENCY_GIT_DOMAIN "gitlab.domologic")
+else()
+  # query git remote url which will be used to locate dependencies
+  execute_process(
+    COMMAND
+      ${GIT_EXECUTABLE} remote get-url origin
+    WORKING_DIRECTORY
+      ${CMAKE_SOURCE_DIR}
+    OUTPUT_VARIABLE
+      URL
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
 
-if (NOT URL)
-  message(FATAL_ERROR "Could not get current git remote origin url!")
+  if (NOT URL)
+    message(FATAL_ERROR "Could not get current git remote origin url!")
+  endif()
+
+  # extract git domain for dependency fetching
+  string(REGEX REPLACE "git@|https://|http://"           "" DOMOLOGIC_DEPENDENCY_GIT_DOMAIN ${URL})
+  string(REGEX REPLACE "(\/[a-zA-Z-]+\/[a-zA-Z-]+\.git)" "" DOMOLOGIC_DEPENDENCY_GIT_DOMAIN ${DOMOLOGIC_DEPENDENCY_GIT_DOMAIN})
 endif()
-
-# extract git domain for dependency fetching
-string(REGEX REPLACE "git@|https://|http://"           "" DOMOLOGIC_DEPENDENCY_GIT_DOMAIN ${URL})
-string(REGEX REPLACE "(\/[a-zA-Z-]+\/[a-zA-Z-]+\.git)" "" DOMOLOGIC_DEPENDENCY_GIT_DOMAIN ${DOMOLOGIC_DEPENDENCY_GIT_DOMAIN})
 
 # global git domain
 set(DOMOLOGIC_DEPENDENCY_GIT_DOMAIN ${DOMOLOGIC_DEPENDENCY_GIT_DOMAIN} CACHE STRING "git domain")
+message(STATUS "Using ${DOMOLOGIC_DEPENDENCY_GIT_DOMAIN}' as git root for dependency resolution")
 
 # clone the cmake module library
 if (NOT EXISTS ${DOMOLOGIC_SCRIPT_PATH})
@@ -55,7 +59,6 @@ if (NOT EXISTS ${DOMOLOGIC_SCRIPT_PATH})
     RESULT_VARIABLE
       RESULT
     OUTPUT_QUIET
-    ERROR_QUIET
   )
 
   if (NOT ${RESULT} EQUAL "0")
