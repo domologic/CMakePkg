@@ -21,6 +21,7 @@ find_path(LIBUDEV_INCLUDE_DIR
 
 find_library(LIBUDEV_LIBRARY
   NAMES
+    udev
     libudev
   HINTS
     ${PC_LIBUDEV_LIBDIR}
