@@ -19,14 +19,14 @@ macro(load_compiler_config)
     -shared-libgcc
   )
   set(FLAGS_DEBUG
-    -ggdb
+    -ggdb3
     -Og
   )
   set(FLAGS_RELEASE
+    -ggdb3
     -O3
     -fmerge-all-constants
     -faggressive-loop-optimizations
-    -s
   )
 
   # C flags
