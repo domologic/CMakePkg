@@ -20,7 +20,7 @@ macro(load_compiler_config)
   )
   set(FLAGS_DEBUG
     -ggdb3
-    -Og
+    -O0
   )
   set(FLAGS_RELEASE
     -ggdb3
