@@ -26,7 +26,6 @@ macro(load_compiler_config)
     -O3
     -fmerge-all-constants
     -faggressive-loop-optimizations
-    -s
   )
 
   # C flags
