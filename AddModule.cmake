@@ -135,9 +135,10 @@ function(_add_module_load_dependency DEPENDENCY)
   if (NOT EXISTS ${SRC_PATH})
     file(MAKE_DIRECTORY ${SRC_PATH})
 
+      message(${DOMOLOGIC_DEPENDENCY_GIT_DOMAIN})
     execute_process(
       COMMAND
-        ${GIT_EXECUTABLE} clone "http://${DOMOLOGIC_DEPENDENCY_GIT_DOMAIN}/${GROUP}/${PROJECT}.git" --depth 1 --recursive ${SRC_PATH}
+        ${GIT_EXECUTABLE} clone "git@${DOMOLOGIC_DEPENDENCY_GIT_DOMAIN}/${GROUP}/${PROJECT}.git" --depth 1 --recursive ${SRC_PATH}
       WORKING_DIRECTORY
         ${CMAKE_CURRENT_BINARY_DIR}
       RESULT_VARIABLE
