@@ -41,6 +41,7 @@ else()
   # extract git domain for dependency fetching
   string(REGEX REPLACE "git@|https://|http://"           "" DOMOLOGIC_DEPENDENCY_GIT_DOMAIN ${URL})
   string(REGEX REPLACE "(\/[a-zA-Z-]+\/[a-zA-Z-]+\.git)" "" DOMOLOGIC_DEPENDENCY_GIT_DOMAIN ${DOMOLOGIC_DEPENDENCY_GIT_DOMAIN})
+  string(CONCAT DOMOLOGIC_DEPENDENCY_GIT_DOMAIN "http://" ${DOMOLOGIC_DEPENDENCY_GIT_DOMAIN})
 endif()
 
 # global git domain
@@ -53,7 +54,7 @@ if (NOT EXISTS ${DOMOLOGIC_SCRIPT_PATH})
 
   execute_process(
     COMMAND
-      ${GIT_EXECUTABLE} clone "http://${DOMOLOGIC_DEPENDENCY_GIT_DOMAIN}/domologic/CMakePkg.git" --depth 1 ${DOMOLOGIC_SCRIPT_PATH}
+      ${GIT_EXECUTABLE} clone "${DOMOLOGIC_DEPENDENCY_GIT_DOMAIN}/domologic/CMakePkg.git" --depth 1 ${DOMOLOGIC_SCRIPT_PATH}
     WORKING_DIRECTORY
       ${DOMOLOGIC_SCRIPT_PATH}
     RESULT_VARIABLE
