@@ -4,8 +4,8 @@
 #
 # Include following code before the project keyword to make the library available for use:
 #
-#    file(DOWNLOAD https://gist.github.com/domologic/8e21149b956276a848d7fb3be2a4c71a/raw/Bootstrap.cmake ${CMAKE_BINARY_DIR}/Bootstrap.cmake)
-#    include(${CMAKE_BINARY_DIR}/Bootstrap.cmake)
+#    file(DOWNLOAD https://gist.github.com/domologic/8e21149b956276a848d7fb3be2a4c71a/raw/CMakePkgBootstrap.txt ${CMAKE_BINARY_DIR}/CMakePkgBootstrap.txt)
+#    include(${CMAKE_BINARY_DIR}/CMakePkgBootstrap.txt)
 #
 
 include_guard(GLOBAL)
@@ -53,7 +53,7 @@ if (NOT EXISTS ${DOMOLOGIC_SCRIPT_PATH})
 
   execute_process(
     COMMAND
-      ${GIT_EXECUTABLE} clone "http://${DOMOLOGIC_DEPENDENCY_GIT_DOMAIN}/domologic/CMakeModule.git" --depth 1 ${DOMOLOGIC_SCRIPT_PATH}
+      ${GIT_EXECUTABLE} clone "http://${DOMOLOGIC_DEPENDENCY_GIT_DOMAIN}/domologic/CMakePkg.git" --depth 1 ${DOMOLOGIC_SCRIPT_PATH}
     WORKING_DIRECTORY
       ${DOMOLOGIC_SCRIPT_PATH}
     RESULT_VARIABLE
