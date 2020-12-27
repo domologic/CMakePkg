@@ -20,29 +20,24 @@ set(DOMOLOGIC_SCRIPT_PATH "${DOMOLOGIC_DEPENDENCY_PATH}/Scripts" CACHE INTERNAL 
 
 find_package(Git QUIET)
 
-if (GITLAB_PIPELINE)
-  set(CMAKEPKG_PROJECT_ROOT_URL "gitlab.domologic")
-else()
-  # query git remote url which will be used to locate dependencies
-  execute_process(
-    COMMAND
-      ${GIT_EXECUTABLE} remote get-url origin
-    WORKING_DIRECTORY
-      ${CMAKE_SOURCE_DIR}
-    OUTPUT_VARIABLE
-      URL
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-  )
+# query git remote url which will be used to locate dependencies
+execute_process(
+  COMMAND
+    ${GIT_EXECUTABLE} remote get-url origin
+  WORKING_DIRECTORY
+     ${CMAKE_SOURCE_DIR}
+   OUTPUT_VARIABLE
+     CMAKEPKG_PROJECT_ROOT_URL
+   OUTPUT_STRIP_TRAILING_WHITESPACE
+)
 
-  if (NOT URL)
-    message(FATAL_ERROR "Could not get current git remote origin url!")
-  endif()
-
-  # extract git domain for dependency fetching
-  string(REGEX REPLACE "git@|https://|http://"           "" CMAKEPKG_PROJECT_ROOT_URL ${URL})
-  string(REGEX REPLACE "(\/[a-zA-Z-]+\/[a-zA-Z-]+\.git)" "" CMAKEPKG_PROJECT_ROOT_URL ${CMAKEPKG_PROJECT_ROOT_URL})
-  string(CONCAT CMAKEPKG_PROJECT_ROOT_URL "http://" ${CMAKEPKG_PROJECT_ROOT_URL})
+if (NOT CMAKEPKG_PROJECT_ROOT_URL)
+  message(FATAL_ERROR "Could not get current git remote origin url!")
 endif()
+
+# remove last 2 subfolders in URL
+string(REGEX REPLACE "\/[^\/]*$" "" CMAKEPKG_PROJECT_ROOT_URL ${CMAKEPKG_PROJECT_ROOT_URL})
+string(REGEX REPLACE "\/[^\/]*$" "" CMAKEPKG_PROJECT_ROOT_URL ${CMAKEPKG_PROJECT_ROOT_URL})
 
 # global git domain
 set(CMAKEPKG_PROJECT_ROOT_URL ${CMAKEPKG_PROJECT_ROOT_URL} CACHE STRING "git domain")
