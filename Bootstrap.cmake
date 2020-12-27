@@ -21,7 +21,7 @@ set(DOMOLOGIC_SCRIPT_PATH "${DOMOLOGIC_DEPENDENCY_PATH}/Scripts" CACHE INTERNAL 
 find_package(Git QUIET)
 
 if (GITLAB_PIPELINE)
-  set(DOMOLOGIC_DEPENDENCY_GIT_DOMAIN "gitlab.domologic")
+  set(CMAKEPKG_PROJECT_ROOT_URL "gitlab.domologic")
 else()
   # query git remote url which will be used to locate dependencies
   execute_process(
@@ -39,14 +39,14 @@ else()
   endif()
 
   # extract git domain for dependency fetching
-  string(REGEX REPLACE "git@|https://|http://"           "" DOMOLOGIC_DEPENDENCY_GIT_DOMAIN ${URL})
-  string(REGEX REPLACE "(\/[a-zA-Z-]+\/[a-zA-Z-]+\.git)" "" DOMOLOGIC_DEPENDENCY_GIT_DOMAIN ${DOMOLOGIC_DEPENDENCY_GIT_DOMAIN})
-  string(CONCAT DOMOLOGIC_DEPENDENCY_GIT_DOMAIN "http://" ${DOMOLOGIC_DEPENDENCY_GIT_DOMAIN})
+  string(REGEX REPLACE "git@|https://|http://"           "" CMAKEPKG_PROJECT_ROOT_URL ${URL})
+  string(REGEX REPLACE "(\/[a-zA-Z-]+\/[a-zA-Z-]+\.git)" "" CMAKEPKG_PROJECT_ROOT_URL ${CMAKEPKG_PROJECT_ROOT_URL})
+  string(CONCAT CMAKEPKG_PROJECT_ROOT_URL "http://" ${CMAKEPKG_PROJECT_ROOT_URL})
 endif()
 
 # global git domain
-set(DOMOLOGIC_DEPENDENCY_GIT_DOMAIN ${DOMOLOGIC_DEPENDENCY_GIT_DOMAIN} CACHE STRING "git domain")
-message(STATUS "Using ${DOMOLOGIC_DEPENDENCY_GIT_DOMAIN}' as git root for dependency resolution")
+set(CMAKEPKG_PROJECT_ROOT_URL ${CMAKEPKG_PROJECT_ROOT_URL} CACHE STRING "git domain")
+message(STATUS "Using ${CMAKEPKG_PROJECT_ROOT_URL}' as git root for dependency resolution")
 
 # clone the cmake module library
 if (NOT EXISTS ${DOMOLOGIC_SCRIPT_PATH})
@@ -54,7 +54,7 @@ if (NOT EXISTS ${DOMOLOGIC_SCRIPT_PATH})
 
   execute_process(
     COMMAND
-      ${GIT_EXECUTABLE} clone "${DOMOLOGIC_DEPENDENCY_GIT_DOMAIN}/domologic/CMakePkg.git" --depth 1 ${DOMOLOGIC_SCRIPT_PATH}
+      ${GIT_EXECUTABLE} clone "${CMAKEPKG_PROJECT_ROOT_URL}/domologic/CMakePkg.git" --depth 1 ${DOMOLOGIC_SCRIPT_PATH}
     WORKING_DIRECTORY
       ${DOMOLOGIC_SCRIPT_PATH}
     RESULT_VARIABLE
