@@ -11,8 +11,8 @@
 include_guard(GLOBAL)
 
 # Global dependency path
-if (NOT DOMOLOGIC_DEPENDENCY_PATH)
-  set(DOMOLOGIC_DEPENDENCY_PATH "${CMAKE_CURRENT_BINARY_DIR}/Domologic" CACHE INTERNAL "Path to the downloaded dependencies")
+if (NOT CMAKEPKG_PACKAGES_DIR)
+  set(CMAKEPKG_PACKAGES_DIR "${CMAKE_CURRENT_BINARY_DIR}/Packages" CACHE INTERNAL "Path to the downloaded dependencies")
 endif()
 
 # Global script location
