@@ -133,9 +133,6 @@ function(_add_module_load_dependency DEPENDENCY)
   set(BIN_PATH "${DOMOLOGIC_DEPENDENCY_PATH}/Binary/${GROUP}/${PROJECT}")
 
   if (NOT EXISTS ${SRC_PATH})
-    message(STATUS "Cloning ${CMAKEPKG_PROJECT_ROOT_URL}/${GROUP}/${PROJECT}.git to ${SRC_PATH}")
-    #file(MAKE_DIRECTORY ${SRC_PATH})
-
     execute_process(
       COMMAND
         ${GIT_EXECUTABLE} clone "${CMAKEPKG_PROJECT_ROOT_URL}/${GROUP}/${PROJECT}.git" --depth 1 --recursive ${SRC_PATH}
@@ -149,7 +146,7 @@ function(_add_module_load_dependency DEPENDENCY)
 
     if (NOT ${RESULT} EQUAL "0")
       remove(REMOVE_RECURSE ${SRC_PATH})
-      message(FATAL_ERROR "Could not clone ${GROUP}::${PROJECT}!")
+      message(FATAL_ERROR "Could not clone ${GROUP}::${PROJECT} from ${CMAKEPKG_PROJECT_ROOT_URL}/${GROUP}/${PROJECT}.git. Please check your access rights.")
     endif()
   endif()
 
