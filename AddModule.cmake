@@ -134,7 +134,7 @@ function(_add_module_load_dependency DEPENDENCY)
 
   if (NOT EXISTS ${SRC_PATH})
     message(STATUS "Cloning ${CMAKEPKG_PROJECT_ROOT_URL}/${GROUP}/${PROJECT}.git to ${SRC_PATH}")
-    file(MAKE_DIRECTORY ${SRC_PATH})
+    #file(MAKE_DIRECTORY ${SRC_PATH})
 
     execute_process(
       COMMAND
