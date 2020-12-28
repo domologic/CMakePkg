@@ -132,10 +132,10 @@ function(_add_module_load_dependency DEPENDENCY)
   list(GET DEPENDENCY_GROUP_PROJECT 1 PROJECT)
 
   FetchContent_Declare(
-    ${GROUP}${PROJECT}
+    ${GROUP}_${PROJECT}
     GIT_REPOSITORY ${CMAKEPKG_PROJECT_ROOT_URL}/${GROUP}/${PROJECT}.git
   )
-  FetchContent_MakeAvailable(${GROUP}${PROJECT})
+  FetchContent_MakeAvailable(${GROUP}_${PROJECT})
 endfunction()
 
 macro(_add_module_collect_sources)
@@ -210,6 +210,7 @@ macro(_add_module)
   _add_module_generate_revision(${module_name})
 
   if (NOT "${type}" STREQUAL "INTERFACE")
+    message(STATUS "Loading ${CMAKE_SYSTEM_NAME}::${CMAKE_SYSTEM_PROCESSOR} configuration")
     load_compiler_config()
 
     target_compile_definitions(${module_name}
