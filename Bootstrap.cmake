@@ -18,9 +18,9 @@ if (NOT CMAKEPKG_FILES)
   set(CMAKEPKG_FILES "${CMAKE_CURRENT_BINARY_DIR}/CMakePkgFiles" CACHE INTERNAL "Path to cloned files from the CMakePkg repository")
 endif()
 
-# Global directory used to clone all packages
-if (NOT CMAKEPKG_PACKAGES_DIR)
-  set(CMAKEPKG_PACKAGES_DIR "${CMAKE_CURRENT_BINARY_DIR}/Packages" CACHE INTERNAL "Path to the downloaded dependencies")
+# Global directory used to clone all dependencies
+if (NOT CMAKEPKG_DEPENDENCIES_DIR)
+  set(CMAKEPKG_DEPENDENCIES_DIR "${CMAKE_CURRENT_BINARY_DIR}/_deps" CACHE INTERNAL "Path to the downloaded dependencies")
 endif()
 
 find_package(Git QUIET)
