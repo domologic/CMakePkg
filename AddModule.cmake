@@ -124,13 +124,15 @@ function(_add_module_collect_source_files CURRENT_DIR VARIABLE)
 endfunction()
 
 function(_add_module_load_dependency DEPENDENCY)
+  # both separators "::" and "/" are supported
   string(REPLACE "::" ";" DEPENDENCY_GROUP_PROJECT ${DEPENDENCY})
+  string(REPLACE "/" ";" DEPENDENCY_GROUP_PROJECT ${DEPENDENCY})
 
   list(GET DEPENDENCY_GROUP_PROJECT 0 GROUP)
   list(GET DEPENDENCY_GROUP_PROJECT 1 PROJECT)
 
-  set(SRC_PATH "${CMAKEPKG_DEPENDENCIES_DIR}/${GROUP}/${PROJECT}")
-  set(BIN_PATH "${CMAKEPKG_DEPENDENCIES_DIR}/${GROUP}/${PROJECT}/bin")
+  set(SRC_PATH "${CMAKEPKG_DEPENDENCIES_DIR}/${GROUP}/${PROJECT}-src")
+  set(BIN_PATH "${CMAKEPKG_DEPENDENCIES_DIR}/${GROUP}/${PROJECT}-build")
 
   if (NOT EXISTS ${SRC_PATH})
     execute_process(
