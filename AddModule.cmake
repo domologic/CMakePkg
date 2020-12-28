@@ -86,7 +86,7 @@ function(_add_module_generate_revision module_name)
   set(MODULE_VERSION ${PROJECT_VERSION})
 
   configure_file(
-    ${DOMOLOGIC_SCRIPT_PATH}/Revision.hpp.cmake
+    ${CMAKEPKG_FILES}/Revision.hpp.cmake
     ${CMAKE_BINARY_DIR}/Revision/${module_name}/Revision.hpp
     @ONLY
   )
@@ -163,7 +163,7 @@ function(_add_module_load_dependency DEPENDENCY)
         -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
         -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
         -DCMAKEPKG_BOOTSTRAP_FILE=${CMAKEPKG_BOOTSTRAP_FILE}
-        -DDOMOLOGIC_SCRIPT_PATH=${DOMOLOGIC_SCRIPT_PATH}
+        -DCMAKEPKG_FILES=${CMAKEPKG_FILES}
         -DDOMOLOGIC_DEPENDENCY_PATH=${DOMOLOGIC_DEPENDENCY_PATH}
       WORKING_DIRECTORY
         ${BIN_PATH}
@@ -256,7 +256,7 @@ macro(_add_module_link_libraries)
 endmacro()
 
 macro(_add_module)
-  include(${DOMOLOGIC_SCRIPT_PATH}/Compiler/${CMAKE_SYSTEM_NAME}_${CMAKE_SYSTEM_PROCESSOR}.cmake)
+  include(${CMAKEPKG_FILES}/Compiler/${CMAKE_SYSTEM_NAME}_${CMAKE_SYSTEM_PROCESSOR}.cmake)
 
   _add_module_generate_revision(${module_name})
 

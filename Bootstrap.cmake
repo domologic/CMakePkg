@@ -16,7 +16,7 @@ if (NOT DOMOLOGIC_DEPENDENCY_PATH)
 endif()
 
 # Global script location
-set(DOMOLOGIC_SCRIPT_PATH "${CMAKE_CURRENT_BINARY_DIR}/CMakePkgFiles" CACHE INTERNAL "Path to CMakePkg files")
+set(CMAKEPKG_FILES "${CMAKE_CURRENT_BINARY_DIR}/CMakePkgFiles" CACHE INTERNAL "Path to cloned files from the CMakePkg repository")
 
 find_package(Git QUIET)
 
@@ -50,12 +50,12 @@ set(CMAKEPKG_PROJECT_ROOT_URL ${CMAKEPKG_PROJECT_ROOT_URL} CACHE STRING "git dom
 message(STATUS "Using ${CMAKEPKG_PROJECT_ROOT_URL}' as git root for dependency resolution")
 
 # clone the cmake module library
-if (NOT EXISTS ${DOMOLOGIC_SCRIPT_PATH})
+if (NOT EXISTS ${CMAKEPKG_FILES})
   execute_process(
     COMMAND
-      ${GIT_EXECUTABLE} clone "${CMAKEPKG_PROJECT_ROOT_URL}/domologic/CMakePkg.git" --depth 1 --recursive ${DOMOLOGIC_SCRIPT_PATH}
+      ${GIT_EXECUTABLE} clone "${CMAKEPKG_PROJECT_ROOT_URL}/domologic/CMakePkg.git" --depth 1 ${CMAKEPKG_FILES}
     WORKING_DIRECTORY
-      ${CMAKE_CURRENT_BINARY_DIR}
+      ${DOMOLOGIC_SCRIPT_PATH}
     RESULT_VARIABLE
       RESULT
     OUTPUT_QUIET
@@ -67,4 +67,4 @@ if (NOT EXISTS ${DOMOLOGIC_SCRIPT_PATH})
 endif()
 
 # load the library
-include(${DOMOLOGIC_SCRIPT_PATH}/Init.cmake)
+include(${CMAKEPKG_FILES}/Init.cmake)
