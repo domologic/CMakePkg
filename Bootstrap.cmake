@@ -35,9 +35,15 @@ if (NOT CMAKEPKG_PROJECT_ROOT_URL)
   message(FATAL_ERROR "Could not get current git remote origin url!")
 endif()
 
-# remove last 2 subfolders in URL
-string(REGEX REPLACE "\/[^\/]*$" "" CMAKEPKG_PROJECT_ROOT_URL ${CMAKEPKG_PROJECT_ROOT_URL})
-string(REGEX REPLACE "\/[^\/]*$" "" CMAKEPKG_PROJECT_ROOT_URL ${CMAKEPKG_PROJECT_ROOT_URL})
+if(CMAKEPKG_PROJECT_ROOT_URL MATCHES "^git@.*")
+  # remove everything following separator ":" and add ":" again
+  string(REGEX REPLACE ":.*$" "" CMAKEPKG_PROJECT_ROOT_URL ${CMAKEPKG_PROJECT_ROOT_URL})
+  string(CONCAT CMAKEPKG_PROJECT_ROOT_URL ${CMAKEPKG_PROJECT_ROOT_URL} ":")
+else()
+  # remove last 2 subfolders in URL (project name)
+  string(REGEX REPLACE "\/[^\/]*$" "" CMAKEPKG_PROJECT_ROOT_URL ${CMAKEPKG_PROJECT_ROOT_URL})
+  string(REGEX REPLACE "\/[^\/]*$" "" CMAKEPKG_PROJECT_ROOT_URL ${CMAKEPKG_PROJECT_ROOT_URL})
+endif()
 
 # global git domain
 set(CMAKEPKG_PROJECT_ROOT_URL ${CMAKEPKG_PROJECT_ROOT_URL} CACHE STRING "git domain")
@@ -58,7 +64,7 @@ if (NOT EXISTS ${DOMOLOGIC_SCRIPT_PATH})
   )
 
   if (NOT ${RESULT} EQUAL "0")
-    message(FATAL_ERROR "Could not download CMake scripts!")
+    message(FATAL_ERROR "Could not clone CMakePkg sources from ${CMAKEPKG_PROJECT_ROOT_URL}/domologic/CMakePkg.git")
   endif()
 endif()
 
