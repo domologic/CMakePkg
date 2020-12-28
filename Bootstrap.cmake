@@ -10,13 +10,18 @@
 
 include_guard(GLOBAL)
 
-# Global dependency path
+# Sources of CMakePkg project. Has to be located on the same Git server than the project itself
+set(CMAKEPKG_REPOSITORY "domologic/CMakePkg.git")
+
+# Global directory used for CMakePkg
+if (NOT CMAKEPKG_FILES)
+  set(CMAKEPKG_FILES "${CMAKE_CURRENT_BINARY_DIR}/CMakePkgFiles" CACHE INTERNAL "Path to cloned files from the CMakePkg repository")
+endif()
+
+# Global directory used to clone all packages
 if (NOT CMAKEPKG_PACKAGES_DIR)
   set(CMAKEPKG_PACKAGES_DIR "${CMAKE_CURRENT_BINARY_DIR}/Packages" CACHE INTERNAL "Path to the downloaded dependencies")
 endif()
-
-# Global script location
-set(CMAKEPKG_FILES "${CMAKE_CURRENT_BINARY_DIR}/CMakePkgFiles" CACHE INTERNAL "Path to cloned files from the CMakePkg repository")
 
 find_package(Git QUIET)
 
@@ -53,7 +58,7 @@ message(STATUS "Using ${CMAKEPKG_PROJECT_ROOT_URL}' as git root for dependency r
 if (NOT EXISTS ${CMAKEPKG_FILES})
   execute_process(
     COMMAND
-      ${GIT_EXECUTABLE} clone "${CMAKEPKG_PROJECT_ROOT_URL}/domologic/CMakePkg.git" --depth 1 ${CMAKEPKG_FILES}
+      ${GIT_EXECUTABLE} clone "${CMAKEPKG_PROJECT_ROOT_URL}/${CMAKEPKG_REPOSITORY}" --depth 1 ${CMAKEPKG_FILES}
     WORKING_DIRECTORY
       ${CMAKE_CURRENT_BINARY_DIR}
     RESULT_VARIABLE
@@ -62,7 +67,7 @@ if (NOT EXISTS ${CMAKEPKG_FILES})
   )
 
   if (NOT ${RESULT} EQUAL "0")
-    message(FATAL_ERROR "Could not clone CMakePkg sources from ${CMAKEPKG_PROJECT_ROOT_URL}/domologic/CMakePkg.git")
+    message(FATAL_ERROR "Could not clone CMakePkg sources from ${CMAKEPKG_PROJECT_ROOT_URL}/${CMAKEPKG_REPOSITORY}")
   endif()
 endif()
 
