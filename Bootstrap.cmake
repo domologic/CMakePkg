@@ -1,16 +1,39 @@
 #
-# Bootstrap script loading the CMake Modules Library
+# Bootstrap script loading the CMakePkg Library
 # Hosted on GitHub: https://gist.github.com/domologic/8e21149b956276a848d7fb3be2a4c71a
 #
-# Include following code before the project keyword to make the library available for use:
+# To make it available, include the following lines into your CMakeLists.txt before the project keyword:
+#   //---
+#   if(NOT DEFINED CMAKEPKG_BOOTSTRAP_FILE)
+#     set(CMAKEPKG_BOOTSTRAP_FILE "${CMAKE_BINARY_DIR}/Bootstrap.cmake")
+#     file(DOWNLOAD https://gist.github.com/domologic/8e21149b956276a848d7fb3be2a4c71a/raw/Bootstrap.cmake ${CMAKEPKG_BOOTSTRAP_FILE})
+#   endif()
+#   include(${CMAKEPKG_BOOTSTRAP_FILE})
+#   //---
 #
-#    file(DOWNLOAD https://gist.github.com/domologic/8e21149b956276a848d7fb3be2a4c71a/raw/CMakePkgBootstrap.txt ${CMAKE_BINARY_DIR}/CMakePkgBootstrap.txt)
-#    include(${CMAKE_BINARY_DIR}/CMakePkgBootstrap.txt)
+# Important Variables:
+#
+#   CMAKEPKG_MODE
+#     JOINED (Default): Dependencies will be checked-out before configuration step, and built at build time
+#     PREBUILD: Dependencies will be checked-out and built immediately at configuration time
+#
+#   CMAKEPKG_BOOTSTRAP_FILE
+#     Name of the CMakePkg Bootstrap File. It not set, a default version will be fetched from GitHub.
+#
+#   CMAKEPKG_PROJECT_ROOT_URL
+#     Base URL used for all Git Repositories. Will be determined from the project base repository.
+#
+#   CMAKEPKG_FILES_DIR
+#     Cloned sources of the CMakePkg project. Is set to ${CMAKE_CURRENT_BINARY_DIR}/CMakePkgFiles by default.
+#
+#   CMAKEPKG_DEPENDENCIES_DIR
+#     Used to store the dependencies when CMAKEPKG_MODE=PREBUILD.
+#     Is set by default to ${CMAKE_CURRENT_BINARY_DIR}/_deps
 #
 
 include_guard(GLOBAL)
 
-# Sources of CMakePkg project. Has to be located on the same Git server than the project itself
+# Sources of CMakePkg project (Group/Project). Has to be located on the same Git server than the project itself
 set(CMAKEPKG_REPOSITORY "domologic/CMakePkg.git")
 
 # Global directory used for CMakePkg
