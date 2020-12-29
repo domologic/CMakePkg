@@ -87,7 +87,7 @@ function(_add_module_generate_revision module_name)
   set(MODULE_VERSION ${PROJECT_VERSION})
 
   configure_file(
-    ${CMAKEPKG_FILES_DIR}/Revision.hpp.cmake
+    ${CMAKEPKG_SELF_DIR}/Revision.hpp.cmake
     ${CMAKE_BINARY_DIR}/Revision/${module_name}/Revision.hpp
     @ONLY
   )
@@ -133,7 +133,7 @@ function(_add_module_load_dependency DEPENDENCY)
 
   if (${CMAKEPKG_MODE} STREQUAL "PREBUILD")
     set(SRC_PATH "${CMAKEPKG_DEPENDENCIES_DIR}/${GROUP}/${PROJECT}-src")
-    set(BIN_PATH "${CMAKEPKG_DEPENDENCIES_DIR}/${GROUP}/${PROJECT}-build")
+    set(BUILD_PATH "${CMAKEPKG_DEPENDENCIES_DIR}/${GROUP}/${PROJECT}-build")
 
     if (NOT EXISTS ${SRC_PATH})
       execute_process(
@@ -153,37 +153,37 @@ function(_add_module_load_dependency DEPENDENCY)
       endif()
     endif()
 
-    if (NOT EXISTS ${BIN_PATH})
-      file(MAKE_DIRECTORY ${BIN_PATH})
+    if (NOT EXISTS ${BUILD_PATH})
+      file(MAKE_DIRECTORY ${BUILD_PATH})
 
       execute_process(
         COMMAND
           ${CMAKE_COMMAND}
           -S ${SRC_PATH}
-          -B ${BIN_PATH}
+          -B ${BUILD_PATH}
           -G "${CMAKE_GENERATOR}"
           -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
           -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
           -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
           -DCMAKEPKG_MODE=${CMAKEPKG_MODE}
           -DCMAKEPKG_BOOTSTRAP_FILE=${CMAKEPKG_BOOTSTRAP_FILE}
-          -DCMAKEPKG_FILES_DIR=${CMAKEPKG_FILES_DIR}
+          -DCMAKEPKG_SELF_DIR=${CMAKEPKG_SELF_DIR}
           -DCMAKEPKG_DEPENDENCIES_DIR=${CMAKEPKG_DEPENDENCIES_DIR}
         WORKING_DIRECTORY
-          ${BIN_PATH}
+          ${BUILD_PATH}
         OUTPUT_QUIET
       )
 
       execute_process(
         COMMAND
-          ${CMAKE_COMMAND} --build ${BIN_PATH}
+          ${CMAKE_COMMAND} --build ${BUILD_PATH}
         WORKING_DIRECTORY
-          ${BIN_PATH}
+          ${BUILD_PATH}
         OUTPUT_QUIET
       )
     endif()
 
-    file(GLOB DEPENDENCIES ${BIN_PATH}/*.dep.cmake)
+    file(GLOB DEPENDENCIES ${BUILD_PATH}/*.dep.cmake)
     foreach(DEPENDENCY ${DEPENDENCIES})
       file(COPY ${DEPENDENCY} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
     endforeach()
@@ -280,7 +280,7 @@ macro(_add_module_link_libraries)
 endmacro()
 
 macro(_add_module)
-  include(${CMAKEPKG_FILES_DIR}/Compiler/${CMAKE_SYSTEM_NAME}_${CMAKE_SYSTEM_PROCESSOR}.cmake)
+  include(${CMAKEPKG_SELF_DIR}/Compiler/${CMAKE_SYSTEM_NAME}_${CMAKE_SYSTEM_PROCESSOR}.cmake)
 
   _add_module_generate_revision(${module_name})
 
