@@ -127,7 +127,7 @@ endfunction()
 function(_add_module_load_dependency DEPENDENCY)
   # both separators "::" and "/" are supported
   string(REPLACE "::" ";" DEPENDENCY_GROUP_PROJECT ${DEPENDENCY})
-  string(REPLACE "/" ";" DEPENDENCY_GROUP_PROJECT ${DEPENDENCY})
+  string(REPLACE "/" ";" DEPENDENCY_GROUP_PROJECT ${DEPENDENCY_GROUP_PROJECT})
 
   list(GET DEPENDENCY_GROUP_PROJECT 0 GROUP)
   list(GET DEPENDENCY_GROUP_PROJECT 1 PROJECT)
@@ -237,7 +237,7 @@ macro(_add_module_link_libraries)
     foreach (DEPENDENCY ${ARG_DEPENDENCIES})
       # both separators "::" and "/" are supported
       string(REPLACE "::" ";" DEPENDENCY_GROUP_PROJECT ${DEPENDENCY})
-      string(REPLACE "/" ";" DEPENDENCY_GROUP_PROJECT ${DEPENDENCY})
+      string(REPLACE "/" ";" DEPENDENCY_GROUP_PROJECT ${DEPENDENCY_GROUP_PROJECT})
 
       list(GET DEPENDENCY_GROUP_PROJECT 1 DEPENDENCY_NAME)
       set(DEPS
