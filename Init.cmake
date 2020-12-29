@@ -4,7 +4,13 @@
 
 include_guard(GLOBAL)
 
-message(STATUS "Loading CMakePkg...")
+if (NOT DEFINED CMAKEPKG_MODE)
+  set(CMAKEPKG_MODE "JOINED")
+endif()
+if (NOT (CMAKEPKG_MODE STREQUAL "JOINED") AND NOT(CMAKEPKG_MODE STREQUAL "PREBUILD"))
+  message(FATAL_ERROR "Unsupported CMAKEPKG_MODE: ${CMAKEPKG_MODE}")
+endif()
+message(STATUS "Loading CMakePkg (CMAKEPKG_MODE=${CMAKEPKG_MODE})...")
 
 set(CMAKE_MODULE_PATH                 ${CMAKE_CURRENT_LIST_DIR}/Module)
 set(CMAKE_CONFIGURATION_TYPES         "Debug;Release" CACHE STRING "" FORCE)
@@ -32,14 +38,6 @@ if (UNIX)
     #set(CMAKE_MAKE_PROGRAM "${CMAKE_MAKE_PROGRAM} -j${N}")
   endif()
 endif()
-
-if (NOT DEFINED CMAKEPKG_MODE)
-  set(CMAKEPKG_MODE "JOINED")
-endif()
-if (NOT (CMAKEPKG_MODE STREQUAL "JOINED") AND NOT(CMAKEPKG_MODE STREQUAL "PREBUILD"))
-  message(FATAL_ERROR "Unsupported CMAKEPKG_MODE ${CMAKEPKG_MODE}")
-endif()
-message(STATUS "Processing CMAKEPKG_MODE ${CMAKEPKG_MODE}")
 
 include(${CMAKE_CURRENT_LIST_DIR}/AddModule.cmake)
 
