@@ -14,8 +14,8 @@ include_guard(GLOBAL)
 set(CMAKEPKG_REPOSITORY "domologic/CMakePkg.git")
 
 # Global directory used for CMakePkg
-if (NOT CMAKEPKG_FILES)
-  set(CMAKEPKG_FILES "${CMAKE_CURRENT_BINARY_DIR}/CMakePkgFiles" CACHE INTERNAL "Path to cloned files from the CMakePkg repository")
+if (NOT CMAKEPKG_FILES_DIR)
+  set(CMAKEPKG_FILES_DIR "${CMAKE_CURRENT_BINARY_DIR}/CMakePkgFiles" CACHE INTERNAL "Path to cloned files from the CMakePkg repository")
 endif()
 
 # Global directory used to clone all dependencies
@@ -55,10 +55,10 @@ set(CMAKEPKG_PROJECT_ROOT_URL ${CMAKEPKG_PROJECT_ROOT_URL} CACHE STRING "git dom
 message(STATUS "Using ${CMAKEPKG_PROJECT_ROOT_URL}' as git root for dependency resolution")
 
 # clone the cmake module library
-if (NOT EXISTS ${CMAKEPKG_FILES})
+if (NOT EXISTS ${CMAKEPKG_FILES_DIR})
   execute_process(
     COMMAND
-      ${GIT_EXECUTABLE} clone "${CMAKEPKG_PROJECT_ROOT_URL}/${CMAKEPKG_REPOSITORY}" --depth 1 ${CMAKEPKG_FILES}
+      ${GIT_EXECUTABLE} clone "${CMAKEPKG_PROJECT_ROOT_URL}/${CMAKEPKG_REPOSITORY}" --depth 1 ${CMAKEPKG_FILES_DIR}
     WORKING_DIRECTORY
       ${CMAKE_CURRENT_BINARY_DIR}
     RESULT_VARIABLE
@@ -72,4 +72,4 @@ if (NOT EXISTS ${CMAKEPKG_FILES})
 endif()
 
 # load the library
-include(${CMAKEPKG_FILES}/Init.cmake)
+include(${CMAKEPKG_FILES_DIR}/Init.cmake)
