@@ -1,6 +1,6 @@
 #
 # Provides a wrapper facility which enables the usage of external git repositories for dependency resolution.
-# Every dependency will be downloaded from git and compiled during the cmake generation step.
+# Each dependency will be downloaded from git and included in the root project.
 #
 # Following functions are available to use:
 #   add_module_library
@@ -10,6 +10,7 @@
 #
 
 include_guard(GLOBAL)
+include(FetchContent)
 
 macro(_add_module_parse_args)
   set(_MULTI_OPTIONS
@@ -86,7 +87,7 @@ function(_add_module_generate_revision module_name)
   set(MODULE_VERSION ${PROJECT_VERSION})
 
   configure_file(
-    ${CMAKEPKG_FILES}/Revision.hpp.cmake
+    ${CMAKEPKG_FILES_DIR}/Revision.hpp.cmake
     ${CMAKE_BINARY_DIR}/Revision/${module_name}/Revision.hpp
     @ONLY
   )
@@ -131,60 +132,69 @@ function(_add_module_load_dependency DEPENDENCY)
   list(GET DEPENDENCY_GROUP_PROJECT 0 GROUP)
   list(GET DEPENDENCY_GROUP_PROJECT 1 PROJECT)
 
-  set(SRC_PATH "${CMAKEPKG_DEPENDENCIES_DIR}/${GROUP}/${PROJECT}-src")
-  set(BIN_PATH "${CMAKEPKG_DEPENDENCIES_DIR}/${GROUP}/${PROJECT}-build")
+  if (${CMAKEPKG_MODE} STREQUAL "PREBUILD")
+    set(SRC_PATH "${CMAKEPKG_DEPENDENCIES_DIR}/${GROUP}/${PROJECT}-src")
+    set(BIN_PATH "${CMAKEPKG_DEPENDENCIES_DIR}/${GROUP}/${PROJECT}-build")
 
-  if (NOT EXISTS ${SRC_PATH})
-    execute_process(
-      COMMAND
-        ${GIT_EXECUTABLE} clone "${CMAKEPKG_PROJECT_ROOT_URL}/${GROUP}/${PROJECT}.git" --depth 1 --recursive ${SRC_PATH}
-      WORKING_DIRECTORY
-        ${CMAKE_CURRENT_BINARY_DIR}
-      RESULT_VARIABLE
-        RESULT
-      OUTPUT_QUIET
-      ERROR_QUIET
-    )
+    if (NOT EXISTS ${SRC_PATH})
+      execute_process(
+        COMMAND
+          ${GIT_EXECUTABLE} clone "${CMAKEPKG_PROJECT_ROOT_URL}/${GROUP}/${PROJECT}.git" --depth 1 --recursive ${SRC_PATH}
+        WORKING_DIRECTORY
+          ${CMAKE_CURRENT_BINARY_DIR}
+        RESULT_VARIABLE
+          RESULT
+        OUTPUT_QUIET
+        ERROR_QUIET
+      )
 
-    if (NOT ${RESULT} EQUAL "0")
-      remove(REMOVE_RECURSE ${SRC_PATH})
-      message(FATAL_ERROR "Could not clone ${GROUP}::${PROJECT} from ${CMAKEPKG_PROJECT_ROOT_URL}/${GROUP}/${PROJECT}.git. Please check your access rights.")
+      if (NOT ${RESULT} EQUAL "0")
+        remove(REMOVE_RECURSE ${SRC_PATH})
+        message(FATAL_ERROR "Could not clone ${GROUP}::${PROJECT} from ${CMAKEPKG_PROJECT_ROOT_URL}/${GROUP}/${PROJECT}.git. Please check your access rights.")
+      endif()
     endif()
-  endif()
 
-  if (NOT EXISTS ${BIN_PATH})
-    file(MAKE_DIRECTORY ${BIN_PATH})
+    if (NOT EXISTS ${BIN_PATH})
+      file(MAKE_DIRECTORY ${BIN_PATH})
 
-    execute_process(
-      COMMAND
-        ${CMAKE_COMMAND}
-        -S ${SRC_PATH}
-        -B ${BIN_PATH}
-        -G "${CMAKE_GENERATOR}"
-        -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-        -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
-        -DCMAKEPKG_BOOTSTRAP_FILE=${CMAKEPKG_BOOTSTRAP_FILE}
-        -DCMAKEPKG_FILES=${CMAKEPKG_FILES}
-        -DCMAKEPKG_DEPENDENCIES_DIR=${CMAKEPKG_DEPENDENCIES_DIR}
-      WORKING_DIRECTORY
-        ${BIN_PATH}
-      OUTPUT_QUIET
+      execute_process(
+        COMMAND
+          ${CMAKE_COMMAND}
+          -S ${SRC_PATH}
+          -B ${BIN_PATH}
+          -G "${CMAKE_GENERATOR}"
+          -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
+          -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+          -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+          -DCMAKEPKG_MODE=${CMAKEPKG_MODE}
+          -DCMAKEPKG_BOOTSTRAP_FILE=${CMAKEPKG_BOOTSTRAP_FILE}
+          -DCMAKEPKG_FILES_DIR=${CMAKEPKG_FILES_DIR}
+          -DCMAKEPKG_DEPENDENCIES_DIR=${CMAKEPKG_DEPENDENCIES_DIR}
+        WORKING_DIRECTORY
+          ${BIN_PATH}
+        OUTPUT_QUIET
+      )
+
+      execute_process(
+        COMMAND
+          ${CMAKE_COMMAND} --build ${BIN_PATH}
+        WORKING_DIRECTORY
+          ${BIN_PATH}
+        OUTPUT_QUIET
+      )
+    endif()
+
+    file(GLOB DEPENDENCIES ${BIN_PATH}/*.dep.cmake)
+    foreach(DEPENDENCY ${DEPENDENCIES})
+      file(COPY ${DEPENDENCY} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+    endforeach()
+  else()
+    FetchContent_Declare(
+      ${GROUP}_${PROJECT}
+      GIT_REPOSITORY ${CMAKEPKG_PROJECT_ROOT_URL}/${GROUP}/${PROJECT}.git
     )
-
-    execute_process(
-      COMMAND
-        ${CMAKE_COMMAND} --build ${BIN_PATH}
-      WORKING_DIRECTORY
-        ${BIN_PATH}
-      OUTPUT_QUIET
-    )
+    FetchContent_MakeAvailable(${GROUP}_${PROJECT})
   endif()
-
-  file(GLOB DEPENDENCIES ${BIN_PATH}/*.dep.cmake)
-  foreach(DEPENDENCY ${DEPENDENCIES})
-    file(COPY ${DEPENDENCY} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-  endforeach()
 endfunction()
 
 macro(_add_module_collect_sources)
@@ -209,19 +219,33 @@ macro(_add_module_link_libraries)
     ${ARGN}
   )
 
-  file(GLOB_RECURSE
-    DEPENDENCIES
-      ${CMAKE_CURRENT_BINARY_DIR}/*.dep.cmake
-  )
-
-  foreach (DEPENDENCY ${DEPENDENCIES})
-    include(${DEPENDENCY})
-    get_filename_component(DEPENDENCY_NAME ${DEPENDENCY} NAME_WE)
-    set(DEPS
-      ${DEPS}
-      ${DEPENDENCY_NAME}
+  if (${CMAKEPKG_MODE} STREQUAL "PREBUILD")
+    file(GLOB_RECURSE
+      DEPENDENCIES
+        ${CMAKE_CURRENT_BINARY_DIR}/*.dep.cmake
     )
-  endforeach()
+
+    foreach (DEPENDENCY ${DEPENDENCIES})
+      include(${DEPENDENCY})
+      get_filename_component(DEPENDENCY_NAME ${DEPENDENCY} NAME_WE)
+      set(DEPS
+        ${DEPS}
+        ${DEPENDENCY_NAME}
+      )
+    endforeach()
+  else()
+    foreach (DEPENDENCY ${ARG_DEPENDENCIES})
+      # both separators "::" and "/" are supported
+      string(REPLACE "::" ";" DEPENDENCY_GROUP_PROJECT ${DEPENDENCY})
+      string(REPLACE "/" ";" DEPENDENCY_GROUP_PROJECT ${DEPENDENCY})
+
+      list(GET DEPENDENCY_GROUP_PROJECT 1 DEPENDENCY_NAME)
+      set(DEPS
+        ${DEPS}
+        ${DEPENDENCY_NAME}
+      )
+    endforeach()
+  endif()
 
   if ("${type}" STREQUAL "INTERFACE")
     target_link_libraries(${module_name}
@@ -258,7 +282,7 @@ macro(_add_module_link_libraries)
 endmacro()
 
 macro(_add_module)
-  include(${CMAKEPKG_FILES}/Compiler/${CMAKE_SYSTEM_NAME}_${CMAKE_SYSTEM_PROCESSOR}.cmake)
+  include(${CMAKEPKG_FILES_DIR}/Compiler/${CMAKE_SYSTEM_NAME}_${CMAKE_SYSTEM_PROCESSOR}.cmake)
 
   _add_module_generate_revision(${module_name})
 
@@ -425,13 +449,15 @@ function(add_module_library module_name type)
 
   _add_module()
 
-  export(
-    TARGETS
-      ${module_name}
-    FILE
-      ${module_name}.dep.cmake
-    EXPORT_LINK_INTERFACE_LIBRARIES
-  )
+  if (${CMAKEPKG_MODE} STREQUAL "PREBUILD")
+    export(
+      TARGETS
+        ${module_name}
+      FILE
+        ${module_name}.dep.cmake
+      EXPORT_LINK_INTERFACE_LIBRARIES
+    )
+  endif()
 endfunction()
 
 #

@@ -33,10 +33,13 @@ if (UNIX)
   endif()
 endif()
 
-if (BUILD_NEW)
-  include(${CMAKE_CURRENT_LIST_DIR}/AddModule2.cmake)
-else()
-  include(${CMAKE_CURRENT_LIST_DIR}/AddModule.cmake)
+if (NOT DEFINED CMAKEPKG_MODE)
+  set(CMAKEPKG_MODE "JOINED")
 endif()
+if (NOT (CMAKEPKG_MODE STREQUAL "JOINED") AND NOT(CMAKEPKG_MODE STREQUAL "PREBUILD"))
+  message(FATAL_ERROR "Unsupported CMAKEPKG_MODE ${CMAKEPKG_MODE}")
+endif()
+
+include(${CMAKE_CURRENT_LIST_DIR}/AddModule.cmake)
 
 enable_testing()
