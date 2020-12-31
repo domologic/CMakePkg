@@ -20,6 +20,10 @@
 #   CMAKEPKG_BOOTSTRAP_FILE
 #     Name of the CMakePkg Bootstrap File. It not set, a default version will be fetched from GitHub.
 #
+#   CMAKEPKG_PRIVATE_KEY_FILE
+#     Path to file holding the ssh private key, used by git to check out. This makes only sense in case
+#     of a git@... URL
+#
 #   CMAKEPKG_PROJECT_ROOT_URL
 #     Base URL used for all Git Repositories. Will be determined from the project base repository.
 #
