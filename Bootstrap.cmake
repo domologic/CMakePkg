@@ -37,18 +37,22 @@
 
 include_guard(GLOBAL)
 
-# Sources of CMakePkg project (Group/Project). Has to be located on the same Git server than the project itself
-set(CMAKEPKG_REPOSITORY "domologic/CMakePkg.git")
+if (DEFINED CMAKEPKG_PRIVATE_KEY_FILE)
+  set(ENV{GIT_SSH_COMMAND} "ssh -F /dev/null -i ${CMAKEPKG_PRIVATE_KEY_FILE} -o 'StrictHostKeyChecking=no' -o 'UserKnownHostsFile=/dev/null'")
+endif()
 
 # Global directory used for CMakePkg
-if (NOT CMAKEPKG_SELF_DIR)
+if (NOT DEFINED CMAKEPKG_SELF_DIR)
   set(CMAKEPKG_SELF_DIR "${CMAKE_CURRENT_BINARY_DIR}/CMakePkgFiles" CACHE INTERNAL "Path to cloned files from the CMakePkg repository")
 endif()
 
 # Global directory used to clone all dependencies
-if (NOT CMAKEPKG_DEPENDENCIES_DIR)
+if (NOT DEFINED CMAKEPKG_DEPENDENCIES_DIR)
   set(CMAKEPKG_DEPENDENCIES_DIR "${CMAKE_CURRENT_BINARY_DIR}/_deps" CACHE INTERNAL "Path to the downloaded dependencies")
 endif()
+
+# Sources of CMakePkg project (Group/Project). Has to be located on the same Git server than the project itself
+set(CMAKEPKG_REPOSITORY "domologic/CMakePkg.git")
 
 find_package(Git QUIET)
 
