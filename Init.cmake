@@ -12,10 +12,6 @@ if (NOT (CMAKEPKG_MODE STREQUAL "JOINED") AND NOT(CMAKEPKG_MODE STREQUAL "PREBUI
 endif()
 message(STATUS "Loading CMakePkg (CMAKEPKG_MODE=${CMAKEPKG_MODE})...")
 
-if (DEFINED CMAKEPKG_PRIVATE_KEY_FILE)
-  set(ENV{GIT_SSH_COMMAND} "ssh -F /dev/null -i ${CMAKEPKG_PRIVATE_KEY_FILE} -o 'StrictHostKeyChecking=no' -o 'UserKnownHostsFile=/dev/null'")
-endif()
-
 set(CMAKE_MODULE_PATH                 ${CMAKE_CURRENT_LIST_DIR}/Module)
 set(CMAKE_CONFIGURATION_TYPES         "Debug;Release" CACHE STRING "" FORCE)
 
