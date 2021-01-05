@@ -1,0 +1,5 @@
+TODO, 30.12.2020
+* Bootstrap.cmake: Die Regexe zum Parsen der URL müssten nochmal angefasst werden:
+  - git@... nut ":^/*" ersetzen durch :/*
+  - dann cd .., cd.. mit Regex. Am besten sicherheitshalber erst letztes "/$" ersetzen, dann 2x /.*$ durch ""
+* Es wäre noch eine Env Variable für ein Passwort sinnvoll
