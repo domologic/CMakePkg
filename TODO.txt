@@ -1,5 +1,4 @@
-TODO, 30.12.2020
-* Bootstrap.cmake: Die Regexe zum Parsen der URL müssten nochmal angefasst werden:
-  - git@... nut ":^/*" ersetzen durch :/*
-  - dann cd .., cd.. mit Regex. Am besten sicherheitshalber erst letztes "/$" ersetzen, dann 2x /.*$ durch ""
+TODO, 06.01.2021
 * Es wäre noch eine Env Variable für ein Passwort sinnvoll
+die Env Variable GIT_ASKPASS würde sich dafür anbieten, siehe https://stackoverflow.com/questions/31218599/supplying-a-password-to-git-in-a-bash-script/31218660
+ebenso für SSH könnte SSH_ASKPASS verwendet werden, siehe https://www.exratione.com/2014/08/bash-script-ssh-automation-without-a-password-prompt/
