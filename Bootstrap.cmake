@@ -41,18 +41,18 @@ if (DEFINED CMAKEPKG_PRIVATE_KEY_FILE)
   set(ENV{GIT_SSH_COMMAND} "ssh -F /dev/null -i ${CMAKEPKG_PRIVATE_KEY_FILE} -o 'StrictHostKeyChecking=no' -o 'UserKnownHostsFile=/dev/null'")
 endif()
 
-# Global directory used for CMakePkg
+# Sources of CMakePkg project repository (Group/Project). Has to be located on the same Git server than the project itself
+set(CMAKEPKG_SELF_REPO "domologic/CMakePkg.git")
+
+# Global directory used to checkout the CMakePkg project repository
 if (NOT DEFINED CMAKEPKG_SELF_DIR)
   set(CMAKEPKG_SELF_DIR "${CMAKE_CURRENT_BINARY_DIR}/CMakePkgFiles" CACHE INTERNAL "Path to cloned files from the CMakePkg repository")
 endif()
 
-# Global directory used to clone all dependencies
+# Global directory used to checkout all dependencies
 if (NOT DEFINED CMAKEPKG_DEPENDENCIES_DIR)
   set(CMAKEPKG_DEPENDENCIES_DIR "${CMAKE_CURRENT_BINARY_DIR}/_deps" CACHE INTERNAL "Path to the downloaded dependencies")
 endif()
-
-# Sources of CMakePkg project (Group/Project). Has to be located on the same Git server than the project itself
-set(CMAKEPKG_REPOSITORY "domologic/CMakePkg.git")
 
 find_package(Git QUIET)
 
@@ -83,13 +83,13 @@ string(REGEX REPLACE "/[^/]*$" "" CMAKEPKG_PROJECT_ROOT_URL ${CMAKEPKG_PROJECT_R
 
 # global git domain
 set(CMAKEPKG_PROJECT_ROOT_URL ${CMAKEPKG_PROJECT_ROOT_URL} CACHE STRING "git domain")
-message(STATUS "Using ${CMAKEPKG_PROJECT_ROOT_URL}' as git root for dependency resolution")
+message(STATUS "Using '${CMAKEPKG_PROJECT_ROOT_URL}' as git root for dependency resolution")
 
 # clone the cmake module library
 if (NOT EXISTS ${CMAKEPKG_SELF_DIR})
   execute_process(
     COMMAND
-      ${GIT_EXECUTABLE} clone "${CMAKEPKG_PROJECT_ROOT_URL}/${CMAKEPKG_REPOSITORY}" --depth 1 ${CMAKEPKG_SELF_DIR}
+      ${GIT_EXECUTABLE} clone "${CMAKEPKG_PROJECT_ROOT_URL}/${CMAKEPKG_SELF_REPO}" --depth 1 ${CMAKEPKG_SELF_DIR}
     WORKING_DIRECTORY
       ${CMAKE_CURRENT_BINARY_DIR}
     RESULT_VARIABLE
@@ -98,7 +98,7 @@ if (NOT EXISTS ${CMAKEPKG_SELF_DIR})
   )
 
   if (NOT ${RESULT} EQUAL "0")
-    message(FATAL_ERROR "Could not clone CMakePkg sources from ${CMAKEPKG_PROJECT_ROOT_URL}/${CMAKEPKG_REPOSITORY}")
+    message(FATAL_ERROR "Could not clone CMakePkg sources from ${CMAKEPKG_PROJECT_ROOT_URL}/${CMAKEPKG_SELF_REPO}")
   endif()
 endif()
 
