@@ -72,14 +72,14 @@ if (NOT CMAKEPKG_PROJECT_ROOT_URL)
 endif()
 
 if(CMAKEPKG_PROJECT_ROOT_URL MATCHES "^git@.*")
-  # remove everything following separator ":" and add ":" again
-  string(REGEX REPLACE ":.*$" "" CMAKEPKG_PROJECT_ROOT_URL ${CMAKEPKG_PROJECT_ROOT_URL})
-  string(CONCAT CMAKEPKG_PROJECT_ROOT_URL ${CMAKEPKG_PROJECT_ROOT_URL} ":")
-else()
-  # remove last 2 subfolders in URL (project name)
-  string(REGEX REPLACE "\/[^\/]*$" "" CMAKEPKG_PROJECT_ROOT_URL ${CMAKEPKG_PROJECT_ROOT_URL})
-  string(REGEX REPLACE "\/[^\/]*$" "" CMAKEPKG_PROJECT_ROOT_URL ${CMAKEPKG_PROJECT_ROOT_URL})
+  # ensure that ":" is always followed by "/"
+  string(REGEX REPLACE ":" ":/" CMAKEPKG_PROJECT_ROOT_URL ${CMAKEPKG_PROJECT_ROOT_URL})
+  string(REGEX REPLACE "/+" "/" CMAKEPKG_PROJECT_ROOT_URL ${CMAKEPKG_PROJECT_ROOT_URL})
 endif()
+# remove last two subfolders in URL (project name)
+string(REGEX REPLACE "/+$" "" CMAKEPKG_PROJECT_ROOT_URL ${CMAKEPKG_PROJECT_ROOT_URL})
+string(REGEX REPLACE "/[^/]*$" "" CMAKEPKG_PROJECT_ROOT_URL ${CMAKEPKG_PROJECT_ROOT_URL})
+string(REGEX REPLACE "/[^/]*$" "" CMAKEPKG_PROJECT_ROOT_URL ${CMAKEPKG_PROJECT_ROOT_URL})
 
 # global git domain
 set(CMAKEPKG_PROJECT_ROOT_URL ${CMAKEPKG_PROJECT_ROOT_URL} CACHE STRING "git domain")
