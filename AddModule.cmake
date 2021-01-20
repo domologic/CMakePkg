@@ -297,8 +297,8 @@ macro(_add_module)
     target_compile_options(${module_name}
       PRIVATE
         $<$<BOOL:"${FLAGS}">:${FLAGS}>
-        $<$<AND:$<BOOL:"${FLAGS_DEBUG}">,$<CONFIG:Debug>>:${FLAGS_DEBUG}>
-        $<$<AND:$<BOOL:"${FLAGS_RELEASE}">,$<CONFIG:Release>>:${FLAGS_RELEASE}>
+        $<$<AND:$<BOOL:"${FLAGS_DEBUG}">,$<NOT:COMPILE_LANGUAGE:ASM>,$<NOT:COMPILE_LANGUAGE:MASM_ASM>,$<CONFIG:Debug>>:${FLAGS_DEBUG}>
+        $<$<AND:$<BOOL:"${FLAGS_RELEASE}">,$<NOT:COMPILE_LANGUAGE:ASM>,$<NOT:COMPILE_LANGUAGE:MASM_ASM>,$<CONFIG:Release>>:${FLAGS_RELEASE}>
         $<$<AND:$<BOOL:"${FLAGS_C}">,$<COMPILE_LANGUAGE:C>>:${FLAGS_C}>
         $<$<AND:$<BOOL:"${FLAGS_C_DEBUG}">,$<COMPILE_LANGUAGE:C>,$<CONFIG:Debug>>:${FLAGS_C_DEBUG}>
         $<$<AND:$<BOOL:"${FLAGS_C_RELEASE}">,$<COMPILE_LANGUAGE:C>,$<CONFIG:Release>>:${FLAGS_C_RELEASE}>
