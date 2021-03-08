@@ -337,10 +337,6 @@ macro(_add_module)
     message(STATUS "Dependency ${DEPENDENCY} loaded.")
   endforeach()
 
-  if (BUILD_UNIT_TESTS)
-    _add_module_load_dependency(Extern::Catch2)
-  endif()
-
   _add_module_link_libraries(${ARG_LINK_LIBRARIES})
 
   if (ARG_COMPILE_DEFINITIONS)
@@ -443,6 +439,11 @@ endmacro()
 function(add_module_library module_name type)
   _add_module_parse_args(${ARGN})
 
+  set(ARG_DEPENDENCIES
+    ${ARG_DEPENDENCIES}
+    Extern::Catch2
+  )
+
   if ("${type}" STREQUAL "INTERFACE")
     add_library(${module_name} INTERFACE)
   else()
@@ -511,6 +512,11 @@ endfunction()
 function(add_module_executable module_name)
   _add_module_parse_args(${ARGN})
   _add_module_collect_sources()
+
+  set(ARG_DEPENDENCIES
+    ${ARG_DEPENDENCIES}
+    Extern::Catch2
+  )
 
   add_executable(${module_name}
     ${ARG_SOURCES}
