@@ -295,7 +295,7 @@ macro(_add_module)
         $<$<AND:$<BOOL:"${DEFINE_DEBUG}">,$<CONFIG:Debug>>:${DEFINE_DEBUG}>
         $<$<AND:$<BOOL:"${DEFINE_RELEASE}">,$<CONFIG:Release>>:${DEFINE_RELEASE}>
       PUBLIC
-        $<$<BOOL:"${BUILD_UNIT_TESTS}">:BUILD_UNIT_TESTS>
+        $<$<BOOL:BUILD_UNIT_TESTS>:BUILD_UNIT_TESTS>
     )
     target_compile_options(${module_name}
       PRIVATE
