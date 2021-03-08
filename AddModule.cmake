@@ -289,13 +289,16 @@ macro(_add_module)
     message(STATUS "Loading ${CMAKE_SYSTEM_NAME}::${CMAKE_SYSTEM_PROCESSOR} configuration")
     load_compiler_config()
 
+    if (BUILD_UNIT_TESTS)
+      set(DEFINES_BUILD_UNIT_TESTS BUILD_UNIT_TESTS)
+    endif()
+
     target_compile_definitions(${module_name}
       PRIVATE
         $<$<BOOL:"${DEFINE}">:${DEFINE}>
         $<$<AND:$<BOOL:"${DEFINE_DEBUG}">,$<CONFIG:Debug>>:${DEFINE_DEBUG}>
         $<$<AND:$<BOOL:"${DEFINE_RELEASE}">,$<CONFIG:Release>>:${DEFINE_RELEASE}>
-      PUBLIC
-        $<$<BOOL:BUILD_UNIT_TESTS>:BUILD_UNIT_TESTS>
+        ${DEFINES_BUILD_UNIT_TESTS}
     )
     target_compile_options(${module_name}
       PRIVATE
