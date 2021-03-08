@@ -336,6 +336,10 @@ macro(_add_module)
     message(STATUS "Dependency ${DEPENDENCY} loaded.")
   endforeach()
 
+  if (BUILD_UNIT_TESTS)
+    _add_module_load_dependency(Extern::Catch2)
+  endif()
+
   _add_module_link_libraries(${ARG_LINK_LIBRARIES})
 
   if (ARG_COMPILE_DEFINITIONS)
