@@ -83,7 +83,7 @@ function(_add_module_generate_revision module_name)
   endif()
 
   string(REGEX REPLACE "-" "" MODULE_DATE "${MODULE_DATE}")
-  string(SUBSTRING MODULE_DATE 0 4 MODULE_YEAR)
+  string(SUBSTRING "${MODULE_DATE}" 0 4 MODULE_YEAR)
 
   set(MODULE_VERSION ${PROJECT_VERSION})
 
