@@ -41,11 +41,11 @@ function(_add_module_generate_revision module_name)
   string(REGEX REPLACE "-"                 "_"       MODULE_NAME "${module_name}") 
   string(REGEX REPLACE "(.)([A-Z][a-z]+)"  "\\1_\\2" MODULE_NAME "${MODULE_NAME}")
   string(REGEX REPLACE "([a-z0-9])([A-Z])" "\\1_\\2" MODULE_NAME "${MODULE_NAME}")
-  string(TOUPPER "${MODULE_NAME}" MODULE_NAME)
 
   set(MODULE_REVISION  "unknown")
   set(MODULE_TIMESTAMP "1970-01-01 00:00:00 +0000")
   set(MODULE_DATE      "19700101")
+  set(MODULE_YEAR      "1970")
   set(MODULE_BRANCH    "unknown")
 
   if (GIT_EXECUTABLE)
@@ -82,7 +82,8 @@ function(_add_module_generate_revision module_name)
     )
   endif()
 
-  string(REGEX REPLACE "-" "" MODULE_DATE "${MODULE_DATE}") 
+  string(REGEX REPLACE "-" "" MODULE_DATE "${MODULE_DATE}")
+  string(SUBSTRING MODULE_DATE 0 4 MODULE_YEAR)
 
   set(MODULE_VERSION ${PROJECT_VERSION})
 
