@@ -1,21 +1,10 @@
 #pragma once
 
-#ifndef @MODULE_NAME@_VERSION
-#  define @MODULE_NAME@_VERSION  "@MODULE_VERSION@"
-#endif
-
-#ifndef @MODULE_NAME@_REVISION
-#  define @MODULE_NAME@_REVISION  "@MODULE_REVISION@"
-#endif
-
-#ifndef @MODULE_NAME@_TIMESTAMP
-#  define @MODULE_NAME@_TIMESTAMP "@MODULE_TIMESTAMP@"
-#endif
-
-#ifndef @MODULE_NAME@_DATE
-#  define @MODULE_NAME@_DATE "@MODULE_DATE@"
-#endif
-
-#ifndef @MODULE_NAME@_BRANCH
-#  define @MODULE_NAME@_BRANCH    "@MODULE_BRANCH@"
-#endif
+namespace @MODULE_NAME@::revision {
+    constexpr const char* kVersion   = "@MODULE_VERSION@";
+    constexpr const char* kRevision  = "@MODULE_REVISION@";
+    constexpr const char* kTimestamp = "@MODULE_TIMESTAMP@";
+    constexpr const char* kDate      = "@MODULE_DATE@";
+    constexpr int         kYear      = @MODULE_YEAR@;
+    constexpr const char* kBranch    = "@MODULE_BRANCH@";
+}
