@@ -35,7 +35,7 @@ find_package_handle_standard_args(libsocketcan
   LIBSOCKETCAN_LIBRARY
 )
 
-if (libudev_FOUND)
+if (libsocketcan_FOUND)
   set(LIBSOCKETCAN_INCLUDE_DIRS
     ${LIBSOCKETCAN_INCLUDE_DIR}
   )
