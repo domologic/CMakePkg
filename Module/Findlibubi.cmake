@@ -9,7 +9,11 @@ include(FindPackageHandleStandardArgs)
 find_package(PkgConfig QUIET)
 pkg_check_modules(PC_LIBUBI libubi QUIET)
 
-set(LIBUBI_VERSION ${PC_LIBUBI_VERSION})
+if (libubi_FOUND)
+  set(LIBUBI_VERSION ${PC_LIBUBI_VERSION})
+else()
+  set(LIBUBI_VERSION "2.1.2-2")
+endif()
 
 find_path(LIBUBI_INCLUDE_DIR
   NAMES
