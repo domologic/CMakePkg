@@ -28,6 +28,10 @@ find_library(LIBUBI_LIBRARY
     ${PC_LIBUBI_LIBRARY_DIRS}
 )
 
+if (NOT DEFINED LIBUBI_INCLUDE_DIR_NOTFOUND AND NOT DEFINED LIBUBI_LIBRARY_FOUND)
+  set(libubi_FOUND ON)
+endif()
+
 find_package_handle_standard_args(libubi
   DEFAULT_MSG
   LIBUBI_VERSION
