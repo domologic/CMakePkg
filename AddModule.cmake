@@ -160,9 +160,9 @@ function(_add_module_load_dependency DEPENDENCY)
 	  message(STATUS "CMAKE_CURRENT_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}")
       execute_process(
         COMMAND
-          cd ${SRC_PATH}; git checkout `git rev-list -1 --before=${CMAKEPKG_TIMESTAMP} master`; cd ..
+          ${GIT_EXECUTABLE} checkout `git rev-list -1 --before=${CMAKEPKG_TIMESTAMP} master
         WORKING_DIRECTORY
-          ${CMAKE_CURRENT_BINARY_DIR}
+          ${SRC_PATH}
         RESULT_VARIABLE
           RESULT
         OUTPUT_QUIET
