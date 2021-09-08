@@ -165,8 +165,6 @@ function(_add_module_load_dependency DEPENDENCY)
           ${SRC_PATH}
         RESULT_VARIABLE
           RESULT
-        OUTPUT_QUIET
-        ERROR_QUIET
       )
 
       if (NOT ${RESULT} EQUAL "0")
