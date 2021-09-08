@@ -34,6 +34,10 @@
 #     Used to store the dependencies when CMAKEPKG_MODE=PREBUILD.
 #     Set to ${CMAKE_CURRENT_BINARY_DIR}/_deps by default.
 #
+#   CMAKEPKG_TIMESTAMP
+#     The source code of all packages (without CMakePkg itself) is checkedout at this specific date and time.
+#     E.g. "Jan 3 2021"
+#
 
 include_guard(GLOBAL)
 
