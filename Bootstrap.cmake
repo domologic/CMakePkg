@@ -37,6 +37,7 @@
 #   CMAKEPKG_TIMESTAMP
 #     The source code of all packages (without CMakePkg itself) is checked sout at the most recent commit
 #     BEFORE this specific date and time - e.g. "Jan 3 2021".
+#     This is currently onlysupported when CMAKEPKG_MODE = "PREBUILD"
 #
 
 include_guard(GLOBAL)
