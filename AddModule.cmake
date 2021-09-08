@@ -158,9 +158,19 @@ function(_add_module_load_dependency DEPENDENCY)
       message(STATUS "Checking out before ${CMAKEPKG_TIMESTAMP}")
 	  message(STATUS "SRC_PATH ${SRC_PATH}")
 	  message(STATUS "CMAKE_CURRENT_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}")
+
+      execute_process(
+        COMMAND "${GIT_EXECUTABLE}" rev-list -1 --before=${CMAKEPKG_TIMESTAMP} HEAD
+        WORKING_DIRECTORY "${SRC_PATH}"
+        OUTPUT_VARIABLE COMMIT_ID
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+      )
+
+      message(STATUS "Commit ID = ${COMMIT_ID}")
+
       execute_process(
         COMMAND
-          ${GIT_EXECUTABLE} checkout `git rev-list -1 --before=${CMAKEPKG_TIMESTAMP} master
+          ${GIT_EXECUTABLE} checkout `git rev-list -1 --before=${CMAKEPKG_TIMESTAMP} master`
         WORKING_DIRECTORY
           ${SRC_PATH}
         RESULT_VARIABLE
