@@ -154,6 +154,24 @@ function(_add_module_load_dependency DEPENDENCY)
       endif()
     endif()
 
+    if (EXISTS ${CMAKEPKG_TIMESTAMP})
+      execute_process(
+        COMMAND
+          cd ${SRC_PATH}; git checkout `git rev-list -1 --before="${CMAKEPKG_TIMESTAMP}" master`; cd ..
+        WORKING_DIRECTORY
+          ${CMAKE_CURRENT_BINARY_DIR}
+        RESULT_VARIABLE
+          RESULT
+        OUTPUT_QUIET
+        ERROR_QUIET
+      )
+
+      if (NOT ${RESULT} EQUAL "0")
+        remove(REMOVE_RECURSE ${SRC_PATH})
+        message(FATAL_ERROR "Could not checkout ${GROUP}::${PROJECT} for specific date time${CMAKEPKG_TIMESTAMP}.")
+      endif()
+    endif()
+
     if (NOT EXISTS ${BUILD_PATH})
       file(MAKE_DIRECTORY ${BUILD_PATH})
 
