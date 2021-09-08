@@ -154,9 +154,9 @@ function(_add_module_load_dependency DEPENDENCY)
       endif()
     endif()
 
-    if (CMAKEPKG_TIMESTAMP)
+    if (DEFINED CMAKEPKG_TIMESTAMP)
       message(STATUS "Checking out before ${CMAKEPKG_TIMESTAMP}")
-	  execute_process(
+      execute_process(
         COMMAND
           cd ${SRC_PATH}; git checkout `git rev-list -1 --before="${CMAKEPKG_TIMESTAMP}" master`; cd ..
         WORKING_DIRECTORY
