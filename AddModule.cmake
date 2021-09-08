@@ -165,12 +165,11 @@ function(_add_module_load_dependency DEPENDENCY)
         OUTPUT_VARIABLE COMMIT_ID
         OUTPUT_STRIP_TRAILING_WHITESPACE
       )
-
-      message(STATUS "Commit ID = ${COMMIT_ID}")
+      message(STATUS "Commit ID=${COMMIT_ID}")
 
       execute_process(
         COMMAND
-          ${GIT_EXECUTABLE} checkout `git rev-list -1 --before=${CMAKEPKG_TIMESTAMP} master`
+          ${GIT_EXECUTABLE} checkout ${COMMIT_ID}
         WORKING_DIRECTORY
           ${SRC_PATH}
         RESULT_VARIABLE
