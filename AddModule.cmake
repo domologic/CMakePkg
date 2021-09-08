@@ -156,6 +156,8 @@ function(_add_module_load_dependency DEPENDENCY)
 
     if (DEFINED CMAKEPKG_TIMESTAMP)
       message(STATUS "Checking out before ${CMAKEPKG_TIMESTAMP}")
+	  message(STATUS "SRC_PATH ${SRC_PATH}")
+	  message(STATUS "CMAKE_CURRENT_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}")
       execute_process(
         COMMAND
           cd ${SRC_PATH}; git checkout `git rev-list -1 --before=${CMAKEPKG_TIMESTAMP} master`; cd ..
