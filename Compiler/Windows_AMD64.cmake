@@ -68,6 +68,7 @@ macro(load_compiler_config)
     /Gy
     /Qpar
     /MD
+    /GL
     /Qfast_transcendentals
   )
 
