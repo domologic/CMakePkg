@@ -27,6 +27,7 @@ macro(load_compiler_config)
     -O3
     -fmerge-all-constants
     -faggressive-loop-optimizations
+    -pg
   )
 
   # C flags
@@ -42,5 +43,7 @@ macro(load_compiler_config)
   # Linker flags
   #set(LINK)
   #set(LINK_DEBUG)
-  #set(LINK_RELEASE)
+  set(LINK_RELEASE
+    -pg
+  )
 endmacro()
