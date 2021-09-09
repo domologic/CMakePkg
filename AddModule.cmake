@@ -350,9 +350,8 @@ macro(_add_module)
     )
     set_target_properties(${module_name}
       PROPERTIES
-        LIBRARY_OUTPUT_DIRECTORY     ${CMAKE_INSTALL_PREFIX}
-        RUNTIME_OUTPUT_DIRECTORY     ${CMAKE_INSTALL_PREFIX}
-        INTERPROCEDURAL_OPTIMIZATION TRUE
+        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_INSTALL_PREFIX}
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_INSTALL_PREFIX}
     )
     target_include_directories(${module_name}
       PUBLIC
