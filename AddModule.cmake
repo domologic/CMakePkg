@@ -219,9 +219,21 @@ function(_add_module_load_dependency DEPENDENCY)
       file(COPY ${DEPENDENCY} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
     endforeach()
   else()
-    FetchContent_Declare(
+    string(TOLOWER "${GROUP}_${PROJECT}" PACKAGE)
+	message(STATUS "*** PACKAGE: ${PACKAGE}")
+	
+	if (DEFINED ${PACKAGE}_TAG)
+	  set(TAG ${${PACKAGE}_TAG})
+	  message(STATUS "*** Building specific tag ${TAG}")
+	else()
+	  set(TAG 'master')
+	endif()
+	message(STATUS "TAG=${TAG}")
+
+	FetchContent_Declare(
       ${GROUP}_${PROJECT}
       GIT_REPOSITORY ${CMAKEPKG_PROJECT_ROOT_URL}/${GROUP}/${PROJECT}.git
+	  GIT_TAG ${TAG}
     )
     FetchContent_MakeAvailable(${GROUP}_${PROJECT})
   endif()
