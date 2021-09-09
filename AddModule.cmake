@@ -222,19 +222,20 @@ function(_add_module_load_dependency DEPENDENCY)
     string(TOLOWER "${GROUP}_${PROJECT}" PACKAGE)
 	message(STATUS "*** PACKAGE: ${PACKAGE}")
 	
-	if (DEFINED ${PACKAGE}_TAG)
-	  set(TAG ${${PACKAGE}_TAG})
-	  message(STATUS "*** Building specific tag ${TAG}")
+	if (not DEFINED ${PACKAGE}_TAG)
+	  FetchContent_Declare(
+        ${GROUP}_${PROJECT}
+        GIT_REPOSITORY ${CMAKEPKG_PROJECT_ROOT_URL}/${GROUP}/${PROJECT}.git
+      )
 	else()
-	  set(TAG 'master')
+	  message(STATUS "*** Building specific tag ${${PACKAGE}_TAG})")
+	  FetchContent_Declare(
+        ${GROUP}_${PROJECT}
+        GIT_REPOSITORY ${CMAKEPKG_PROJECT_ROOT_URL}/${GROUP}/${PROJECT}.git
+	    GIT_TAG ${${PACKAGE}_TAG})
+      )
 	endif()
-	message(STATUS "TAG=${TAG}")
 
-	FetchContent_Declare(
-      ${GROUP}_${PROJECT}
-      GIT_REPOSITORY ${CMAKEPKG_PROJECT_ROOT_URL}/${GROUP}/${PROJECT}.git
-	  GIT_TAG ${TAG}
-    )
     FetchContent_MakeAvailable(${GROUP}_${PROJECT})
   endif()
 endfunction()
