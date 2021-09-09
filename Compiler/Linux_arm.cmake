@@ -25,7 +25,6 @@ macro(load_compiler_config)
   set(FLAGS_RELEASE
     -ggdb3
     -O3
-    -pg
     -fmerge-all-constants
     -faggressive-loop-optimizations
   )
