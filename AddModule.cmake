@@ -232,7 +232,7 @@ function(_add_module_load_dependency DEPENDENCY)
 	  FetchContent_Declare(
         ${GROUP}_${PROJECT}
         GIT_REPOSITORY ${CMAKEPKG_PROJECT_ROOT_URL}/${GROUP}/${PROJECT}.git
-	    GIT_TAG ${${PACKAGE}_TAG})
+	    GIT_TAG ${${PACKAGE}_TAG}
       )
 	endif()
 
