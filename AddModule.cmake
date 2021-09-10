@@ -228,7 +228,7 @@ function(_add_module_load_dependency DEPENDENCY)
         GIT_REPOSITORY ${CMAKEPKG_PROJECT_ROOT_URL}/${GROUP}/${PROJECT}.git
       )
 	else()
-	  message(STATUS "*** Building specific tag ${${PACKAGE}_TAG})")
+	  message(STATUS "*** Building specific tag ${${PACKAGE}_TAG}")
 	  FetchContent_Declare(
         ${GROUP}_${PROJECT}
         GIT_REPOSITORY ${CMAKEPKG_PROJECT_ROOT_URL}/${GROUP}/${PROJECT}.git
