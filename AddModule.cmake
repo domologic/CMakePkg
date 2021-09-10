@@ -222,7 +222,7 @@ function(_add_module_load_dependency DEPENDENCY)
     string(TOLOWER "${GROUP}_${PROJECT}" PACKAGE)
 	message(STATUS "*** PACKAGE: ${PACKAGE}")
 	
-	if (not DEFINED ${PACKAGE}_TAG)
+	if (NOT DEFINED ${PACKAGE}_TAG)
 	  FetchContent_Declare(
         ${GROUP}_${PROJECT}
         GIT_REPOSITORY ${CMAKEPKG_PROJECT_ROOT_URL}/${GROUP}/${PROJECT}.git
