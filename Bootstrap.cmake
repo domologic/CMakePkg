@@ -34,10 +34,9 @@
 #     Used to store the dependencies when CMAKEPKG_MODE=PREBUILD.
 #     Set to ${CMAKE_CURRENT_BINARY_DIR}/_deps by default.
 #
-#   CMAKEPKG_TIMESTAMP
-#     The source code of all packages (without CMakePkg itself) is checked sout at the most recent commit
-#     BEFORE this specific date and time - e.g. "Jan 3 2021".
-#     This is currently onlysupported when CMAKEPKG_MODE = "PREBUILD"
+#   CMAKEPKG_TAG_FILE
+#     File with git tags of the packages used to checkout.
+#     Each package is separated by a ':' from the tag name.
 #
 
 include_guard(GLOBAL)
@@ -89,6 +88,30 @@ string(REGEX REPLACE "/[^/]*$" "" CMAKEPKG_PROJECT_ROOT_URL ${CMAKEPKG_PROJECT_R
 # global git domain
 set(CMAKEPKG_PROJECT_ROOT_URL ${CMAKEPKG_PROJECT_ROOT_URL} CACHE STRING "git domain")
 message(STATUS "Using '${CMAKEPKG_PROJECT_ROOT_URL}' as git root for dependency resolution")
+
+# read CMakePkgTags.txt file from CMAKE_SOURCE_DIR
+if (DEFINED CMAKEPKG_TAG_FILE)
+  if (NOT EXISTS ${CMAKEPKG_TAG_FILE})
+    message(FATAL_ERROR "CMAKEPKG_TAG_FILE '${CMAKEPKG_TAG_FILE}' does not exist!")
+  else()
+    message(STATUS "Loading Tags File '${CMAKEPKG_TAG_FILE}'")
+    file(STRINGS ${CMAKEPKG_TAG_FILE} CMAKEPKG_TAGS REGEX "^[ ]*[^#].*")
+    foreach(LINE IN LISTS CMAKEPKG_TAGS)
+      string(REPLACE " " "" EXPR "${LINE}")
+      if (EXPR MATCHES ".*:.*")
+        string(REPLACE ":" ";" EXPR "${EXPR}")
+        list(POP_FRONT EXPR PACKAGE)
+        if (NOT "${PACKAGE}" STREQUAL "")
+          string(REPLACE "/" "_" PACKAGE "${PACKAGE}")
+          string(TOLOWER "${PACKAGE}" PACKAGE)
+          set("${PACKAGE}_TAG" "${EXPR}")
+        endif()
+      else()
+        message(WARNING "Ignoring expression in line '${LINE}' of CMAKEPKG_TAG_FILE '${CMAKEPKG_TAG_FILE}'")
+      endif()
+    endforeach()
+  endif()
+endif()
 
 # clone the cmake module library
 if (NOT EXISTS ${CMAKEPKG_SELF_DIR})
