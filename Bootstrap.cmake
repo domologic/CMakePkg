@@ -13,10 +13,6 @@
 #
 # Important Variables:
 #
-#   CMAKEPKG_MODE
-#     JOINED (Default): Dependencies will be checked-out before configuration step, and built at build time
-#     PREBUILD: Dependencies will be checked-out and built immediately at configuration time
-#
 #   CMAKEPKG_BOOTSTRAP_FILE
 #     Name of the CMakePkg Bootstrap File. It not set, a default version will be fetched from GitHub.
 #
@@ -29,10 +25,6 @@
 #
 #   CMAKEPKG_SELF_DIR
 #     Cloned sources of the CMakePkg project. Set to ${CMAKE_CURRENT_BINARY_DIR}/CMakePkgFiles by default.
-#
-#   CMAKEPKG_DEPENDENCIES_DIR
-#     Used to store the dependencies when CMAKEPKG_MODE=PREBUILD.
-#     Set to ${CMAKE_CURRENT_BINARY_DIR}/_deps by default.
 #
 #   CMAKEPKG_TAG_FILE
 #     File with git tags of the packages used to checkout.
@@ -51,11 +43,6 @@ set(CMAKEPKG_SELF_REPO "domologic/CMakePkg.git")
 # Global directory used to checkout the CMakePkg project repository
 if (NOT DEFINED CMAKEPKG_SELF_DIR)
   set(CMAKEPKG_SELF_DIR "${CMAKE_CURRENT_BINARY_DIR}/CMakePkgFiles" CACHE INTERNAL "Path to cloned files from the CMakePkg repository")
-endif()
-
-# Global directory used to checkout all dependencies
-if (NOT DEFINED CMAKEPKG_DEPENDENCIES_DIR)
-  set(CMAKEPKG_DEPENDENCIES_DIR "${CMAKE_CURRENT_BINARY_DIR}/_deps" CACHE INTERNAL "Path to the downloaded dependencies")
 endif()
 
 find_package(Git QUIET)
