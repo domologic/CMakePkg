@@ -49,7 +49,7 @@ function(_add_module_generate_revision module_name)
 
   if (GIT_EXECUTABLE)
     # MODULE_REVISION is the short hash of the latest commit
-	execute_process(
+    execute_process(
       COMMAND "${GIT_EXECUTABLE}" rev-parse --short HEAD
       WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
       OUTPUT_VARIABLE MODULE_REVISION
@@ -58,7 +58,7 @@ function(_add_module_generate_revision module_name)
     )
 
     # MODULE_COMMIT_HASH is the long hash of the latest commit
-	execute_process(
+    execute_process(
       COMMAND "${GIT_EXECUTABLE}" rev-parse HEAD
       WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
       OUTPUT_VARIABLE MODULE_TAG
