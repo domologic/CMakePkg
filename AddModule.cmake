@@ -65,7 +65,6 @@ function(_add_module_generate_revision module_name)
       OUTPUT_STRIP_TRAILING_WHITESPACE
       ERROR_QUIET
     )
-    message(STATUS "MODULE_TAG: ${MODULE_TAG}")
 
     execute_process(
       COMMAND "${GIT_EXECUTABLE}" show -s --format=%ci
@@ -92,9 +91,13 @@ function(_add_module_generate_revision module_name)
     )
   endif()
 
+  message(STATUS "*** Created revision information for module ${MODULE_NAME} (${MODULE_TAG})")
   string(REGEX REPLACE "-" "" MODULE_DATE "${MODULE_DATE}")
   string(SUBSTRING "${MODULE_DATE}" 0 4 MODULE_YEAR)
 
+  # TODO: Project version should be read from file here (rather than in rp-software/CmakeLists.txt):
+  # file(READ ${CMAKE_CURRENT_SOURCE_DIR}/version.txt PROJECT_VERSION)
+  # string(REGEX REPLACE "\n$" "" PROJECT_VERSION "${PROJECT_VERSION}")
   set(MODULE_VERSION ${PROJECT_VERSION})
 
   configure_file(
@@ -185,12 +188,11 @@ macro(_add_module_link_libraries)
 
   foreach (DEPENDENCY ${ARG_DEPENDENCIES})
     # both separators "::" and "/" are supported
-    string(REGEX REPLACE "::|\/" ";" DEPENDENCY_GROUP_PROJECT ${DEPENDENCY})
-
-    list(GET DEPENDENCY_GROUP_PROJECT 1 DEPENDENCY_NAME)
+    string(REGEX REPLACE "::|\/" ";" EXPR ${DEPENDENCY})
+    list(GET EXPR 1 PROJECT)
     set(DEPS
       ${DEPS}
-      ${DEPENDENCY_NAME}
+      ${PROJECT}
     )
   endforeach()
 
