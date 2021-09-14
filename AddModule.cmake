@@ -38,9 +38,8 @@ endmacro()
 function(_add_module_generate_revision module_name)
   find_package(Git QUIET)
 
+  # Create C++ compatible name of this module, used by the template Revision,hpp.cmake
   string(REGEX REPLACE "-"                 "_"       MODULE_NAME "${module_name}") 
-  string(REGEX REPLACE "(.)([A-Z][a-z]+)"  "\\1_\\2" MODULE_NAME "${MODULE_NAME}")
-  string(REGEX REPLACE "([a-z0-9])([A-Z])" "\\1_\\2" MODULE_NAME "${MODULE_NAME}")
 
   set(MODULE_REVISION  "unknown")
   set(MODULE_TIMESTAMP "1970-01-01 00:00:00 +0000")
@@ -49,17 +48,28 @@ function(_add_module_generate_revision module_name)
   set(MODULE_BRANCH    "unknown")
 
   if (GIT_EXECUTABLE)
-    execute_process(
-      COMMAND "${GIT_EXECUTABLE}" describe --long --match init --dirty=+ --abbrev=12 --always
-      WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+    # MODULE_REVISION is the short hash of the latest commit
+	execute_process(
+      COMMAND "${GIT_EXECUTABLE}" rev-parse --short HEAD
+      WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
       OUTPUT_VARIABLE MODULE_REVISION
       OUTPUT_STRIP_TRAILING_WHITESPACE
       ERROR_QUIET
     )
 
+    # MODULE_COMMIT_HASH is the long hash of the latest commit
+	execute_process(
+      COMMAND "${GIT_EXECUTABLE}" rev-parse HEAD
+      WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+      OUTPUT_VARIABLE MODULE_TAG
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+      ERROR_QUIET
+    )
+    message(STATUS "MODULE_TAG: ${MODULE_TAG}")
+
     execute_process(
       COMMAND "${GIT_EXECUTABLE}" show -s --format=%ci
-      WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+      WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
       OUTPUT_VARIABLE MODULE_TIMESTAMP
       OUTPUT_STRIP_TRAILING_WHITESPACE
       ERROR_QUIET
@@ -67,7 +77,7 @@ function(_add_module_generate_revision module_name)
 
     execute_process(
       COMMAND "${GIT_EXECUTABLE}" show -s --format=%cd --date=short
-      WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+      WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
       OUTPUT_VARIABLE MODULE_DATE
       OUTPUT_STRIP_TRAILING_WHITESPACE
       ERROR_QUIET
@@ -75,7 +85,7 @@ function(_add_module_generate_revision module_name)
 
     execute_process(
       COMMAND "${GIT_EXECUTABLE}" rev-parse --abbrev-ref HEAD
-      WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+      WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
       OUTPUT_VARIABLE MODULE_BRANCH
       OUTPUT_STRIP_TRAILING_WHITESPACE
       ERROR_QUIET
@@ -127,29 +137,28 @@ endfunction()
 
 function(_add_module_load_dependency PACKAGE)
 
-  # Split PACKAGE name into GROUP and PROJECT
+  # Split PACKAGE name into DOMAIN and PROJECT
   # Both separators "::" and "/" are supported
   string(REGEX REPLACE "::|\/" ";" EXPR ${PACKAGE})
-  list(GET EXPR 0 GROUP)
+  list(GET EXPR 0 DOMAIN)
   list(GET EXPR 1 PROJECT)
-  string(TOLOWER "${GROUP}_${PROJECT}" PACKAGE_ID)
-  message(STATUS "*** PACKAGE_ID: ${PACKAGE_ID}")
+  string(TOLOWER "${DOMAIN}_${PROJECT}" PACKAGE_ID)
 
   if (NOT DEFINED ${PACKAGE_ID}_TAG)
 	FetchContent_Declare(
-      ${GROUP}_${PROJECT}
-      GIT_REPOSITORY ${CMAKEPKG_PROJECT_ROOT_URL}/${GROUP}/${PROJECT}.git
+      ${DOMAIN}_${PROJECT}
+      GIT_REPOSITORY ${CMAKEPKG_PROJECT_ROOT_URL}/${DOMAIN}/${PROJECT}.git
     )
   else()
 	message(STATUS "*** Building specific tag ${${PACKAGE_ID}_TAG}")
 	FetchContent_Declare(
-      ${GROUP}_${PROJECT}
-      GIT_REPOSITORY ${CMAKEPKG_PROJECT_ROOT_URL}/${GROUP}/${PROJECT}.git
+      ${DOMAIN}_${PROJECT}
+      GIT_REPOSITORY ${CMAKEPKG_PROJECT_ROOT_URL}/${DOMAIN}/${PROJECT}.git
 	  GIT_TAG ${${PACKAGE_ID}_TAG}
     )
   endif()
 
-    FetchContent_MakeAvailable(${GROUP}_${PROJECT})
+  FetchContent_MakeAvailable(${DOMAIN}_${PROJECT})
 endfunction()
 
 macro(_add_module_collect_sources)
