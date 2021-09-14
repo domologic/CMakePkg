@@ -125,119 +125,31 @@ function(_add_module_collect_source_files CURRENT_DIR VARIABLE)
   endif()
 endfunction()
 
-function(_add_module_load_dependency DEPENDENCY)
-  # both separators "::" and "/" are supported
-  string(REGEX REPLACE "::|\/" ";" DEPENDENCY_GROUP_PROJECT ${DEPENDENCY})
+function(_add_module_load_dependency PACKAGE)
 
-  list(GET DEPENDENCY_GROUP_PROJECT 0 GROUP)
-  list(GET DEPENDENCY_GROUP_PROJECT 1 PROJECT)
+  # Split PACKAGE name into GROUP and PROJECT
+  # Both separators "::" and "/" are supported
+  string(REGEX REPLACE "::|\/" ";" EXPR ${PACKAGE})
+  list(GET EXPR 0 GROUP)
+  list(GET EXPR 1 PROJECT)
+  string(TOLOWER "${GROUP}_${PROJECT}" PACKAGE_ID)
+  message(STATUS "*** PACKAGE_ID: ${PACKAGE_ID}")
 
-  if (${CMAKEPKG_MODE} STREQUAL "PREBUILD")
-    set(SRC_PATH "${CMAKEPKG_DEPENDENCIES_DIR}/${GROUP}/${PROJECT}-src")
-    set(BUILD_PATH "${CMAKEPKG_DEPENDENCIES_DIR}/${GROUP}/${PROJECT}-build")
-
-    if (NOT EXISTS ${SRC_PATH})
-      execute_process(
-        COMMAND
-          ${GIT_EXECUTABLE} clone "${CMAKEPKG_PROJECT_ROOT_URL}/${GROUP}/${PROJECT}.git" --depth 1 --recursive ${SRC_PATH}
-        WORKING_DIRECTORY
-          ${CMAKE_CURRENT_BINARY_DIR}
-        RESULT_VARIABLE
-          RESULT
-        OUTPUT_QUIET
-        ERROR_QUIET
-      )
-
-      if (NOT ${RESULT} EQUAL "0")
-        remove(REMOVE_RECURSE ${SRC_PATH})
-        message(FATAL_ERROR "Could not clone ${GROUP}::${PROJECT} from ${CMAKEPKG_PROJECT_ROOT_URL}/${GROUP}/${PROJECT}.git. Please check your access rights.")
-      endif()
-    endif()
-
-    if (DEFINED CMAKEPKG_TIMESTAMP)
-      message(STATUS "Checking out before ${CMAKEPKG_TIMESTAMP}")
-
-      execute_process(
-        COMMAND "${GIT_EXECUTABLE}" rev-list -1 --before=${CMAKEPKG_TIMESTAMP} HEAD
-        WORKING_DIRECTORY "${SRC_PATH}"
-        OUTPUT_VARIABLE COMMIT_ID
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-        ERROR_QUIET
-      )
-      message(STATUS "CommitID=${COMMIT_ID}")
-
-      execute_process(
-        COMMAND
-          ${GIT_EXECUTABLE} checkout ${COMMIT_ID}
-        WORKING_DIRECTORY
-          ${SRC_PATH}
-        RESULT_VARIABLE
-          RESULT
-        OUTPUT_QUIET
-        ERROR_QUIET
-      )
-
-      if (NOT ${RESULT} EQUAL "0")
-        remove(REMOVE_RECURSE ${SRC_PATH})
-        message(FATAL_ERROR "Could not checkout ${GROUP}::${PROJECT} for specific date time: ${CMAKEPKG_TIMESTAMP}.")
-      endif()
-    endif()
-
-    if (NOT EXISTS ${BUILD_PATH})
-      file(MAKE_DIRECTORY ${BUILD_PATH})
-
-      execute_process(
-        COMMAND
-          ${CMAKE_COMMAND}
-          -S ${SRC_PATH}
-          -B ${BUILD_PATH}
-          -G "${CMAKE_GENERATOR}"
-          -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-          -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-          -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
-          -DCMAKEPKG_MODE=${CMAKEPKG_MODE}
-          -DCMAKEPKG_BOOTSTRAP_FILE=${CMAKEPKG_BOOTSTRAP_FILE}
-          -DCMAKEPKG_SELF_DIR=${CMAKEPKG_SELF_DIR}
-          -DCMAKEPKG_DEPENDENCIES_DIR=${CMAKEPKG_DEPENDENCIES_DIR}
-          -DBUILD_UNIT_TESTS=${BUILD_UNIT_TESTS}
-        WORKING_DIRECTORY
-          ${BUILD_PATH}
-        OUTPUT_QUIET
-      )
-
-      execute_process(
-        COMMAND
-          ${CMAKE_COMMAND} --build ${BUILD_PATH}
-        WORKING_DIRECTORY
-          ${BUILD_PATH}
-        OUTPUT_QUIET
-      )
-    endif()
-
-    file(GLOB DEPENDENCIES ${BUILD_PATH}/*.dep.cmake)
-    foreach(DEPENDENCY ${DEPENDENCIES})
-      file(COPY ${DEPENDENCY} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-    endforeach()
+  if (NOT DEFINED ${PACKAGE_ID}_TAG)
+	FetchContent_Declare(
+      ${GROUP}_${PROJECT}
+      GIT_REPOSITORY ${CMAKEPKG_PROJECT_ROOT_URL}/${GROUP}/${PROJECT}.git
+    )
   else()
-    string(TOLOWER "${GROUP}_${PROJECT}" PACKAGE)
-	message(STATUS "*** PACKAGE: ${PACKAGE}")
-	
-	if (NOT DEFINED ${PACKAGE}_TAG)
-	  FetchContent_Declare(
-        ${GROUP}_${PROJECT}
-        GIT_REPOSITORY ${CMAKEPKG_PROJECT_ROOT_URL}/${GROUP}/${PROJECT}.git
-      )
-	else()
-	  message(STATUS "*** Building specific tag ${${PACKAGE}_TAG}")
-	  FetchContent_Declare(
-        ${GROUP}_${PROJECT}
-        GIT_REPOSITORY ${CMAKEPKG_PROJECT_ROOT_URL}/${GROUP}/${PROJECT}.git
-	    GIT_TAG ${${PACKAGE}_TAG}
-      )
-	endif()
+	message(STATUS "*** Building specific tag ${${PACKAGE_ID}_TAG}")
+	FetchContent_Declare(
+      ${GROUP}_${PROJECT}
+      GIT_REPOSITORY ${CMAKEPKG_PROJECT_ROOT_URL}/${GROUP}/${PROJECT}.git
+	  GIT_TAG ${${PACKAGE_ID}_TAG}
+    )
+  endif()
 
     FetchContent_MakeAvailable(${GROUP}_${PROJECT})
-  endif()
 endfunction()
 
 macro(_add_module_collect_sources)
@@ -262,32 +174,16 @@ macro(_add_module_link_libraries)
     ${ARGN}
   )
 
-  if (${CMAKEPKG_MODE} STREQUAL "PREBUILD")
-    file(GLOB_RECURSE
-      DEPENDENCIES
-        ${CMAKE_CURRENT_BINARY_DIR}/*.dep.cmake
+  foreach (DEPENDENCY ${ARG_DEPENDENCIES})
+    # both separators "::" and "/" are supported
+    string(REGEX REPLACE "::|\/" ";" DEPENDENCY_GROUP_PROJECT ${DEPENDENCY})
+
+    list(GET DEPENDENCY_GROUP_PROJECT 1 DEPENDENCY_NAME)
+    set(DEPS
+      ${DEPS}
+      ${DEPENDENCY_NAME}
     )
-
-    foreach (DEPENDENCY ${DEPENDENCIES})
-      include(${DEPENDENCY})
-      get_filename_component(DEPENDENCY_NAME ${DEPENDENCY} NAME_WE)
-      set(DEPS
-        ${DEPS}
-        ${DEPENDENCY_NAME}
-      )
-    endforeach()
-  else()
-    foreach (DEPENDENCY ${ARG_DEPENDENCIES})
-      # both separators "::" and "/" are supported
-      string(REGEX REPLACE "::|\/" ";" DEPENDENCY_GROUP_PROJECT ${DEPENDENCY})
-
-      list(GET DEPENDENCY_GROUP_PROJECT 1 DEPENDENCY_NAME)
-      set(DEPS
-        ${DEPS}
-        ${DEPENDENCY_NAME}
-      )
-    endforeach()
-  endif()
+  endforeach()
 
   if ("${type}" STREQUAL "INTERFACE")
     target_link_libraries(${module_name}
@@ -500,16 +396,6 @@ function(add_module_library module_name type)
   endif()
 
   _add_module()
-
-  if (${CMAKEPKG_MODE} STREQUAL "PREBUILD")
-    export(
-      TARGETS
-        ${module_name}
-      FILE
-        ${module_name}.dep.cmake
-      EXPORT_LINK_INTERFACE_LIBRARIES
-    )
-  endif()
 endfunction()
 
 #
