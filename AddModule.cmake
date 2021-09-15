@@ -42,6 +42,7 @@ function(_add_module_generate_revision module_name)
   string(REGEX REPLACE "-"                 "_"       MODULE_NAME "${module_name}") 
 
   set(MODULE_REVISION  "unknown")
+  set(MODULE_TAG       "unknown")
   set(MODULE_TIMESTAMP "1970-01-01 00:00:00 +0000")
   set(MODULE_DATE      "19700101")
   set(MODULE_YEAR      "1970")
@@ -57,7 +58,7 @@ function(_add_module_generate_revision module_name)
       ERROR_QUIET
     )
 
-    # MODULE_COMMIT_HASH is the long hash of the latest commit
+    # MODULE_TAG is the long hash of the latest commit
     execute_process(
       COMMAND "${GIT_EXECUTABLE}" rev-parse HEAD
       WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
@@ -66,7 +67,8 @@ function(_add_module_generate_revision module_name)
       ERROR_QUIET
     )
 
-    execute_process(
+    # MODULKE_TIMESTAMP is the date of the last commit
+	execute_process(
       COMMAND "${GIT_EXECUTABLE}" show -s --format=%ci
       WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
       OUTPUT_VARIABLE MODULE_TIMESTAMP
@@ -74,7 +76,8 @@ function(_add_module_generate_revision module_name)
       ERROR_QUIET
     )
 
-    execute_process(
+    # MODULE_DATE is the date of the last commit
+	execute_process(
       COMMAND "${GIT_EXECUTABLE}" show -s --format=%cd --date=short
       WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
       OUTPUT_VARIABLE MODULE_DATE
@@ -82,7 +85,8 @@ function(_add_module_generate_revision module_name)
       ERROR_QUIET
     )
 
-    execute_process(
+    # MODULE_BRANCH is the name of the current branch
+	execute_process(
       COMMAND "${GIT_EXECUTABLE}" rev-parse --abbrev-ref HEAD
       WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
       OUTPUT_VARIABLE MODULE_BRANCH
@@ -91,14 +95,15 @@ function(_add_module_generate_revision module_name)
     )
   endif()
 
-  message(STATUS "*** Created revision information for module ${MODULE_NAME} (${MODULE_TAG})")
   string(REGEX REPLACE "-" "" MODULE_DATE "${MODULE_DATE}")
   string(SUBSTRING "${MODULE_DATE}" 0 4 MODULE_YEAR)
 
   # TODO: Project version should be read from file here (rather than in rp-software/CmakeLists.txt):
-  # file(READ ${CMAKE_CURRENT_SOURCE_DIR}/version.txt PROJECT_VERSION)
-  # string(REGEX REPLACE "\n$" "" PROJECT_VERSION "${PROJECT_VERSION}")
-  set(MODULE_VERSION ${PROJECT_VERSION})
+  # set(MODULE_VERSION ${PROJECT_VERSION})
+  if (EXISTS ${PROJECT_SOURCE_DIR}/version.txt)
+    file(READ ${PROJECT_SOURCE_DIR}/version.txt MODULE_VERSION)
+    string(REGEX REPLACE "\n$" "" MODULE_VERSION "${MODULE_VERSION}")
+  endif()
 
   configure_file(
     ${CMAKEPKG_SELF_DIR}/Revision.hpp.cmake
@@ -140,28 +145,28 @@ endfunction()
 
 function(_add_module_load_dependency PACKAGE)
 
-  # Split PACKAGE name into DOMAIN and PROJECT
+  # Split PACKAGE name into DOMAIN and REPOSITORY
   # Both separators "::" and "/" are supported
   string(REGEX REPLACE "::|\/" ";" EXPR ${PACKAGE})
   list(GET EXPR 0 DOMAIN)
-  list(GET EXPR 1 PROJECT)
-  string(TOLOWER "${DOMAIN}_${PROJECT}" PACKAGE_ID)
+  list(GET EXPR 1 REPOSITORY)
+  string(TOLOWER "${DOMAIN}_${REPOSITORY}" PACKAGE_ID)
 
   if (NOT DEFINED ${PACKAGE_ID}_TAG)
 	FetchContent_Declare(
-      ${DOMAIN}_${PROJECT}
-      GIT_REPOSITORY ${CMAKEPKG_PROJECT_ROOT_URL}/${DOMAIN}/${PROJECT}.git
+      ${DOMAIN}_${REPOSITORY}
+      GIT_REPOSITORY ${CMAKEPKG_PROJECT_ROOT_URL}/${DOMAIN}/${REPOSITORY}.git
     )
   else()
 	message(STATUS "*** Building specific tag ${${PACKAGE_ID}_TAG}")
 	FetchContent_Declare(
-      ${DOMAIN}_${PROJECT}
-      GIT_REPOSITORY ${CMAKEPKG_PROJECT_ROOT_URL}/${DOMAIN}/${PROJECT}.git
+      ${DOMAIN}_${REPOSITORY}
+      GIT_REPOSITORY ${CMAKEPKG_PROJECT_ROOT_URL}/${DOMAIN}/${REPOSITORY}.git
 	  GIT_TAG ${${PACKAGE_ID}_TAG}
     )
   endif()
 
-  FetchContent_MakeAvailable(${DOMAIN}_${PROJECT})
+  FetchContent_MakeAvailable(${DOMAIN}_${REPOSITORY})
 endfunction()
 
 macro(_add_module_collect_sources)
