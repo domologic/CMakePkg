@@ -1,3 +1,26 @@
+TODO, 15.09.2021
+* Terminologie
+** Die Namensbestandteile der Packages sollten durchgängig mit 
+   ${DOMAIN}/${REPOSITORY} benannt werden
+** "MODUL" sollte auch besser "Package" genannt werden
+*** diese Terminologie wird auch bei npm verwendet
+    - "A package is a file or directory that is described by a package.json file. A package must 
+	  contain a package.json file in order to be published to the npm registry. 
+	  For more information on creating a package.json file, see "Creating a package.json file".
+	- "A module is any file or directory in the node_modules directory that can be loaded by the Node.js require() 
+	  function."
+** Template Revision.hpp.cmake: verwendet auch den Begriff "MODUL", ebenso wie add_module etc.
+* die Revision.hpp-Dateien sollten im Verzeichnis ${Build}/_deps/{package_id}-revision erzeugt werden. Dazu muss dem
+  _add_module_generate_revision vermutlich die package_id übergeben werden
+** Aber wie kommen wir an die package_id? Die Variable ${PROJECT_NAME} enthält nur den (lokalen) Namen des Projektes. Die Domain ist lediglich während des
+   Auflösungs-Vorgangs bekannt, nicht mehr wenn das Package geladen ist.
+*** wahrscheinlich brauchen wir ein Verfahren das den "Full-Name" entweder aus ${PROJECT_SOURCE_DIR} extrahiert, oder ${PROJECT_NAME} verwendet
+* Die URLs der "Domains" (External/Domologic/Sigma) sollten im "Master-" CMakeLists.txt deklariert werden
+  (z.B. External -> ${ROOT_URL}/External). Dazu würde sich eine Funktion "add_domain" anbieten.
+  Die Dependencies würden dann über die Domains aufgelöst werden. Es muss die Möglichkeit
+  bestehen die Domains relativ zur URL des Root-Projektes deklarieren zu können (so wie bisher auch)
+* die verwendeten "Tags" der Projekte sollten auch in ein Tagfile geschrieben werden
+
 TODO, 06.01.2021
 * Es wäre noch eine Env Variable für ein Passwort sinnvoll
 die Env Variable GIT_ASKPASS würde sich dafür anbieten, siehe https://stackoverflow.com/questions/31218599/supplying-a-password-to-git-in-a-bash-script/31218660
