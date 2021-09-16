@@ -17,6 +17,7 @@ macro(load_compiler_config)
   set(FLAGS
     -rdynamic
     -shared-libgcc
+    -march=native
   )
   set(FLAGS_DEBUG
     -ggdb
