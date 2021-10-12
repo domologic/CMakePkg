@@ -25,8 +25,15 @@ macro(load_compiler_config)
   )
   set(FLAGS_RELEASE
     -O3
+    -flto
+    -fno-fat-lto-objects
     -fmerge-all-constants
     -faggressive-loop-optimizations
+    -fgcse-sm
+    -fgcse-las
+    -fgcse-after-reload
+    -fdevirtualize-speculatively
+    -fdevirtualize-at-ltrans
   )
 
   # C flags
