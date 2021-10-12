@@ -35,11 +35,40 @@ macro(_add_module_parse_args)
   )
 endmacro()
 
-function(_add_module_generate_revision module_name)
-  find_package(Git QUIET)
+function(load_tags_file)
+  if (NOT DEFINED CMAKEPKG_TAG_FILE)
+    return()
+  endif()
 
-  # Create C++ compatible name of this module, used by the template Revision,hpp.cmake
-  string(REGEX REPLACE "-"                 "_"       MODULE_NAME "${module_name}") 
+  if (NOT EXISTS ${CMAKEPKG_TAG_FILE})
+    message(WARNING "Tags file '${CMAKEPKG_TAG_FILE}' does not exist!")
+    return()
+  endif()
+
+  message(STATUS "Loading Tags File '${CMAKEPKG_TAG_FILE}'")
+  file(STRINGS ${CMAKEPKG_TAG_FILE} CMAKEPKG_TAGS REGEX "^[ ]*[^#].*")
+  foreach (LINE IN LISTS CMAKEPKG_TAGS)
+    string(REPLACE " " "" EXPR "${LINE}")
+    if (EXPR MATCHES ".*:.*")
+      string(REPLACE ":" ";" EXPR "${EXPR}")
+      list(GET EXPR 0 PACKAGE_ID)
+      list(GET EXPR 1 TAG)
+      if (NOT "${PACKAGE_ID}" STREQUAL "")
+        string(REPLACE "/" "_" PACKAGE_ID "${PACKAGE_ID}")
+        string(TOLOWER "${PACKAGE_ID}" PACKAGE_ID)
+        set("${PACKAGE_ID}_TAG" "${TAG}" CACHE INTERNAL "Path to cloned files from the CMakePkg repository")
+      endif()
+    else()
+      message(WARNING "Ignoring expression in line '${LINE}' of CMAKEPKG_TAG_FILE '${CMAKEPKG_TAG_FILE}'")
+    endif()
+  endforeach()
+endfunction()
+
+function(_add_module_generate_revision module_name)
+  find_package(Git QUIET REQUIRED)
+
+  # Create C++ compatible name of this module, used by the template Revision.hpp.cmake
+  string(REGEX REPLACE "-" "_" MODULE_NAME "${module_name}") 
 
   set(MODULE_REVISION  "unknown")
   set(MODULE_TAG       "unknown")
@@ -67,7 +96,7 @@ function(_add_module_generate_revision module_name)
       ERROR_QUIET
     )
 
-    # MODULKE_TIMESTAMP is the date of the last commit
+    # MODULE_TIMESTAMP is the date of the last commit
 	execute_process(
       COMMAND "${GIT_EXECUTABLE}" show -s --format=%ci
       WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
@@ -106,7 +135,7 @@ function(_add_module_generate_revision module_name)
   endif()
 
   configure_file(
-    ${CMAKEPKG_SELF_DIR}/Revision.hpp.cmake
+    ${CMAKEPKG_SOURCE_DIR}/Revision.hpp.cmake
     ${CMAKE_BINARY_DIR}/Revision/${module_name}/Revision.hpp
     @ONLY
   )
@@ -144,29 +173,39 @@ function(_add_module_collect_source_files CURRENT_DIR VARIABLE)
 endfunction()
 
 function(_add_module_load_dependency PACKAGE)
+  # split PACKAGE into path and tag
+  string(REPLACE "@" ";" PACKAGE_DATA "${PACKAGE}")
 
-  # Split PACKAGE name into DOMAIN and REPOSITORY
-  # Both separators "::" and "/" are supported
-  string(REGEX REPLACE "::|\/" ";" EXPR ${PACKAGE})
-  list(GET EXPR 0 DOMAIN)
-  list(GET EXPR 1 REPOSITORY)
-  string(TOLOWER "${DOMAIN}_${REPOSITORY}" PACKAGE_ID)
+  # get package path
+  list(GET PACKAGE_DATA 0 PACKAGE_PATH)
+  string(REPLACE "::" "/" PACKAGE_PATH "${PACKAGE_PATH}")
 
-  if (NOT DEFINED ${PACKAGE_ID}_TAG)
-	FetchContent_Declare(
-      ${DOMAIN}_${REPOSITORY}
-      GIT_REPOSITORY ${CMAKEPKG_PROJECT_ROOT_URL}/${DOMAIN}/${REPOSITORY}.git
-    )
+  # get package id
+  list(GET PACKAGE_DATA 0 PACKAGE_ID)
+  string(REPLACE "::" "_" PACKAGE_ID "${PACKAGE_ID}")
+  string(TOLOWER "${PACKAGE_ID}" PACKAGE_ID)
+
+  # get package tag
+  if (DEFINED ${PACKAGE_ID}_TAG)
+    set(PACKAGE_TAG "${PACKAGE_ID}_TAG")
+    message(STATUS "${PACKAGE_ID}_TAG ${${PACKAGE_ID}_TAG}")
   else()
-	message(STATUS "*** Building specific tag ${${PACKAGE_ID}_TAG}")
-	FetchContent_Declare(
-      ${DOMAIN}_${REPOSITORY}
-      GIT_REPOSITORY ${CMAKEPKG_PROJECT_ROOT_URL}/${DOMAIN}/${REPOSITORY}.git
-	  GIT_TAG ${${PACKAGE_ID}_TAG}
-    )
+    list(LENGTH PACKAGE_DATA PACKAGE_DATA_LENGTH)
+    message(STATUS "PACKAGE_DATA_LENGTH ${PACKAGE_DATA_LENGTH}")
+    if (PACKAGE_DATA_LENGTH EQUAL 2)
+      list(GET PACKAGE_DATA 1 PACKAGE_TAG)
+    else()
+      set(PACKAGE_TAG master)
+    endif()
   endif()
 
-  FetchContent_MakeAvailable(${DOMAIN}_${REPOSITORY})
+  FetchContent_Declare(
+    ${PACKAGE_ID}
+    GIT_REPOSITORY ${CMAKEPKG_PROJECT_ROOT_URL}/${PACKAGE_PATH}.git
+    GIT_TAG ${PACKAGE_TAG}
+  )
+
+  FetchContent_MakeAvailable(${PACKAGE_ID})
 endfunction()
 
 macro(_add_module_collect_sources)
@@ -236,7 +275,7 @@ macro(_add_module_link_libraries)
 endmacro()
 
 macro(_add_module)
-  include(${CMAKEPKG_SELF_DIR}/Compiler/${CMAKE_SYSTEM_NAME}_${CMAKE_SYSTEM_PROCESSOR}.cmake)
+  include(${CMAKEPKG_SOURCE_DIR}/Compiler/${CMAKE_SYSTEM_NAME}_${CMAKE_SYSTEM_PROCESSOR}.cmake)
 
   _add_module_generate_revision(${module_name})
 

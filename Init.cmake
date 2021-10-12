@@ -9,7 +9,7 @@ if (DEFINED CMAKEPKG_TIMESTAMP)
   message(STATUS "CMAKEPKG_TIMESTAMP=${CMAKEPKG_TIMESTAMP}")
 endif()
 
-set(CMAKE_MODULE_PATH                 ${CMAKE_CURRENT_LIST_DIR}/Module)
+set(CMAKE_MODULE_PATH                 ${CMAKEPKG_SOURCE_DIR}/Module)
 set(CMAKE_CONFIGURATION_TYPES         "Debug;Release" CACHE STRING "" FORCE)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE   ON)
@@ -28,6 +28,8 @@ set_property(GLOBAL
     USE_FOLDERS ON
 )
 
+enable_testing()
+
 if (UNIX)
   include(ProcessorCount)
   ProcessorCount(N)
@@ -36,6 +38,7 @@ if (UNIX)
   endif()
 endif()
 
-include(${CMAKE_CURRENT_LIST_DIR}/AddModule.cmake)
+include(${CMAKEPKG_SOURCE_DIR}/AddModule.cmake)
 
-enable_testing()
+# load tags file if it was specified
+load_tags_file()
