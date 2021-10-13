@@ -213,11 +213,11 @@ macro(_add_module_collect_sources)
     cmake_parse_arguments(SOURCE_DIR
       ""
       "PATH"
-      "EXCLUDES"
+      "EXCLUDE"
       ${ARG_SOURCE_DIR}
     )
 
-    _add_module_collect_source_files(${SOURCE_DIR_PATH} SOURCES ${SOURCE_DIR_EXCLUDES})
+    _add_module_collect_source_files(${SOURCE_DIR_PATH} SOURCES ${SOURCE_DIR_EXCLUDE})
     set(ARG_SOURCES ${ARG_SOURCES} ${SOURCES})
   endif()
 endmacro()
