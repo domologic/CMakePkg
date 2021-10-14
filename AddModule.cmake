@@ -43,50 +43,95 @@ function(_add_module_generate_revision module_name)
   set(MODULE_YEAR      "1970")
   set(MODULE_BRANCH    "unknown")
 
+  # MODULE_ORIGIN is the git repository url
+  execute_process(
+    COMMAND
+      ${GIT_EXECUTABLE} remote get-url origin
+    WORKING_DIRECTORY
+      ${CMAKE_SOURCE_DIR}
+    OUTPUT_VARIABLE
+      MODULE_ORIGIN
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+
   # MODULE_REVISION is the short hash of the latest commit
   execute_process(
-    COMMAND "${GIT_EXECUTABLE}" rev-parse --short HEAD
-    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
-    OUTPUT_VARIABLE MODULE_REVISION
+    COMMAND
+      ${GIT_EXECUTABLE} rev-parse --short HEAD
+    WORKING_DIRECTORY
+      ${PROJECT_SOURCE_DIR}
+    OUTPUT_VARIABLE
+      MODULE_REVISION
     OUTPUT_STRIP_TRAILING_WHITESPACE
     ERROR_QUIET
   )
 
   # MODULE_TAG is the long hash of the latest commit
   execute_process(
-    COMMAND "${GIT_EXECUTABLE}" rev-parse HEAD
-    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
-    OUTPUT_VARIABLE MODULE_TAG
+    COMMAND
+      ${GIT_EXECUTABLE} rev-parse HEAD
+    WORKING_DIRECTORY
+      ${PROJECT_SOURCE_DIR}
+    OUTPUT_VARIABLE
+      MODULE_TAG
     OUTPUT_STRIP_TRAILING_WHITESPACE
     ERROR_QUIET
   )
 
   # MODULE_TIMESTAMP is the date of the last commit
   execute_process(
-    COMMAND "${GIT_EXECUTABLE}" show -s --format=%ci
-    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
-    OUTPUT_VARIABLE MODULE_TIMESTAMP
+    COMMAND
+      ${GIT_EXECUTABLE} show -s --format=%ci
+    WORKING_DIRECTORY
+      ${PROJECT_SOURCE_DIR}
+    OUTPUT_VARIABLE
+      MODULE_TIMESTAMP
     OUTPUT_STRIP_TRAILING_WHITESPACE
     ERROR_QUIET
   )
 
   # MODULE_DATE is the date of the last commit
- execute_process(
-    COMMAND "${GIT_EXECUTABLE}" show -s --format=%cd --date=short
-    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
-    OUTPUT_VARIABLE MODULE_DATE
+  execute_process(
+    COMMAND
+      ${GIT_EXECUTABLE} show -s --format=%cd --date=short
+    WORKING_DIRECTORY
+      ${PROJECT_SOURCE_DIR}
+    OUTPUT_VARIABLE
+      MODULE_DATE
     OUTPUT_STRIP_TRAILING_WHITESPACE
     ERROR_QUIET
   )
 
   # MODULE_BRANCH is the name of the current branch
- execute_process(
-    COMMAND "${GIT_EXECUTABLE}" rev-parse --abbrev-ref HEAD
-    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
-    OUTPUT_VARIABLE MODULE_BRANCH
+  execute_process(
+    COMMAND
+      ${GIT_EXECUTABLE} rev-parse --abbrev-ref HEAD
+    WORKING_DIRECTORY
+      ${PROJECT_SOURCE_DIR}
+    OUTPUT_VARIABLE
+      MODULE_BRANCH
     OUTPUT_STRIP_TRAILING_WHITESPACE
     ERROR_QUIET
   )
+
+  # fix branch if 
+  if ("${MODULE_BRANCH}" STREQUAL "HEAD")
+    foreach(PACKAGE ${CMAKEPKG_PACKAGE_LIST})
+      set(PACKAGE_TMP_URL ${${PACKAGE}_URL})
+      set(PACKAGE_TMP_TAG ${${PACKAGE}_TAG})
+      if ("${PACKAGE_TMP_URL}" STREQUAL ${MODULE_ORIGIN})
+        if (${PACKAGE_TMP_TAG})
+          set(MODULE_BRANCH ${PACKAGE_TMP_TAG})
+        else()
+          set(MODULE_BRANCH "master")
+        endif()
+        break()
+      endif()
+    endforeach()
+    if ("${MODULE_BRANCH}" STREQUAL "HEAD")
+      set(MODULE_BRANCH "master")
+    endif()
+  endif()
 
   # MODULE_YEAR is the year of the last commit
   string(REGEX REPLACE "-" "" MODULE_DATE "${MODULE_DATE}")
@@ -151,7 +196,9 @@ function(_add_module_load_dependency PACKAGE)
   string(REGEX REPLACE "::|\/" "_" PACKAGE_ID "${PACKAGE_ID}")
   string(TOLOWER "${PACKAGE_ID}" PACKAGE_ID)
 
+  # set package git url
   set(PACKAGE_URL ${CMAKEPKG_PROJECT_ROOT_URL}/${PACKAGE_PATH}.git)
+  set(${PACKAGE_ID}_URL ${PACKAGE_URL} CACHE INTERNAL "${PACKAGE_ID} git repository url")
 
   # get package tag
   if (DEFINED ${PACKAGE_ID}_TAG)
@@ -163,6 +210,7 @@ function(_add_module_load_dependency PACKAGE)
     else()
       set(PACKAGE_TAG master)
     endif()
+    set(${PACKAGE_ID}_TAG ${PACKAGE_TAG} CACHE INTERNAL "${PACKAGE_ID} git repository branch/tag")
   endif()
 
   FetchContent_Declare(${PACKAGE_ID}
@@ -180,9 +228,7 @@ function(_add_module_load_dependency PACKAGE)
       ${PACKAGE_ID}
     )
     set(CMAKEPKG_PACKAGE_LIST ${CMAKEPKG_PACKAGE_LIST} CACHE INTERNAL "All dependencies requested with CMakePkg" FORCE)
-    set(${PACKAGE_ID}_URL     ${PACKAGE_URL}           CACHE INTERNAL "${PACKAGE_ID} git repository url")
-    set(${PACKAGE_ID}_TAG     ${PACKAGE_TAG}           CACHE INTERNAL "${PACKAGE_ID} git repository branch/tag")
-    set(${PACKAGE_ID}_LOADED  YES                      CACHE INTERNAL "Indicates that the ${PACKAGE_ID} dependency was loaded")
+    set(${PACKAGE_ID}_LOADED  ON                       CACHE INTERNAL "Indicates that the ${PACKAGE_ID} dependency was loaded")
   endif()
 endfunction()
 
@@ -254,8 +300,6 @@ endmacro()
 
 macro(_add_module)
   include(${CMAKEPKG_SOURCE_DIR}/Compiler/${CMAKE_SYSTEM_NAME}_${CMAKE_SYSTEM_PROCESSOR}.cmake)
-
-  _add_module_generate_revision(${module_name})
 
   if (NOT "${type}" STREQUAL "INTERFACE")
     message(STATUS "Loading ${CMAKE_SYSTEM_NAME}::${CMAKE_SYSTEM_PROCESSOR} configuration")
@@ -364,6 +408,8 @@ macro(_add_module)
       endif()
     endforeach()
   endif()
+
+  _add_module_generate_revision(${module_name})
 endmacro()
 
 #
