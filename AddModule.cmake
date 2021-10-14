@@ -151,6 +151,8 @@ function(_add_module_load_dependency PACKAGE)
   string(REGEX REPLACE "::|\/" "_" PACKAGE_ID "${PACKAGE_ID}")
   string(TOLOWER "${PACKAGE_ID}" PACKAGE_ID)
 
+  set(PACKAGE_URL ${CMAKEPKG_PROJECT_ROOT_URL}/${PACKAGE_PATH}.git)
+
   # get package tag
   if (DEFINED ${PACKAGE_ID}_TAG)
     set(PACKAGE_TAG "${PACKAGE_ID}_TAG")
@@ -161,22 +163,27 @@ function(_add_module_load_dependency PACKAGE)
     else()
       set(PACKAGE_TAG master)
     endif()
-    set("${PACKAGE_ID}_TAG" "${PACKAGE_TAG}" CACHE INTERNAL "Revision of the ${PACKAGE_ID} package")
   endif()
 
   FetchContent_Declare(${PACKAGE_ID}
-    GIT_REPOSITORY  ${CMAKEPKG_PROJECT_ROOT_URL}/${PACKAGE_PATH}.git
+    GIT_REPOSITORY  ${PACKAGE_URL}
     GIT_TAG         ${PACKAGE_TAG}
     GIT_SHALLOW
   )
-  FetchContent_MakeAvailable(${PACKAGE_ID})
 
-  set(CMAKEPKG_PACKAGE_LIST
-    ${CMAKEPKG_PACKAGE_LIST}
-    ${PACKAGE_ID}
-  )
-  list(REMOVE_DUPLICATES CMAKEPKG_PACKAGE_LIST)
-  set(CMAKEPKG_PACKAGE_LIST ${CMAKEPKG_PACKAGE_LIST} CACHE INTERNAL "Stores a list of all dependencies" FORCE)
+  FetchContent_GetProperties(${PACKAGE_ID})
+  if (NOT ${PACKAGE_ID}_POPULATED)
+    message(STATUS "Loading dependency package ${PACKAGE}...")
+    FetchContent_MakeAvailable(${PACKAGE_ID})
+
+    set(CMAKEPKG_PACKAGE_LIST
+      ${CMAKEPKG_PACKAGE_LIST}
+      ${PACKAGE_ID}
+    )
+    set(CMAKEPKG_PACKAGE_LIST ${CMAKEPKG_PACKAGE_LIST} CACHE INTERNAL "All dependencies requested with CMakePkg" FORCE)
+    set(${PACKAGE_ID}_URL     ${PACKAGE_URL}           CACHE INTERNAL "${PACKAGE_ID} git repository url")
+    set(${PACKAGE_ID}_TAG     ${PACKAGE_TAG}           CACHE INTERNAL "${PACKAGE_ID} git repository branch/tag")
+  endif()
 endfunction()
 
 macro(_add_module_collect_sources)
@@ -300,9 +307,7 @@ macro(_add_module)
   endif()
 
   foreach(PACKAGE ${ARG_DEPENDENCIES})
-    message(STATUS "Loading dependency package ${PACKAGE}...")
     _add_module_load_dependency(${PACKAGE})
-    message(STATUS "Dependency package ${PACKAGE} loaded.")
   endforeach()
 
   _add_module_link_libraries(${ARG_LINK_LIBRARIES})
