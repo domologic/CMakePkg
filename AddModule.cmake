@@ -220,7 +220,7 @@ function(_add_module_load_dependency PACKAGE)
   )
 
   if (NOT ${PACKAGE_ID}_LOADED)
-    message(STATUS "Loading dependency package ${PACKAGE}...")
+    message(STATUS "Loading package ${PACKAGE}...")
     FetchContent_MakeAvailable(${PACKAGE_ID})
 
     set(CMAKEPKG_PACKAGE_LIST
@@ -299,34 +299,36 @@ macro(_add_module_link_libraries)
 endmacro()
 
 macro(_add_module)
-  include(${CMAKEPKG_SOURCE_DIR}/Compiler/${CMAKE_SYSTEM_NAME}_${CMAKE_SYSTEM_PROCESSOR}.cmake)
+  if (NOT DEFINED CMAKEPKG_COMPILER_CONFIG)
+    set(CMAKEPKG_COMPILER_CONFIG ${CMAKE_SYSTEM_NAME}::${CMAKE_SYSTEM_PROCESSOR} CACHE INTERNAL "CMakePkg compiler configuration")
+    message(STATUS "Loading ${CMAKEPKG_COMPILER_CONFIG} configuration")
+    string(REPLACE "::" "_" CMAKEPKG_COMPILER_CONFIG_FILE ${CMAKEPKG_COMPILER_CONFIG})
+    include(${CMAKEPKG_SOURCE_DIR}/Compiler/${CMAKEPKG_COMPILER_CONFIG_FILE}.cmake)
+  endif()
 
   if (NOT "${type}" STREQUAL "INTERFACE")
-    message(STATUS "Loading ${CMAKE_SYSTEM_NAME}::${CMAKE_SYSTEM_PROCESSOR} configuration")
-    load_compiler_config()
-
     if (BUILD_UNIT_TESTS)
       set(DEFINES_BUILD_UNIT_TESTS BUILD_UNIT_TESTS)
     endif()
 
     target_compile_definitions(${module_name}
       PRIVATE
-        $<$<BOOL:"${DEFINE}">:${DEFINE}>
-        $<$<AND:$<BOOL:"${DEFINE_DEBUG}">,$<CONFIG:Debug>>:${DEFINE_DEBUG}>
-        $<$<AND:$<BOOL:"${DEFINE_RELEASE}">,$<CONFIG:Release>>:${DEFINE_RELEASE}>
+        $<$<BOOL:"${CMAKEPKG_DEFINE}">:${CMAKEPKG_DEFINE}>
+        $<$<AND:$<BOOL:"${CMAKEPKG_DEFINE_DEBUG}">,$<CONFIG:Debug>>:${CMAKEPKG_DEFINE_DEBUG}>
+        $<$<AND:$<BOOL:"${CMAKEPKG_DEFINE_RELEASE}">,$<CONFIG:Release>>:${CMAKEPKG_DEFINE_RELEASE}>
         ${DEFINES_BUILD_UNIT_TESTS}
     )
     target_compile_options(${module_name}
       PRIVATE
-        $<$<AND:$<BOOL:"${FLAGS}">,$<OR:$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>>:${FLAGS}>
-        $<$<AND:$<BOOL:"${FLAGS_DEBUG}">,$<OR:$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>,$<CONFIG:Debug>>:${FLAGS_DEBUG}>
-        $<$<AND:$<BOOL:"${FLAGS_RELEASE}">,$<OR:$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>,$<CONFIG:Release>>:${FLAGS_RELEASE}>
-        $<$<AND:$<BOOL:"${FLAGS_C}">,$<COMPILE_LANGUAGE:C>>:${FLAGS_C}>
-        $<$<AND:$<BOOL:"${FLAGS_C_DEBUG}">,$<COMPILE_LANGUAGE:C>,$<CONFIG:Debug>>:${FLAGS_C_DEBUG}>
-        $<$<AND:$<BOOL:"${FLAGS_C_RELEASE}">,$<COMPILE_LANGUAGE:C>,$<CONFIG:Release>>:${FLAGS_C_RELEASE}>
-        $<$<AND:$<BOOL:"${FLAGS_CXX}">,$<COMPILE_LANGUAGE:CXX>>:${FLAGS_CXX}>
-        $<$<AND:$<BOOL:"${FLAGS_CXX_DEBUG}">,$<COMPILE_LANGUAGE:CXX>,$<CONFIG:Debug>>:${FLAGS_CXX_DEBUG}>
-        $<$<AND:$<BOOL:"${FLAGS_CXX_RELEASE}">,$<COMPILE_LANGUAGE:CXX>,$<CONFIG:Release>>:${FLAGS_CXX_RELEASE}>
+        $<$<AND:$<BOOL:"${CMAKEPKG_FLAGS}">,$<OR:$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>>:${CMAKEPKG_FLAGS}>
+        $<$<AND:$<BOOL:"${CMAKEPKG_FLAGS_DEBUG}">,$<OR:$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>,$<CONFIG:Debug>>:${CMAKEPKG_FLAGS_DEBUG}>
+        $<$<AND:$<BOOL:"${CMAKEPKG_FLAGS_RELEASE}">,$<OR:$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>,$<CONFIG:Release>>:${CMAKEPKG_FLAGS_RELEASE}>
+        $<$<AND:$<BOOL:"${CMAKEPKG_FLAGS_C}">,$<COMPILE_LANGUAGE:C>>:${CMAKEPKG_FLAGS_C}>
+        $<$<AND:$<BOOL:"${CMAKEPKG_FLAGS_C_DEBUG}">,$<COMPILE_LANGUAGE:C>,$<CONFIG:Debug>>:${CMAKEPKG_FLAGS_C_DEBUG}>
+        $<$<AND:$<BOOL:"${CMAKEPKG_FLAGS_C_RELEASE}">,$<COMPILE_LANGUAGE:C>,$<CONFIG:Release>>:${CMAKEPKG_FLAGS_C_RELEASE}>
+        $<$<AND:$<BOOL:"${CMAKEPKG_FLAGS_CXX}">,$<COMPILE_LANGUAGE:CXX>>:${CMAKEPKG_FLAGS_CXX}>
+        $<$<AND:$<BOOL:"${CMAKEPKG_FLAGS_CXX_DEBUG}">,$<COMPILE_LANGUAGE:CXX>,$<CONFIG:Debug>>:${CMAKEPKG_FLAGS_CXX_DEBUG}>
+        $<$<AND:$<BOOL:"${CMAKEPKG_FLAGS_CXX_RELEASE}">,$<COMPILE_LANGUAGE:CXX>,$<CONFIG:Release>>:${CMAKEPKG_FLAGS_CXX_RELEASE}>
     )
     target_link_options(${module_name}
       PRIVATE
