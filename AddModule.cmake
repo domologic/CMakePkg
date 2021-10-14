@@ -9,9 +9,6 @@
 #   add_module_docs
 #
 
-include_guard(GLOBAL)
-include(FetchContent)
-
 macro(_add_module_parse_args)
   set(_MULTI_OPTIONS
     SOURCE_DIR
@@ -35,38 +32,7 @@ macro(_add_module_parse_args)
   )
 endmacro()
 
-function(load_tags_file)
-  if (NOT DEFINED CMAKEPKG_TAG_FILE)
-    return()
-  endif()
-
-  if (NOT EXISTS ${CMAKEPKG_TAG_FILE})
-    message(WARNING "Tags file '${CMAKEPKG_TAG_FILE}' does not exist!")
-    return()
-  endif()
-
-  message(STATUS "Loading Tags File '${CMAKEPKG_TAG_FILE}'")
-  file(STRINGS ${CMAKEPKG_TAG_FILE} CMAKEPKG_TAGS REGEX "^[ ]*[^#].*")
-  foreach (LINE IN LISTS CMAKEPKG_TAGS)
-    string(REPLACE " " "" EXPR "${LINE}")
-    if (EXPR MATCHES ".*:.*")
-      string(REPLACE ":" ";" EXPR "${EXPR}")
-      list(GET EXPR 0 PACKAGE_ID)
-      list(GET EXPR 1 TAG)
-      if (NOT "${PACKAGE_ID}" STREQUAL "")
-        string(REPLACE "/" "_" PACKAGE_ID "${PACKAGE_ID}")
-        string(TOLOWER "${PACKAGE_ID}" PACKAGE_ID)
-        set("${PACKAGE_ID}_TAG" "${TAG}" CACHE INTERNAL "Path to cloned files from the CMakePkg repository")
-      endif()
-    else()
-      message(WARNING "Ignoring expression in line '${LINE}' of CMAKEPKG_TAG_FILE '${CMAKEPKG_TAG_FILE}'")
-    endif()
-  endforeach()
-endfunction()
-
 function(_add_module_generate_revision module_name)
-  find_package(Git QUIET REQUIRED)
-
   # Create C++ compatible name of this module, used by the template Revision.hpp.cmake
   string(REGEX REPLACE "-" "_" MODULE_NAME "${module_name}") 
 
@@ -77,61 +43,61 @@ function(_add_module_generate_revision module_name)
   set(MODULE_YEAR      "1970")
   set(MODULE_BRANCH    "unknown")
 
-  if (GIT_EXECUTABLE)
-    # MODULE_REVISION is the short hash of the latest commit
-    execute_process(
-      COMMAND "${GIT_EXECUTABLE}" rev-parse --short HEAD
-      WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
-      OUTPUT_VARIABLE MODULE_REVISION
-      OUTPUT_STRIP_TRAILING_WHITESPACE
-      ERROR_QUIET
-    )
+  # MODULE_REVISION is the short hash of the latest commit
+  execute_process(
+    COMMAND "${GIT_EXECUTABLE}" rev-parse --short HEAD
+    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+    OUTPUT_VARIABLE MODULE_REVISION
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET
+  )
 
-    # MODULE_TAG is the long hash of the latest commit
-    execute_process(
-      COMMAND "${GIT_EXECUTABLE}" rev-parse HEAD
-      WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
-      OUTPUT_VARIABLE MODULE_TAG
-      OUTPUT_STRIP_TRAILING_WHITESPACE
-      ERROR_QUIET
-    )
+  # MODULE_TAG is the long hash of the latest commit
+  execute_process(
+    COMMAND "${GIT_EXECUTABLE}" rev-parse HEAD
+    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+    OUTPUT_VARIABLE MODULE_TAG
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET
+  )
 
-    # MODULE_TIMESTAMP is the date of the last commit
-	execute_process(
-      COMMAND "${GIT_EXECUTABLE}" show -s --format=%ci
-      WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
-      OUTPUT_VARIABLE MODULE_TIMESTAMP
-      OUTPUT_STRIP_TRAILING_WHITESPACE
-      ERROR_QUIET
-    )
+  # MODULE_TIMESTAMP is the date of the last commit
+  execute_process(
+    COMMAND "${GIT_EXECUTABLE}" show -s --format=%ci
+    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+    OUTPUT_VARIABLE MODULE_TIMESTAMP
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET
+  )
 
-    # MODULE_DATE is the date of the last commit
-	execute_process(
-      COMMAND "${GIT_EXECUTABLE}" show -s --format=%cd --date=short
-      WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
-      OUTPUT_VARIABLE MODULE_DATE
-      OUTPUT_STRIP_TRAILING_WHITESPACE
-      ERROR_QUIET
-    )
+  # MODULE_DATE is the date of the last commit
+ execute_process(
+    COMMAND "${GIT_EXECUTABLE}" show -s --format=%cd --date=short
+    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+    OUTPUT_VARIABLE MODULE_DATE
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET
+  )
 
-    # MODULE_BRANCH is the name of the current branch
-	execute_process(
-      COMMAND "${GIT_EXECUTABLE}" rev-parse --abbrev-ref HEAD
-      WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
-      OUTPUT_VARIABLE MODULE_BRANCH
-      OUTPUT_STRIP_TRAILING_WHITESPACE
-      ERROR_QUIET
-    )
-  endif()
+  # MODULE_BRANCH is the name of the current branch
+ execute_process(
+    COMMAND "${GIT_EXECUTABLE}" rev-parse --abbrev-ref HEAD
+    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+    OUTPUT_VARIABLE MODULE_BRANCH
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET
+  )
 
+  # MODULE_YEAR is the year of the last commit
   string(REGEX REPLACE "-" "" MODULE_DATE "${MODULE_DATE}")
   string(SUBSTRING "${MODULE_DATE}" 0 4 MODULE_YEAR)
 
-  # TODO: Project version should be read from file here (rather than in rp-software/CmakeLists.txt):
-  # set(MODULE_VERSION ${PROJECT_VERSION})
+  # MODULE_VERSION is the project version
   if (EXISTS ${PROJECT_SOURCE_DIR}/version.txt)
     file(READ ${PROJECT_SOURCE_DIR}/version.txt MODULE_VERSION)
     string(REGEX REPLACE "\n$" "" MODULE_VERSION "${MODULE_VERSION}")
+  else()
+    set(MODULE_VERSION ${PROJECT_VERSION})
   endif()
 
   configure_file(
@@ -178,34 +144,39 @@ function(_add_module_load_dependency PACKAGE)
 
   # get package path
   list(GET PACKAGE_DATA 0 PACKAGE_PATH)
-  string(REPLACE "::" "/" PACKAGE_PATH "${PACKAGE_PATH}")
+  string(REGEX REPLACE "::|\/" "\/" PACKAGE_PATH "${PACKAGE_PATH}")
 
   # get package id
   list(GET PACKAGE_DATA 0 PACKAGE_ID)
-  string(REPLACE "::" "_" PACKAGE_ID "${PACKAGE_ID}")
+  string(REGEX REPLACE "::|\/" "_" PACKAGE_ID "${PACKAGE_ID}")
   string(TOLOWER "${PACKAGE_ID}" PACKAGE_ID)
 
   # get package tag
   if (DEFINED ${PACKAGE_ID}_TAG)
     set(PACKAGE_TAG "${PACKAGE_ID}_TAG")
-    message(STATUS "${PACKAGE_ID}_TAG ${${PACKAGE_ID}_TAG}")
   else()
     list(LENGTH PACKAGE_DATA PACKAGE_DATA_LENGTH)
-    message(STATUS "PACKAGE_DATA_LENGTH ${PACKAGE_DATA_LENGTH}")
     if (PACKAGE_DATA_LENGTH EQUAL 2)
       list(GET PACKAGE_DATA 1 PACKAGE_TAG)
     else()
       set(PACKAGE_TAG master)
     endif()
+    set("${PACKAGE_ID}_TAG" "${PACKAGE_TAG}" CACHE INTERNAL "Revision of the ${PACKAGE_ID} package")
   endif()
 
-  FetchContent_Declare(
-    ${PACKAGE_ID}
-    GIT_REPOSITORY ${CMAKEPKG_PROJECT_ROOT_URL}/${PACKAGE_PATH}.git
-    GIT_TAG ${PACKAGE_TAG}
+  FetchContent_Declare(${PACKAGE_ID}
+    GIT_REPOSITORY  ${CMAKEPKG_PROJECT_ROOT_URL}/${PACKAGE_PATH}.git
+    GIT_TAG         ${PACKAGE_TAG}
+    GIT_SHALLOW
   )
-
   FetchContent_MakeAvailable(${PACKAGE_ID})
+
+  set(CMAKEPKG_PACKAGE_LIST
+    ${CMAKEPKG_PACKAGE_LIST}
+    ${PACKAGE_ID}
+  )
+  list(REMOVE_DUPLICATES CMAKEPKG_PACKAGE_LIST)
+  set(CMAKEPKG_PACKAGE_LIST ${CMAKEPKG_PACKAGE_LIST} CACHE INTERNAL "Stores a list of all dependencies" FORCE)
 endfunction()
 
 macro(_add_module_collect_sources)
@@ -329,9 +300,9 @@ macro(_add_module)
   endif()
 
   foreach(PACKAGE ${ARG_DEPENDENCIES})
-    message(STATUS "Building package ${PACKAGE}...")
+    message(STATUS "Loading dependency package ${PACKAGE}...")
     _add_module_load_dependency(${PACKAGE})
-    message(STATUS "Package ${PACKAGE} loaded.")
+    message(STATUS "Dependency package ${PACKAGE} loaded.")
   endforeach()
 
   _add_module_link_libraries(${ARG_LINK_LIBRARIES})

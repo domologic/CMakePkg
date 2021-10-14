@@ -5,9 +5,6 @@
 include_guard(GLOBAL)
 
 message(STATUS "Loading CMakePkg...")
-if (DEFINED CMAKEPKG_TIMESTAMP)
-  message(STATUS "CMAKEPKG_TIMESTAMP=${CMAKEPKG_TIMESTAMP}")
-endif()
 
 set(CMAKE_MODULE_PATH                 ${CMAKEPKG_SOURCE_DIR}/Module)
 set(CMAKE_CONFIGURATION_TYPES         "Debug;Release" CACHE STRING "" FORCE)
@@ -30,15 +27,9 @@ set_property(GLOBAL
 
 enable_testing()
 
-if (UNIX)
-  include(ProcessorCount)
-  ProcessorCount(N)
-  if (NOT N EQUAL 0)
-    #set(CMAKE_MAKE_PROGRAM "${CMAKE_MAKE_PROGRAM} -j${N}")
-  endif()
-endif()
-
+include(FetchContent)
 include(${CMAKEPKG_SOURCE_DIR}/AddModule.cmake)
+include(${CMAKEPKG_SOURCE_DIR}/Util.cmake)
 
 # load tags file if it was specified
 load_tags_file()
