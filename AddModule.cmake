@@ -171,8 +171,7 @@ function(_add_module_load_dependency PACKAGE)
     GIT_SHALLOW
   )
 
-  FetchContent_GetProperties(${PACKAGE_ID})
-  if (NOT ${PACKAGE_ID}_POPULATED)
+  if (NOT ${PACKAGE_ID}_LOADED)
     message(STATUS "Loading dependency package ${PACKAGE}...")
     FetchContent_MakeAvailable(${PACKAGE_ID})
 
@@ -183,6 +182,7 @@ function(_add_module_load_dependency PACKAGE)
     set(CMAKEPKG_PACKAGE_LIST ${CMAKEPKG_PACKAGE_LIST} CACHE INTERNAL "All dependencies requested with CMakePkg" FORCE)
     set(${PACKAGE_ID}_URL     ${PACKAGE_URL}           CACHE INTERNAL "${PACKAGE_ID} git repository url")
     set(${PACKAGE_ID}_TAG     ${PACKAGE_TAG}           CACHE INTERNAL "${PACKAGE_ID} git repository branch/tag")
+    set(${PACKAGE_ID}_LOADED  YES                      CACHE INTERNAL "Indicates that the ${PACKAGE_ID} dependency was loaded")
   endif()
 endfunction()
 
