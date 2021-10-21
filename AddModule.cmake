@@ -232,6 +232,27 @@ function(_add_module_load_dependency PACKAGE)
   endif()
 endfunction()
 
+function(_add_module_load_dependencies)
+  cmake_parse_arguments(DEPENDENCY_LIST
+    ""
+    ""
+    "PUBLIC;PRIVATE;INTERFACE"
+    ${ARGN}
+  )
+  foreach(DEPENDENCY ${DEPENDENCY_LIST_PUBLIC})
+    _add_module_load_dependency(${DEPENDENCY})
+  endforeach()
+  foreach(DEPENDENCY ${DEPENDENCY_LIST_PRIVATE})
+    _add_module_load_dependency(${DEPENDENCY})
+  endforeach()
+  foreach(DEPENDENCY ${DEPENDENCY_LIST_INTERFACE})
+    _add_module_load_dependency(${DEPENDENCY})
+  endforeach()
+  foreach(DEPENDENCY ${DEPENDENCY_LIST_UNPARSED_ARGUMENTS})
+    _add_module_load_dependency(${DEPENDENCY})
+  endforeach()
+endfunction()
+
 macro(_add_module_collect_sources)
   if (ARG_SOURCE_DIR)
     cmake_parse_arguments(SOURCE_DIR
@@ -246,23 +267,45 @@ macro(_add_module_collect_sources)
   endif()
 endmacro()
 
+function(_convert_dependencies_to_libraries DEPENDENCIES VARIABLE)
+  set(RESULT "")
+  foreach (DEPENDENCY ${DEPENDENCIES})
+    # both separators "::" and "/" are supported
+    string(REGEX REPLACE "::|\/" ";" EXPR ${DEPENDENCY})
+    list(LENGTH EXPR EXPR_LEN)
+    if (EXPR_LEN GREATER 1)
+      math(EXPR EXPR_LOC "${EXPR_LEN} - 1")
+      list(GET EXPR ${EXPR_LOC} LIB)
+      list(APPEND RESULT ${LIB})
+    endif()
+  endforeach()
+  if (RESULT)
+    if (${VARIABLE})
+      set(${VARIABLE} "${VARIABLE};${RESULT}" PARENT_SCOPE)
+    else()
+      set(${VARIABLE} ${RESULT} PARENT_SCOPE)
+    endif()
+  endif()
+endfunction()
+
 macro(_add_module_link_libraries)
   cmake_parse_arguments(LIBRARY_LIST
     ""
     ""
     "PUBLIC;PRIVATE;INTERFACE"
-    ${ARGN}
+    ${ARG_LINK_LIBRARIES}
+  )
+  cmake_parse_arguments(DEPENDENCY_LIST
+    ""
+    ""
+    "PUBLIC;PRIVATE;INTERFACE"
+    ${ARG_DEPENDENCIES}
   )
 
-  foreach (DEPENDENCY ${ARG_DEPENDENCIES})
-    # both separators "::" and "/" are supported
-    string(REGEX REPLACE "::|\/" ";" EXPR ${DEPENDENCY})
-    list(GET EXPR 1 PROJECT)
-    set(DEPS
-      ${DEPS}
-      ${PROJECT}
-    )
-  endforeach()
+  _convert_dependencies_to_libraries("${DEPENDENCY_LIST_PUBLIC}"                  DEPENDENCIES_PUBLIC)
+  _convert_dependencies_to_libraries("${DEPENDENCY_LIST_PRIVATE}"                 DEPENDENCIES_PRIVATE)
+  _convert_dependencies_to_libraries("${DEPENDENCY_LIST_INTERFACE}"               DEPENDENCIES_INTERFACE)
+  _convert_dependencies_to_libraries("${DEPENDENCY_LIST_UNPARSED_ARGUMENTS}"      DEPENDENCIES_PUBLIC)
 
   if ("${type}" STREQUAL "INTERFACE")
     target_link_libraries(${module_name}
@@ -270,22 +313,37 @@ macro(_add_module_link_libraries)
         ${LIBRARY_LIST_PUBLIC}
         ${LIBRARY_LIST_PRIVATE}
         ${LIBRARY_LIST_INTERFACE}
-        ${DEPS}
+        ${DEPENDENCIES_PUBLIC}
+        ${DEPENDENCIES_PRIVATE}
+        ${DEPENDENCIES_INTERFACE}
     )
   else()
+    if (LIBRARY_LIST_PUBLIC)
+      set(LIBRARIES_PUBLIC "PUBLIC;${LIBRARY_LIST_PUBLIC}")
+    endif()
     if (LIBRARY_LIST_PRIVATE)
       set(LIBRARIES_PRIVATE "PRIVATE;${LIBRARY_LIST_PRIVATE}")
     endif()
     if (LIBRARY_LIST_INTERFACE)
       set(LIBRARIES_INTERFACE "INTERFACE;${LIBRARY_LIST_INTERFACE}")
     endif()
+    if (DEPENDENCIES_PUBLIC)
+      set(DEPENDENCIES_PUBLIC "PUBLIC;${DEPENDENCIES_PUBLIC}")
+    endif()
+    if (DEPENDENCIES_PRIVATE)
+      set(DEPENDENCIES_PRIVATE "PRIVATE;${DEPENDENCIES_PRIVATE}")
+    endif()
+    if (DEPENDENCIES_INTERFACE)
+      set(DEPENDENCIES_INTERFACE "INTERFACE;${DEPENDENCIES_INTERFACE}")
+    endif()
 
     target_link_libraries(${module_name}
-      PUBLIC
-        ${LIBRARY_LIST_PUBLIC}
-        ${DEPS}
+      ${LIBRARIES_PUBLIC}
       ${LIBRARIES_PRIVATE}
       ${LIBRARIES_INTERFACE}
+      ${DEPENDENCIES_PUBLIC}
+      ${DEPENDENCIES_PRIVATE}
+      ${DEPENDENCIES_INTERFACE}
     )
   endif()
 endmacro()
@@ -347,11 +405,8 @@ macro(_add_module)
     )
   endif()
 
-  foreach(PACKAGE ${ARG_DEPENDENCIES})
-    _add_module_load_dependency(${PACKAGE})
-  endforeach()
-
-  _add_module_link_libraries(${ARG_LINK_LIBRARIES})
+  _add_module_load_dependencies(${ARG_DEPENDENCIES})
+  _add_module_link_libraries(${ARG_LINK_LIBRARIES} ${ARG_DEPENDENCIES})
 
   if (ARG_COMPILE_DEFINITIONS)
     target_compile_definitions(${module_name}
