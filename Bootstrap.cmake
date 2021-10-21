@@ -1,6 +1,5 @@
 #
 # Bootstrap script loading the CMakePkg Library
-# Hosted on GitHub: https://raw.githubusercontent.com/domologic/CMakePkg/master/Bootstrap.cmake
 #
 # To make it available, include the following lines into your CMakeLists.txt before the project keyword:
 #   //---
@@ -19,7 +18,7 @@
 #   CMAKEPKG_PRIVATE_KEY_FILE
 #     Path to file holding the ssh private key, used by git to check out. This makes only sense in case of a git@... URL
 #
-#   CMAKEPKG_PROJECT_ROOT_URL
+#   CMAKEPKG_GIT_ROOT
 #     Base URL used for all git repositories. Will be determined from the project base repository.
 #
 #   CMAKEPKG_REMOTE_ORIGIN
