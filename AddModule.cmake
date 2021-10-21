@@ -280,18 +280,10 @@ macro(_add_module_link_libraries)
       set(LIBRARIES_INTERFACE "INTERFACE;${LIBRARY_LIST_INTERFACE}")
     endif()
 
-    find_package(Threads REQUIRED)
-
-    if (UNIX)
-      set(STDCXXFS_LIB "stdc++fs")
-    endif()
-
     target_link_libraries(${module_name}
       PUBLIC
         ${LIBRARY_LIST_PUBLIC}
         ${DEPS}
-        Threads::Threads
-        ${STDCXXFS_LIB}
       ${LIBRARIES_PRIVATE}
       ${LIBRARIES_INTERFACE}
     )
