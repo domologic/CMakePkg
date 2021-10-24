@@ -1,12 +1,12 @@
 #
 # Bootstrap script loading the CMakePkg Library
-# Hosted on GitHub: https://gist.github.com/domologic/8e21149b956276a848d7fb3be2a4c71a
+# Hosted on GitHub: https://raw.githubusercontent.com/domologic/CMakePkg/master/Bootstrap.cmake
 #
 # To make it available, include the following lines into your CMakeLists.txt before the project keyword:
 #   //---
 #   if (NOT DEFINED CMAKEPKG_BOOTSTRAP_FILE)
 #     set(CMAKEPKG_BOOTSTRAP_FILE "${CMAKE_BINARY_DIR}/Bootstrap.cmake")
-#     file(DOWNLOAD https://gist.github.com/domologic/8e21149b956276a848d7fb3be2a4c71a/raw/Bootstrap.cmake ${CMAKEPKG_BOOTSTRAP_FILE})
+#     file(DOWNLOAD https://raw.githubusercontent.com/domologic/CMakePkg/master/Bootstrap.cmake ${CMAKEPKG_BOOTSTRAP_FILE})
 #   endif()
 #   include(${CMAKEPKG_BOOTSTRAP_FILE})
 #   //---
