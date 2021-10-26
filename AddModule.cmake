@@ -270,15 +270,25 @@ endmacro()
 function(_convert_dependencies_to_libraries DEPENDENCIES VARIABLE)
   set(RESULT "")
   foreach (DEPENDENCY ${DEPENDENCIES})
-    # both separators "::" and "/" are supported
-    string(REGEX REPLACE "::|\/" ";" EXPR ${DEPENDENCY})
-    list(LENGTH EXPR EXPR_LEN)
-    if (EXPR_LEN GREATER 1)
-      math(EXPR EXPR_LOC "${EXPR_LEN} - 1")
-      list(GET EXPR ${EXPR_LOC} LIB)
-      list(APPEND RESULT ${LIB})
+    # remove @branch
+    string(REPLACE "@" ";" DEPENDENCY ${DEPENDENCY})
+    list(LENGTH DEPENDENCY DEPENDENCY_LEN)
+    if (DEPENDENCY_LEN GREATER 1)
+      list(GET DEPENDENCY 0 DEPENDENCY)
     endif()
+
+    # both separators "::" and "/" are supported
+    string(REGEX REPLACE "::|\/" ";" DEPENDENCY ${DEPENDENCY})
+    list(LENGTH DEPENDENCY DEPENDENCY_LEN)
+    if (DEPENDENCY_LEN GREATER 1)
+      list(GET DEPENDENCY -1 DEPENDENCY)
+    endif()
+
+    # add dependency to result
+    list(APPEND RESULT ${DEPENDENCY})
   endforeach()
+
+  # return result
   if (RESULT)
     if (${VARIABLE})
       set(${VARIABLE} "${VARIABLE};${RESULT}" PARENT_SCOPE)
