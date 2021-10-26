@@ -197,7 +197,7 @@ function(_add_module_load_dependency PACKAGE)
   string(TOLOWER "${PACKAGE_ID}" PACKAGE_ID)
 
   # set package git url
-  set(PACKAGE_URL ${CMAKEPKG_PROJECT_ROOT_URL}/${PACKAGE_PATH}.git)
+  set(PACKAGE_URL ${CMAKEPKG_GIT_ROOT}/${PACKAGE_PATH}.git)
   set(${PACKAGE_ID}_URL ${PACKAGE_URL} CACHE INTERNAL "${PACKAGE_ID} git repository url")
 
   # get package tag
