@@ -193,8 +193,8 @@ function(_add_module_load_dependency PACKAGE)
 
   # get package id
   list(GET PACKAGE_DATA 0 PACKAGE_ID)
-  string(REGEX REPLACE "::|\/" "_" PACKAGE_ID "${PACKAGE_ID}")
-  string(TOLOWER "${PACKAGE_ID}" PACKAGE_ID)
+  string(REGEX REPLACE "::|\/" ";" PACKAGE_ID "${PACKAGE_ID}")
+  list(GET PACKAGE_ID -1 PACKAGE_ID)
 
   # set package git url
   set(PACKAGE_URL ${CMAKEPKG_GIT_ROOT}/${PACKAGE_PATH}.git)
