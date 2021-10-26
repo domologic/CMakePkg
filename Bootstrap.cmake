@@ -14,25 +14,25 @@
 # Important Variables:
 #
 #   CMAKEPKG_BOOTSTRAP_FILE
-#     Name of the CMakePkg Bootstrap File. It not set, a default version will be fetched from GitHub.
+#     Path to the local copy of this bootstrap file. If this variable is not specified the file will be downloaded from the default GitHub location.
 #
 #   CMAKEPKG_PRIVATE_KEY_FILE
-#     Path to file holding the ssh private key, used by git to check out. This makes only sense in case
-#     of a git@... URL
+#     Path to file holding the ssh private key, used by git to check out. This makes only sense in case of a git@... URL
 #
 #   CMAKEPKG_PROJECT_ROOT_URL
-#     Base URL used for all Git Repositories. Will be determined from the project base repository.
+#     Base URL used for all git repositories. Will be determined from the project base repository.
+#
+#   CMAKEPKG_REMOTE_ORIGIN
+#     URL to the CMakePkg git repository. Wie be determined from the project base repository.
 #
 #   CMAKEPKG_SOURCE_DIR
-#     Cloned sources of the CMakePkg project. Set to ${CMAKE_CURRENT_BINARY_DIR}/CMakePkgFiles by default.
+#     Path to the local copy of the CMakePkg. Default is ${CMAKE_CURRENT_BINARY_DIR}/CMakePkgFiles.
 #
 #   CMAKEPKG_TAG_FILE
-#     File with git tags of the packages used to checkout.
-#     Each package is separated by a ':' from the tag name.
+#     File with git tags of the packages used to checkout. Each package is separated by a ':' from the tag name.
 #
 #   CMAKEPKG_BRANCH
-#     Specifies the CMakePkg branch that should be checked out.
-#     Default is master
+#     Specifies the CMakePkg branch that should be checked out. Default is master
 #
 
 include_guard(GLOBAL)
@@ -52,7 +52,7 @@ if (NOT DEFINED CMAKEPKG_SOURCE_DIR)
   set(CMAKEPKG_SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/CMakePkg" CACHE INTERNAL "Path to cloned files from the CMakePkg repository")
 endif()
 
-if (NOT DEFINED CMAKEPKG_PROJECT_ROOT_URL)
+if (NOT DEFINED CMAKEPKG_GIT_ROOT AND NOT DEFINED CMAKEPKG_REMOTE_ORIGIN)
   # query git remote url which will be used to locate dependencies
   execute_process(
     COMMAND
@@ -60,34 +60,37 @@ if (NOT DEFINED CMAKEPKG_PROJECT_ROOT_URL)
     WORKING_DIRECTORY
       ${CMAKE_SOURCE_DIR}
     OUTPUT_VARIABLE
-      CMAKEPKG_PROJECT_ROOT_URL
+      CMAKEPKG_GIT_ROOT
     OUTPUT_STRIP_TRAILING_WHITESPACE
   )
 
-  if (NOT CMAKEPKG_PROJECT_ROOT_URL)
+  if (NOT CMAKEPKG_GIT_ROOT)
     message(FATAL_ERROR "Could not get current git remote origin url!")
   endif()
 
-  if (CMAKEPKG_PROJECT_ROOT_URL MATCHES "^git@.*")
+  if (CMAKEPKG_GIT_ROOT MATCHES "^git@.*")
     # ensure that ":" is always followed by "/"
-    string(REGEX REPLACE ":" ":/" CMAKEPKG_PROJECT_ROOT_URL ${CMAKEPKG_PROJECT_ROOT_URL})
-    string(REGEX REPLACE "/+" "/" CMAKEPKG_PROJECT_ROOT_URL ${CMAKEPKG_PROJECT_ROOT_URL})
+    string(REGEX REPLACE ":" ":/" CMAKEPKG_GIT_ROOT ${CMAKEPKG_GIT_ROOT})
+    string(REGEX REPLACE "/+" "/" CMAKEPKG_GIT_ROOT ${CMAKEPKG_GIT_ROOT})
   endif()
   # remove last two subfolders in URL (project name)
-  string(REGEX REPLACE "/+$"     "" CMAKEPKG_PROJECT_ROOT_URL ${CMAKEPKG_PROJECT_ROOT_URL})
-  string(REGEX REPLACE "/[^/]*$" "" CMAKEPKG_PROJECT_ROOT_URL ${CMAKEPKG_PROJECT_ROOT_URL})
-  string(REGEX REPLACE "/[^/]*$" "" CMAKEPKG_PROJECT_ROOT_URL ${CMAKEPKG_PROJECT_ROOT_URL})
+  string(REGEX REPLACE "/+$"     "" CMAKEPKG_GIT_ROOT ${CMAKEPKG_GIT_ROOT})
+  string(REGEX REPLACE "/[^/]*$" "" CMAKEPKG_GIT_ROOT ${CMAKEPKG_GIT_ROOT})
+  string(REGEX REPLACE "/[^/]*$" "" CMAKEPKG_GIT_ROOT ${CMAKEPKG_GIT_ROOT})
 
   # global git domain
-  set(CMAKEPKG_PROJECT_ROOT_URL ${CMAKEPKG_PROJECT_ROOT_URL} CACHE STRING "git domain")
-  message(STATUS "Using '${CMAKEPKG_PROJECT_ROOT_URL}' as git root for dependency resolution")
+  set(CMAKEPKG_GIT_ROOT ${CMAKEPKG_GIT_ROOT} CACHE STRING "git domain")
+  message(STATUS "Using '${CMAKEPKG_GIT_ROOT}' as git root for dependency resolution")
+
+  # set CMakePkg git repository origin url
+  set(CMAKEPKG_REMOTE_ORIGIN ${CMAKEPKG_GIT_ROOT}/domologic/CMakePkg.git CACHE STRING "CMakePkg git repository origin url")
 endif()
 
 # clone the cmake module library
 if (NOT EXISTS ${CMAKEPKG_SOURCE_DIR})
   execute_process(
     COMMAND
-      ${GIT_EXECUTABLE} clone -b ${CMAKEPKG_BRANCH} --depth 1 "${CMAKEPKG_PROJECT_ROOT_URL}/domologic/CMakePkg.git" ${CMAKEPKG_SOURCE_DIR}
+      ${GIT_EXECUTABLE} clone -b ${CMAKEPKG_BRANCH} --depth 1 ${CMAKEPKG_REMOTE_ORIGIN} ${CMAKEPKG_SOURCE_DIR}
     RESULT_VARIABLE
       RESULT
     OUTPUT_QUIET
