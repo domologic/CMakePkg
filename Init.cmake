@@ -6,19 +6,22 @@ include_guard(GLOBAL)
 
 message(STATUS "Loading CMakePkg...")
 
+option(CMAKEPKG_C_STD    "C standard version"            11)
+option(CMAKEPKG_CXX_STD  "C++ standard version"          17)
+option(CMAKEPKG_PIC      "Use position independent code" ON)
+
 set(CMAKE_MODULE_PATH                 ${CMAKEPKG_SOURCE_DIR}/Module)
 set(CMAKE_CONFIGURATION_TYPES         "Debug;Release" CACHE STRING "" FORCE)
-
-set(CMAKE_POSITION_INDEPENDENT_CODE   ON)
-
-set(CMAKE_C_STANDARD                  11)
-set(CMAKE_CXX_STANDARD                17)
 
 set(CMAKE_SKIP_BUILD_RPATH            ON)
 set(CMAKE_BUILD_WITH_INSTALL_RPATH    OFF)
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH OFF)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS     ON)
+
+set(CMAKE_C_STANDARD                  ${CMAKEPKG_C_STD})
+set(CMAKE_CXX_STANDARD                ${CMAKEPKG_CXX_STD})
+set(CMAKE_POSITION_INDEPENDENT_CODE   ${CMAKEPKG_PIC})
 
 set_property(GLOBAL
   PROPERTY
