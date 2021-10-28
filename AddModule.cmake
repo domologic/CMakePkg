@@ -262,8 +262,8 @@ macro(_add_module_collect_sources)
       ${ARG_SOURCE_DIR}
     )
 
-    _add_module_collect_source_files(${SOURCE_DIR_PATH} SOURCES ${SOURCE_DIR_EXCLUDE})
-    set(ARG_SOURCES ${ARG_SOURCES} ${SOURCES})
+    _add_module_collect_source_files(${SOURCE_DIR_PATH} ${module_name}_SOURCES ${SOURCE_DIR_EXCLUDE})
+    set(ARG_SOURCES "${${module_name}_SOURCES} ${SOURCES}")
   endif()
 endmacro()
 
