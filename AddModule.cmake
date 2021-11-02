@@ -263,7 +263,7 @@ function(_add_module_collect_sources)
     )
 
     _add_module_collect_source_files(${SOURCE_DIR_PATH} ${module_name}_SOURCES ${SOURCE_DIR_EXCLUDE})
-    set(ARG_COLLECTED_SOURCES "${${module_name}_SOURCES}" PARENT_SCOPE)
+    set(${module_name}_SOURCES "${${module_name}_SOURCES}" PARENT_SCOPE)
   endif()
 endfunction()
 
@@ -514,7 +514,7 @@ function(add_module_library module_name type)
     _add_module_collect_sources()
     add_library(${module_name} ${type}
       ${ARG_SOURCES}
-      ${ARG_COLLECTED_SOURCES}
+      ${${module_name}_SOURCES}
     )
   endif()
 
@@ -570,7 +570,7 @@ function(add_module_executable module_name)
 
   add_executable(${module_name}
     ${ARG_SOURCES}
-    ${ARG_COLLECTED_SOURCES}
+    ${${module_name}_SOURCES}
   )
 
   _add_module()
@@ -625,7 +625,7 @@ function(add_module_test module_name)
 
   add_executable(${module_name}
     ${ARG_SOURCES}
-    ${ARG_COLLECTED_SOURCES}
+    ${${module_name}_SOURCES}
   )
 
   _add_module()
