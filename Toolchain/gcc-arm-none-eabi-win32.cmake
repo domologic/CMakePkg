@@ -1,9 +1,9 @@
 #
-# Toolchain description file for
+# Toolchain description file for gcc-arm-none-eabi-win32
 #
 
 if (DEFINED CMAKEPKG_TOOLCHAIN_PATH)
-  set(TOOLCHAIN_PATH "${CMAKEPKG_TOOLCHAIN_PATH}/bin/arm-none-eabi-")
+  set(TOOLCHAIN_PATH "${CMAKEPKG_TOOLCHAIN_PATH}/bin/arm-none-eabi")
 else()
   find_program(TOOLCHAIN_PATH
     NAMES

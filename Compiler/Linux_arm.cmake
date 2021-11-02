@@ -8,6 +8,7 @@
 #)
 set(DEFINE_DEBUG
   DEBUG
+  _DEBUG
 )
 set(DEFINE_RELEASE
   NDEBUG
