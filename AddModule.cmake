@@ -253,7 +253,7 @@ function(_add_module_load_dependencies)
   endforeach()
 endfunction()
 
-macro(_add_module_collect_sources)
+function(_add_module_collect_sources)
   if (ARG_SOURCE_DIR)
     cmake_parse_arguments(SOURCE_DIR
       ""
@@ -262,10 +262,10 @@ macro(_add_module_collect_sources)
       ${ARG_SOURCE_DIR}
     )
 
-    _add_module_collect_source_files(${SOURCE_DIR_PATH} ${module_name}_SOURCES ${SOURCE_DIR_EXCLUDE})
-    set(ARG_SOURCES "${${module_name}_SOURCES} ${SOURCES}")
+    _add_module_collect_source_files(${SOURCE_DIR_PATH} SOURCES ${SOURCE_DIR_EXCLUDE})
+    set(ARG_COLLECTED_SOURCES "${SOURCES}" PARENT_SCOPE)
   endif()
-endmacro()
+endfunction()
 
 function(_convert_dependencies_to_libraries DEPENDENCIES VARIABLE)
   set(RESULT "")
@@ -514,6 +514,7 @@ function(add_module_library module_name type)
     _add_module_collect_sources()
     add_library(${module_name} ${type}
       ${ARG_SOURCES}
+      ${ARG_COLLECTED_SOURCES}
     )
   endif()
 
@@ -566,9 +567,11 @@ endfunction()
 function(add_module_executable module_name)
   _add_module_parse_args(${ARGN})
   _add_module_collect_sources()
+  message("ARG_COLLECTED_SOURCES  ${ARG_COLLECTED_SOURCES}")
 
   add_executable(${module_name}
     ${ARG_SOURCES}
+    ${ARG_COLLECTED_SOURCES}
   )
 
   _add_module()
@@ -623,6 +626,7 @@ function(add_module_test module_name)
 
   add_executable(${module_name}
     ${ARG_SOURCES}
+    ${ARG_COLLECTED_SOURCES}
   )
 
   _add_module()
