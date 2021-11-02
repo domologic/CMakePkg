@@ -6,9 +6,14 @@ include_guard(GLOBAL)
 
 message(STATUS "Loading CMakePkg...")
 
-option(CMAKEPKG_C_STD    "C standard version"            11)
-option(CMAKEPKG_CXX_STD  "C++ standard version"          17)
 option(CMAKEPKG_PIC      "Use position independent code" ON)
+
+if (NOT DEFINED CMAKEPKG_C_STD)
+  set(CMAKEPKG_C_STD 11)
+endif()
+if (NOT DEFINED CMAKEPKG_CXX_STD)
+  set(CMAKEPKG_CXX_STD 11)
+endif()
 
 set(CMAKE_MODULE_PATH                 ${CMAKEPKG_SOURCE_DIR}/Module)
 set(CMAKE_CONFIGURATION_TYPES         "Debug;Release" CACHE STRING "" FORCE)
