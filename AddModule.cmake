@@ -213,8 +213,10 @@ function(_add_module_load_dependency PACKAGE)
     set(${PACKAGE_ID}_TAG ${PACKAGE_TAG} CACHE INTERNAL "${PACKAGE_ID} git repository branch/tag")
   endif()
 
+  string(SHA224 PACKAGE_PATH_HASH "${PACKAGE_PATH}")
+
   if (NOT DEFINED ${PACKAGE_ID}_PATH)
-    set(${PACKAGE_ID}_PATH ${CMAKE_BINARY_DIR}/deps/src/${PACKAGE_PATH})
+    set(${PACKAGE_ID}_PATH ${CMAKE_BINARY_DIR}/deps/src/${PACKAGE_PATH_HASH})
   endif()
 
   if (NOT EXISTS ${${PACKAGE_ID}_PATH})
@@ -231,7 +233,7 @@ function(_add_module_load_dependency PACKAGE)
       message(FATAL_ERROR "Could not clone CMakePkg sources from ${CMAKEPKG_PROJECT_ROOT_URL}")
     endif()
 
-    add_subdirectory(${${PACKAGE_ID}_PATH} ${CMAKE_BINARY_DIR}/deps/bin/${PACKAGE_PATH})
+    add_subdirectory(${${PACKAGE_ID}_PATH} ${CMAKE_BINARY_DIR}/deps/bin/${PACKAGE_PATH_HASH})
   endif()
 
   set(CMAKEPKG_PACKAGE_LIST
