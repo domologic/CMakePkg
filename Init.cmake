@@ -35,7 +35,6 @@ set_property(GLOBAL
 
 enable_testing()
 
-include(FetchContent)
 include(${CMAKEPKG_SOURCE_DIR}/AddModule.cmake)
 include(${CMAKEPKG_SOURCE_DIR}/Util.cmake)
 

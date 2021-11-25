@@ -213,23 +213,33 @@ function(_add_module_load_dependency PACKAGE)
     set(${PACKAGE_ID}_TAG ${PACKAGE_TAG} CACHE INTERNAL "${PACKAGE_ID} git repository branch/tag")
   endif()
 
-  FetchContent_Declare(${PACKAGE_ID}
-    GIT_REPOSITORY  ${PACKAGE_URL}
-    GIT_TAG         ${PACKAGE_TAG}
-    GIT_SHALLOW
-  )
-
-  if (NOT ${PACKAGE_ID}_LOADED)
-    message(STATUS "Loading package ${PACKAGE}...")
-    FetchContent_MakeAvailable(${PACKAGE_ID})
-
-    set(CMAKEPKG_PACKAGE_LIST
-      ${CMAKEPKG_PACKAGE_LIST}
-      ${PACKAGE_ID}
-    )
-    set(CMAKEPKG_PACKAGE_LIST ${CMAKEPKG_PACKAGE_LIST} CACHE INTERNAL "All dependencies requested with CMakePkg" FORCE)
-    set(${PACKAGE_ID}_LOADED  ON                       CACHE INTERNAL "Indicates that the ${PACKAGE_ID} dependency was loaded")
+  if (NOT DEFINED ${PACKAGE_ID}_PATH)
+    set(${PACKAGE_ID}_PATH ${CMAKE_BINARY_DIR}/deps/src/${PACKAGE_PATH})
   endif()
+
+  if (NOT EXISTS ${${PACKAGE_ID}_PATH})
+    message(STATUS "Loading package ${PACKAGE}...")
+    execute_process(
+      COMMAND
+        ${GIT_EXECUTABLE} clone -b ${PACKAGE_TAG} --depth 1 ${PACKAGE_URL} ${${PACKAGE_ID}_PATH}
+      RESULT_VARIABLE
+        RESULT
+      OUTPUT_QUIET
+    )
+
+    if (NOT ${RESULT} EQUAL "0")
+      message(FATAL_ERROR "Could not clone CMakePkg sources from ${CMAKEPKG_PROJECT_ROOT_URL}")
+    endif()
+
+    add_subdirectory(${${PACKAGE_ID}_PATH} ${CMAKE_BINARY_DIR}/deps/bin/${PACKAGE_PATH})
+  endif()
+
+  set(CMAKEPKG_PACKAGE_LIST
+    ${CMAKEPKG_PACKAGE_LIST}
+    ${PACKAGE_ID}
+  )
+  set(CMAKEPKG_PACKAGE_LIST ${CMAKEPKG_PACKAGE_LIST} CACHE INTERNAL "All dependencies requested with CMakePkg" FORCE)
+  set(${PACKAGE_ID}_LOADED  ON                       CACHE INTERNAL "Indicates that the ${PACKAGE_ID} dependency was loaded")
 endfunction()
 
 function(_add_module_load_dependencies)
