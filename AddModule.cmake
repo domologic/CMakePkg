@@ -223,7 +223,7 @@ function(_add_module_load_dependency PACKAGE)
     message(STATUS "Loading package ${PACKAGE}...")
     execute_process(
       COMMAND
-        ${GIT_EXECUTABLE} clone -b ${PACKAGE_TAG} --depth 1 ${PACKAGE_URL} ${${PACKAGE_ID}_PATH}
+        ${GIT_EXECUTABLE} clone -b ${PACKAGE_TAG} --depth 1 ${PACKAGE_URL} --quiet ${${PACKAGE_ID}_PATH}
       RESULT_VARIABLE
         RESULT
       OUTPUT_QUIET
@@ -232,7 +232,9 @@ function(_add_module_load_dependency PACKAGE)
     if (NOT ${RESULT} EQUAL "0")
       message(FATAL_ERROR "Could not clone CMakePkg sources from ${CMAKEPKG_PROJECT_ROOT_URL}")
     endif()
+  endif()
 
+  if (NOT TARGET ${PACKAGE_ID})
     add_subdirectory(${${PACKAGE_ID}_PATH} ${CMAKE_BINARY_DIR}/depsb/${PACKAGE_PATH_HASH})
   endif()
 
