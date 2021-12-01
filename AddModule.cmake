@@ -403,7 +403,7 @@ macro(_add_module)
     )
     target_link_options(${module_name}
       PRIVATE
-        $<$<BOOL:"${CMAKEPKG_LINK}">:${LINK}>
+        $<$<BOOL:"${CMAKEPKG_LINK}">:${CMAKEPKG_LINK}>
         $<$<AND:$<BOOL:"${CMAKEPKG_LINK_DEBUG}">,$<CONFIG:Debug>>:${CMAKEPKG_LINK_DEBUG}>
         $<$<AND:$<BOOL:"${CMAKEPKG_LINK_RELEASE}">,$<CONFIG:Release>>:${CMAKEPKG_LINK_RELEASE}>
     )
