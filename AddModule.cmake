@@ -360,17 +360,23 @@ macro(_add_module_link_libraries)
   )
 endmacro()
 
-macro(_add_module)
+macro(_add_module_load_compiler_config)
   if (NOT DEFINED CMAKEPKG_COMPILER_CONFIG)
-    set(CMAKEPKG_COMPILER_CONFIG ${CMAKE_SYSTEM_NAME}::${CMAKE_SYSTEM_PROCESSOR} CACHE INTERNAL "CMakePkg compiler configuration")
-    message(STATUS "Loading ${CMAKEPKG_COMPILER_CONFIG} configuration")
+    set(CMAKEPKG_COMPILER_CONFIG ${CMAKE_SYSTEM_NAME}::${CMAKE_SYSTEM_PROCESSOR} CACHE INTERNAL "CMakePkg compiler configuration.")
+  endif()
+
+  if (NOT DEFINED CMAKEPKG_COMPILER_CONFIG_LOADED)
     string(REPLACE "::" "_" CMAKEPKG_COMPILER_CONFIG_FILE ${CMAKEPKG_COMPILER_CONFIG})
     set(COMPILER_CONFIG_FILE ${CMAKEPKG_SOURCE_DIR}/Compiler/${CMAKEPKG_COMPILER_CONFIG_FILE}.cmake)
     if (EXISTS ${COMPILER_CONFIG_FILE})
+      message(STATUS "Loading ${CMAKEPKG_COMPILER_CONFIG} configuration")
       include(${COMPILER_CONFIG_FILE})
     endif()
+    set(CMAKEPKG_COMPILER_CONFIG_LOADED ON CACHE INTERNAL "CMakePkg compiler configuration loaded.")
   endif()
+endmacro()
 
+macro(_add_module)
   if (NOT "${type}" STREQUAL "INTERFACE")
     if (BUILD_UNIT_TESTS)
       set(DEFINES_BUILD_UNIT_TESTS BUILD_UNIT_TESTS)
@@ -521,6 +527,7 @@ endmacro()
 #
 function(add_module_library module_name type)
   _add_module_parse_args(${ARGN})
+  _add_module_load_compiler_config()
 
   if ("${type}" STREQUAL "INTERFACE")
     add_library(${module_name} INTERFACE)
@@ -581,6 +588,7 @@ endfunction()
 function(add_module_executable module_name)
   _add_module_parse_args(${ARGN})
   _add_module_collect_sources()
+  _add_module_load_compiler_config()
 
   add_executable(${module_name}
     ${ARG_SOURCES}
@@ -636,6 +644,7 @@ endfunction()
 function(add_module_test module_name)
   _add_module_parse_args(${ARGN})
   _add_module_collect_sources()
+  _add_module_load_compiler_config()
 
   add_executable(${module_name}
     ${ARG_SOURCES}
@@ -670,6 +679,7 @@ endfunction()
 #     List of doxygen parameters used for creating Doxyfile
 #
 function(add_module_docs project_name)
+  _add_module_load_compiler_config()
   cmake_parse_arguments(ARG
     ""
     ""
