@@ -397,9 +397,9 @@ macro(_add_module)
     )
     target_link_options(${module_name}
       PRIVATE
-        $<$<BOOL:"${LINK}">:${LINK}>
-        $<$<AND:$<BOOL:"${LINK_DEBUG}">,$<CONFIG:Debug>>:${LINK_DEBUG}>
-        $<$<AND:$<BOOL:"${LINK_RELEASE}">,$<CONFIG:Release>>:${LINK_RELEASE}>
+        $<$<BOOL:"${CMAKEPKG_LINK}">:${LINK}>
+        $<$<AND:$<BOOL:"${CMAKEPKG_LINK_DEBUG}">,$<CONFIG:Debug>>:${CMAKEPKG_LINK_DEBUG}>
+        $<$<AND:$<BOOL:"${CMAKEPKG_LINK_RELEASE}">,$<CONFIG:Release>>:${CMAKEPKG_LINK_RELEASE}>
     )
     set_target_properties(${module_name}
       PROPERTIES
