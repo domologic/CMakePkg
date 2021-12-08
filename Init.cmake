@@ -36,6 +36,7 @@ set_property(GLOBAL
 enable_testing()
 
 include(${CMAKEPKG_SOURCE_DIR}/AddModule.cmake)
+include(${CMAKEPKG_SOURCE_DIR}/Extensions.cmake)
 include(${CMAKEPKG_SOURCE_DIR}/Util.cmake)
 
 # load tags file if it was specified

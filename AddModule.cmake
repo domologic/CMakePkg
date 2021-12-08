@@ -23,6 +23,7 @@ macro(_add_module_parse_args)
     PROPERTIES
     DEPENDENCIES
     RESOURCES
+    OBJCOPY
   )
   cmake_parse_arguments(ARG
     ""
@@ -479,6 +480,12 @@ macro(_add_module)
     endforeach()
   endif()
 
+  if (ARG_OBJCOPY)
+    target_objcopy(${module_name}
+      ${ARG_OBJCOPY}
+    )
+  endif()
+
   _add_module_generate_revision(${module_name})
 endmacro()
 
@@ -498,6 +505,7 @@ endmacro()
 #   [PROPERTIES]
 #   [DEPENDENCIES]
 #   [RESOURCES]
+#   [OBJCOPY]
 # )
 #
 # Creates <name> library target with the add_library function.
@@ -524,6 +532,8 @@ endmacro()
 #   List of dependencies described as <group>::<project> which will be downloaded from git and included in the build process.
 # RESOURCES
 #  List of files or directories which will be copied to the binary folder.
+# OBJCOPY
+#  Generates specified file output types from the target.
 #
 function(add_module_library module_name type)
   _add_module_parse_args(${ARGN})
@@ -558,6 +568,7 @@ endfunction()
 #   [PROPERTIES]
 #   [DEPENDENCIES]
 #   [RESOURCES]
+#   [OBJCOPY]
 # )
 #
 # Creates <name> executable target with the add_executable function.
@@ -584,6 +595,8 @@ endfunction()
 #   List of dependencies described as <group>::<project> which will be downloaded from git and included in the build process.
 # RESOURCES
 #  List of files or directories which will be copied to the binary folder.
+# OBJCOPY
+#  Generates specified file output types from the target.
 #
 function(add_module_executable module_name)
   _add_module_parse_args(${ARGN})
@@ -614,6 +627,7 @@ endfunction()
 #   [PROPERTIES]
 #   [DEPENDENCIES]
 #   [RESOURCES]
+#   [OBJCOPY]
 # )
 #
 # Creates <name> executable target with the add_executable function and includes it as a test with the add_test function.
@@ -640,6 +654,8 @@ endfunction()
 #   List of dependencies described as <group>::<project> which will be downloaded from git and included in the build process.
 # RESOURCES
 #  List of files or directories which will be copied to the binary folder.
+# OBJCOPY
+#  Generates specified file output types from the target.
 #
 function(add_module_test module_name)
   _add_module_parse_args(${ARGN})
