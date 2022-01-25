@@ -28,7 +28,7 @@ set(FLAGS_RELEASE
   -ggdb3
   -O3
   -fmerge-all-constants
-  -faggressive-loop-optimizations
+  #-faggressive-loop-optimizations
 )
 
 # C flags
