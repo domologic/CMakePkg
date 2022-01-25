@@ -29,7 +29,6 @@ set(FLAGS_RELEASE
   -O3
   -fmerge-all-constants
   -faggressive-loop-optimizations
-  -pg
 )
 
 # C flags
