@@ -16,6 +16,7 @@ set(TOOLCHAIN_FLAGS   "-marm -mlittle-endian -mtune=cortex-a7 -mcpu=cortex-a7 -m
 # Platform description
 set(CMAKE_SYSTEM_NAME         "Linux"                         CACHE STRING "" FORCE)
 set(CMAKE_SYSTEM_PROCESSOR    "arm"                           CACHE STRING "" FORCE)
+set(CMAKE_SYSTEM_TOOLCHAIN    "GCC"                           CACHE STRING "" FORCE)
 
 # Available tools in the toolchain
 set(CMAKE_ADDR2LINE           ${TOOLCHAIN_PATH}-addr2line     CACHE STRING "" FORCE)
@@ -54,7 +55,7 @@ set(CMAKE_STRIP               ${TOOLCHAIN_PATH}-strip         CACHE STRING "" FO
 # Set CMake system root path
 set(CMAKE_SYSROOT             ${SYSROOT_PATH}                 CACHE STRING "" FORCE)
 
-# Set CMake C/C++ flags to tollchain flags
+# Set CMake C/C++ flags to toolchain flags
 set(CMAKE_C_FLAGS             ${TOOLCHAIN_FLAGS}              CACHE STRING "" FORCE)
 set(CMAKE_CXX_FLAGS           ${TOOLCHAIN_FLAGS}              CACHE STRING "" FORCE)
 
