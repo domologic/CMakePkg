@@ -6,7 +6,7 @@
 # cleanup cmake default flags
 set(CMAKE_CXX_FLAGS                "" CACHE STRING "" FORCE)
 set(CMAKE_CXX_FLAGS_DEBUG          "" CACHE STRING "" FORCE)
-set(CMAKE_CXX_FLAGS_DEBUG          "" CACHE STRING "" FORCE)
+set(CMAKE_CXX_FLAGS_RELEASE        "" CACHE STRING "" FORCE)
 
 set(CMAKE_C_FLAGS                  "" CACHE STRING "" FORCE)
 set(CMAKE_C_FLAGS_DEBUG            "" CACHE STRING "" FORCE)
@@ -14,14 +14,14 @@ set(CMAKE_C_FLAGS_RELEASE          "" CACHE STRING "" FORCE)
 
 # Preprocessor definitions
 set(DEFINE
-  WIN32
   _WINDOWS
-  WIN32_LEAN_AND_MEAN
-  VC_EXTRALEAN
   _CRT_NONSTDC_NO_WARNINGS
   _CRT_SECURE_NO_WARNINGS
-  OEMRESOURCE
   NOMINMAX
+  OEMRESOURCE
+  VC_EXTRALEAN
+  WIN32
+  WIN32_LEAN_AND_MEAN
   UNICODE
   _UNICODE
 )
@@ -36,48 +36,52 @@ set(DEFINE_RELEASE
 
 # Global flags
 set(FLAGS
-  /W3
+  /EHsc
+  /GA
+  /GF
+  /GR
+  /GT
   /Oi
   /Ot
-  /GT
-  /GF
-  /permissive-
-  /Zc:inline
-  /Zc:rvalueCast
+  /QIntel-jcc-erratum
+  /W3
   /Zc:__cplusplus
+  /Zc:inline
   /Zc:referenceBinding
+  /Zc:rvalueCast
   /Zc:throwingNew
-  /volatile:iso
-  /GR
-  /GA
-  /EHsc
-  /d2FH4
+  /arch:AVX2
   /bigobj
+  /d2FH4
   /diagnostics:caret
+  /permissive-
+  /volatile:iso
 )
 set(FLAGS_DEBUG
-  /ZI
-  /Od
-  /Ob0
-  /RTC1
   /MDd
+  /Ob0
+  /Od
+  /RTC1
+  /ZI
+  /sdl
 )
 set(FLAGS_RELEASE
-  /Zi
-  /MP
   /GL
-  /O2
-  /guard:cf
   /Gy
-  /Qpar
   /MD
-  /GL
+  /MP
+  /O2
+  /Ob3
   /Qfast_transcendentals
+  /Qpar
+  /Zi
+  /sdl-
 )
 
 # C flags
 set(FLAGS_C
   /TC
+  /std:c17
 )
 #set(FLAGS_C_DEBUG
 #)
@@ -87,6 +91,7 @@ set(FLAGS_C
 # C++ flags
 set(FLAGS_CXX
   /TP
+  /std:c++17
 )
 #set(FLAGS_CXX_DEBUG
 #)
@@ -98,13 +103,13 @@ set(LINK
   /DEBUG:FULL
 )
 set(LINK_DEBUG
-  /OPT:NOREF
   /OPT:NOICF
+  /OPT:NOREF
 )
 set(LINK_RELEASE
-  /OPT:REF
-  /OPT:ICF
   /LTCG
+  /OPT:ICF
+  /OPT:REF
 )
 
 # store configuration in cmake cache
