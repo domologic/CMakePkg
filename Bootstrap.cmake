@@ -39,7 +39,7 @@ include_guard(GLOBAL)
 find_package(Git QUIET REQUIRED)
 
 if (DEFINED CMAKEPKG_PRIVATE_KEY_FILE)
-  set(ENV{GIT_SSH_COMMAND} "ssh -F /dev/null -i ${CMAKEPKG_PRIVATE_KEY_FILE} -o 'StrictHostKeyChecking=no' -o 'UserKnownHostsFile=/dev/null'")
+  set(ENV{GIT_SSH_COMMAND} "ssh -F /dev/null -i ${CMAKEPKG_PRIVATE_KEY_FILE} -o 'StrictHostKeyChecking=no'")
 endif()
 
 if (NOT DEFINED CMAKEPKG_BRANCH)
