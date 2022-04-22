@@ -19,10 +19,10 @@
 #     Path to file holding the ssh private key, used by git to check out. This makes only sense in case of a git@... URL
 #
 #   CMAKEPKG_GIT_ROOT
-#     Base URL used for all git repositories. Will be determined from the project base repository.
+#     Base URL used for all git repositories. Will be determined from the project base repository if not set.
 #
 #   CMAKEPKG_REMOTE_ORIGIN
-#     URL to the CMakePkg git repository. Wie be determined from the project base repository.
+#     URL to the CMakePkg git repository. Will be determined from the project base repository if not set.
 #
 #   CMAKEPKG_SOURCE_DIR
 #     Path to the local copy of the CMakePkg. Default is ${CMAKE_CURRENT_BINARY_DIR}/CMakePkgFiles.
