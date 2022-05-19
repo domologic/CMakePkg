@@ -151,6 +151,8 @@ function(_add_module_generate_revision module_name)
     ${CMAKE_BINARY_DIR}/Revision/${module_name}/Revision.hpp
     @ONLY
   )
+
+  message(STATUS "Loaded package ${module_name} ${MODULE_VERSION} ${MODULE_TIMESTAMP} ${MODULE_REVISION} (${MODULE_BRANCH})")
 endfunction()
 
 function(_add_module_collect_source_files CURRENT_DIR VARIABLE)
