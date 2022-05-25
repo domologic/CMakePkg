@@ -230,10 +230,37 @@ function(_add_module_load_dependency PACKAGE)
       RESULT_VARIABLE
         RESULT
       OUTPUT_QUIET
+      ERROR_QUIET
     )
 
     if (NOT ${RESULT} EQUAL "0")
-      message(FATAL_ERROR "Could not clone CMakePkg sources from ${CMAKEPKG_PROJECT_ROOT_URL}")
+      execute_process(
+        COMMAND
+          ${GIT_EXECUTABLE} clone ${PACKAGE_URL} --quiet ${${PACKAGE_ID}_PATH}
+        RESULT_VARIABLE
+          RESULT
+        OUTPUT_QUIET
+        ERROR_QUIET
+      )
+
+      if (NOT ${RESULT} EQUAL "0")
+        message(FATAL_ERROR "Could not clone CMakePkg sources from ${CMAKEPKG_PROJECT_ROOT_URL}")
+      else()
+        execute_process(
+          COMMAND
+            ${GIT_EXECUTABLE} checkout -b ${PACKAGE_TAG} ${PACKAGE_TAG}
+          WORKING_DIRECTORY
+            ${${PACKAGE_ID}_PATH}
+          RESULT_VARIABLE
+            RESULT
+          OUTPUT_QUIET
+          ERROR_QUIET
+        )
+
+        if (NOT ${RESULT} EQUAL "0")
+          message(FATAL_ERROR "Could not clone CMakePkg sources from ${CMAKEPKG_PROJECT_ROOT_URL}")
+        endif()
+      endif()
     endif()
   endif()
 
