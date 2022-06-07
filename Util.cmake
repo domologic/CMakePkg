@@ -1,23 +1,15 @@
 include_guard(GLOBAL)
 
-function(generate_tags_file TAGS_FILE_PATH)
-  find_package(Git QUIET REQUIRED)
+set(TAGS_BEGIN_MARKER "======================== TAGS BEGIN ========================")
 
-  if (EXISTS ${TAGS_FILE_PATH})
-    file(REMOVE ${TAGS_FILE_PATH})
+function(add_to_tags_file MODULE_NAME MODULE_TAG)
+  set(TAGS_FILE_PATH "${CMAKE_BINARY_DIR}/TagsFile")
+
+  if (NOT EXISTS ${TAGS_FILE_PATH})
+    file(APPEND ${TAGS_FILE_PATH} "${TAGS_BEGIN_MARKER}\n")
   endif()
 
-  foreach(PACKAGE CMAKEPKG_PACKAGE_LIST)
-    execute_process(
-      COMMAND "${GIT_EXECUTABLE}" rev-parse HEAD
-      WORKING_DIRECTORY "${${PACKAGE}_SOURCE_DIR}"
-      OUTPUT_VARIABLE MODULE_TAG
-      OUTPUT_STRIP_TRAILING_WHITESPACE
-      ERROR_QUIET
-    )
-
-    file(APPEND ${TAGS_FILE_PATH} "${PACKAGE}: {MODULE_TAG}\n")
-  endforeach()
+  file(APPEND ${TAGS_FILE_PATH} "${MODULE_NAME}: ${MODULE_TAG}\n")
 endfunction()
 
 function(load_tags_file)
@@ -30,9 +22,18 @@ function(load_tags_file)
     return()
   endif()
 
+  set(TAGS_BEGIN OFF)
+
   message(STATUS "Loading Tags File '${CMAKEPKG_TAG_FILE}'")
   file(STRINGS ${CMAKEPKG_TAG_FILE} CMAKEPKG_TAGS REGEX "^[ ]*[^#].*")
   foreach (LINE IN LISTS CMAKEPKG_TAGS)
+    if (NOT TAGS_BEGIN)
+      if ("${LINE}" STREQUAL "${TAGS_BEGIN_MARKER}")
+        set(TAGS_BEGIN ON)
+      endif()
+      continue()
+    endif()
+
     string(REPLACE " " "" EXPR "${LINE}")
     if (EXPR MATCHES ".*:.*")
       string(REPLACE ":" ";" EXPR "${EXPR}")
