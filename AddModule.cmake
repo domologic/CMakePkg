@@ -152,6 +152,8 @@ function(_add_module_generate_revision module_name)
     @ONLY
   )
 
+  add_to_tags_file(${module_name} ${MODULE_TAG})
+
   message(STATUS "Loaded package ${module_name} ${MODULE_VERSION} ${MODULE_TIMESTAMP} ${MODULE_REVISION} (${MODULE_BRANCH})")
 endfunction()
 
