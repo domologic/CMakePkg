@@ -9,6 +9,9 @@
 #   add_module_docs
 #
 
+set(TAGS_FILE_MARKER_BEGIN "---TAGS BEGIN---")
+set(TAGS_FILE_MARKER_END   "---TAGS END---")
+
 macro(_add_module_parse_args)
   set(_MULTI_OPTIONS
     SOURCE_DIR
@@ -33,25 +36,129 @@ macro(_add_module_parse_args)
   )
 endmacro()
 
+function(_add_module_set_root)
+  # set root module in cache if not already set and load tags file
+  if (NOT DEFINED CACHE{CMAKEPKG_ROOT_MODULE})
+    set(CMAKEPKG_ROOT_MODULE ${module_name} CACHE INTERNAL "Name of the CMakePkg root module.")
+    _add_module_load_tags_file()
+  endif()
+endfunction()
+
+function(_add_module_load_tags_file)
+  # do nothing if no tags file was specified
+  if (NOT DEFINED CMAKEPKG_TAG_FILE)
+    return()
+  endif()
+
+  # check if specified tags file exists
+  if (NOT EXISTS ${CMAKEPKG_TAG_FILE})
+    message(WARNING "Tags file '${CMAKEPKG_TAG_FILE}' does not exist!")
+    return()
+  endif()
+
+  # split tags file to lines
+  message(STATUS "Loading Tags File '${CMAKEPKG_TAG_FILE}'")
+  file(STRINGS ${CMAKEPKG_TAG_FILE} CMAKEPKG_TAGS REGEX "^[ ]*[^#].*")
+
+  # iterate over each line in the tags file
+  set(TAGS_BEGIN OFF)
+  foreach (LINE IN LISTS CMAKEPKG_TAGS)
+    # check if tags segment was detected
+    if (NOT TAGS_BEGIN)
+      # if the segment was not detected check if the line contains the begin marker
+      if ("${LINE}" STREQUAL "${TAGS_FILE_MARKER_BEGIN}")
+        set(TAGS_BEGIN ON)
+      endif()
+      continue()
+    else()
+      # if the segment was detected check if line contains the end marker
+      if ("${LINE}" STREQUAL "${TAGS_FILE_MARKER_END}")
+        return()
+      endif()
+    endif()
+
+    # remove any whitespaces
+    string(REPLACE " " "" EXPR "${LINE}")
+
+    # split the line on colon symbol
+    string(REPLACE ":" ";" EXPR "${EXPR}")
+    list(GET EXPR 0 PACKAGE_ID)
+    list(GET EXPR 1 PACKAGE_TAG)
+
+    # get package id usable in cmake
+    string(REPLACE "/" ";" PACKAGE_ID "${PACKAGE_ID}")
+    list(GET PACKAGE_ID -1 PACKAGE_ID)
+
+    # set package tag to cache
+    set("${PACKAGE_ID}_TAG" "${PACKAGE_TAG}" CACHE INTERNAL "Revision of the ${PACKAGE_ID} package")
+  endforeach()
+endfunction()
+
+function(_add_module_generate_tags_file)
+  # do nothing if the current module is not root
+  if (NOT ${CMAKEPKG_ROOT_MODULE} STREQUAL ${module_name})
+    return()
+  endif()
+
+  # set the tags file path if its missing
+  if (NOT DEFINED CMAKEPKG_TAG_FILE_PATH)
+    set(CMAKEPKG_TAG_FILE_PATH ${CMAKE_BINARY_DIR}/TagsFile)
+  endif()
+
+  # delete the tags file if it already exists
+  if (EXISTS ${CMAKEPKG_TAG_FILE_PATH})
+    file(REMOVE ${CMAKEPKG_TAG_FILE_PATH})
+  endif()
+
+  # write the begin marker
+  file(APPEND ${CMAKEPKG_TAG_FILE_PATH} "${TAGS_FILE_MARKER_BEGIN}\n")
+
+  # iterate over all known packages
+  foreach(PACKAGE ${CMAKEPKG_PACKAGE_LIST})
+    string(REPLACE "/" ";" PACKAGE_ID "${PACKAGE}")
+    list(GET PACKAGE_ID -1 PACKAGE_ID)
+
+    execute_process(
+      COMMAND
+        "${GIT_EXECUTABLE}" rev-parse HEAD
+      WORKING_DIRECTORY
+        "${${PACKAGE_ID}_SOURCE_DIR}"
+      OUTPUT_VARIABLE
+        MODULE_TAG
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+      ERROR_QUIET
+    )
+
+    # append the package to the tags file
+    file(APPEND ${CMAKEPKG_TAG_FILE_PATH} "${PACKAGE}: ${MODULE_TAG}\n")
+  endforeach()
+
+  # write the end marker
+  file(APPEND ${CMAKEPKG_TAG_FILE_PATH} "${TAGS_FILE_MARKER_END}")
+endfunction()
+
+macro(_add_module_enable_tests)
+  set(DEFINES_BUILD_UNIT_TESTS BUILD_UNIT_TESTS)
+endmacro()
+
 function(_add_module_generate_revision module_name)
   # Create C++ compatible name of this module, used by the template Revision.hpp.cmake
   string(REGEX REPLACE "-" "_" MODULE_NAME "${module_name}") 
 
+  set(MODULE_VERSION   "unknown")
   set(MODULE_REVISION  "unknown")
-  set(MODULE_TAG       "unknown")
   set(MODULE_TIMESTAMP "1970-01-01 00:00:00 +0000")
   set(MODULE_DATE      "19700101")
   set(MODULE_YEAR      "1970")
-  set(MODULE_BRANCH    "unknown")
 
-  # MODULE_ORIGIN is the git repository url
+  # MODULE_VERSION is the version tag
   execute_process(
     COMMAND
-      ${GIT_EXECUTABLE} remote get-url origin
+      ${GIT_EXECUTABLE} tag --points-at HEAD
     WORKING_DIRECTORY
       ${CMAKE_SOURCE_DIR}
     OUTPUT_VARIABLE
-      MODULE_ORIGIN
+      MODULE_VERSION
     OUTPUT_STRIP_TRAILING_WHITESPACE
   )
 
@@ -63,18 +170,6 @@ function(_add_module_generate_revision module_name)
       ${PROJECT_SOURCE_DIR}
     OUTPUT_VARIABLE
       MODULE_REVISION
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-    ERROR_QUIET
-  )
-
-  # MODULE_TAG is the long hash of the latest commit
-  execute_process(
-    COMMAND
-      ${GIT_EXECUTABLE} rev-parse HEAD
-    WORKING_DIRECTORY
-      ${PROJECT_SOURCE_DIR}
-    OUTPUT_VARIABLE
-      MODULE_TAG
     OUTPUT_STRIP_TRAILING_WHITESPACE
     ERROR_QUIET
   )
@@ -103,58 +198,28 @@ function(_add_module_generate_revision module_name)
     ERROR_QUIET
   )
 
-  # MODULE_BRANCH is the name of the current branch
-  execute_process(
-    COMMAND
-      ${GIT_EXECUTABLE} rev-parse --abbrev-ref HEAD
-    WORKING_DIRECTORY
-      ${PROJECT_SOURCE_DIR}
-    OUTPUT_VARIABLE
-      MODULE_BRANCH
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-    ERROR_QUIET
-  )
-
-  # fix branch if 
-  if ("${MODULE_BRANCH}" STREQUAL "HEAD")
-    foreach(PACKAGE ${CMAKEPKG_PACKAGE_LIST})
-      set(PACKAGE_TMP_URL ${${PACKAGE}_URL})
-      set(PACKAGE_TMP_TAG ${${PACKAGE}_TAG})
-      if ("${PACKAGE_TMP_URL}" STREQUAL ${MODULE_ORIGIN})
-        if (${PACKAGE_TMP_TAG})
-          set(MODULE_BRANCH ${PACKAGE_TMP_TAG})
-        else()
-          set(MODULE_BRANCH "master")
-        endif()
-        break()
-      endif()
-    endforeach()
-    if ("${MODULE_BRANCH}" STREQUAL "HEAD")
-      set(MODULE_BRANCH "master")
-    endif()
-  endif()
-
   # MODULE_YEAR is the year of the last commit
   string(REGEX REPLACE "-" "" MODULE_DATE "${MODULE_DATE}")
   string(SUBSTRING "${MODULE_DATE}" 0 4 MODULE_YEAR)
 
-  # MODULE_VERSION is the project version
-  if (EXISTS ${PROJECT_SOURCE_DIR}/version.txt)
-    file(READ ${PROJECT_SOURCE_DIR}/version.txt MODULE_VERSION)
-    string(REGEX REPLACE "\n$" "" MODULE_VERSION "${MODULE_VERSION}")
-  else()
-    set(MODULE_VERSION ${PROJECT_VERSION})
+  # fix module version if not version is available from git history
+  if ("${MODULE_VERSION}" STREQUAL "unknown" OR "${MODULE_VERSION}" STREQUAL "")
+    set(MODULE_VERSION ${MODULE_REVISION})
   endif()
 
+  # generate version info file
+  if (${CMAKEPKG_ROOT_MODULE} STREQUAL ${module_name})
+    file(WRITE ${CMAKE_BINARY_DIR}/Version ${MODULE_VERSION})
+  endif()
+
+  # generate revision file
   configure_file(
     ${CMAKEPKG_SOURCE_DIR}/Revision.hpp.cmake
     ${CMAKE_BINARY_DIR}/Revision/${module_name}/Revision.hpp
     @ONLY
   )
 
-  add_to_tags_file(${module_name} ${MODULE_TAG})
-
-  message(STATUS "Loaded package ${module_name} ${MODULE_VERSION} ${MODULE_TIMESTAMP} ${MODULE_REVISION} (${MODULE_BRANCH})")
+  message(STATUS "Loaded package ${module_name} ${MODULE_VERSION} ${MODULE_TIMESTAMP}")
 endfunction()
 
 function(_add_module_collect_source_files CURRENT_DIR VARIABLE)
@@ -203,11 +268,10 @@ function(_add_module_load_dependency PACKAGE)
 
   # set package git url
   set(PACKAGE_URL ${CMAKEPKG_GIT_ROOT}/${PACKAGE_PATH}.git)
-  set(${PACKAGE_ID}_URL ${PACKAGE_URL} CACHE INTERNAL "${PACKAGE_ID} git repository url")
 
   # get package tag
   if (DEFINED ${PACKAGE_ID}_TAG)
-    set(PACKAGE_TAG "${PACKAGE_ID}_TAG")
+    set(PACKAGE_TAG "${${PACKAGE_ID}_TAG}")
   else()
     list(LENGTH PACKAGE_DATA PACKAGE_DATA_LENGTH)
     if (PACKAGE_DATA_LENGTH EQUAL 2)
@@ -215,17 +279,21 @@ function(_add_module_load_dependency PACKAGE)
     else()
       set(PACKAGE_TAG master)
     endif()
-    set(${PACKAGE_ID}_TAG ${PACKAGE_TAG} CACHE INTERNAL "${PACKAGE_ID} git repository branch/tag")
   endif()
 
+  # get md5 of the package path
   string(MD5 PACKAGE_PATH_HASH "${PACKAGE_PATH}")
 
+  # set package path if not already specified
   if (NOT DEFINED ${PACKAGE_ID}_PATH)
     set(${PACKAGE_ID}_PATH ${CMAKE_BINARY_DIR}/deps/${PACKAGE_PATH_HASH})
   endif()
 
+  # download the package if the path does not exist
   if (NOT EXISTS ${${PACKAGE_ID}_PATH})
     message(STATUS "Loading package ${PACKAGE}...")
+
+    # try shallow clone on given package tag
     execute_process(
       COMMAND
         ${GIT_EXECUTABLE} clone -b ${PACKAGE_TAG} --depth 1 ${PACKAGE_URL} --quiet ${${PACKAGE_ID}_PATH}
@@ -235,6 +303,7 @@ function(_add_module_load_dependency PACKAGE)
       ERROR_QUIET
     )
 
+    # clone the complete repository to checkout the requested tag if shallow clone fails because the requested tag does not point to a git branch or git tag
     if (NOT ${RESULT} EQUAL "0")
       execute_process(
         COMMAND
@@ -266,34 +335,46 @@ function(_add_module_load_dependency PACKAGE)
     endif()
   endif()
 
+  # load the package if not already loaded
   if (NOT TARGET ${PACKAGE_ID})
     add_subdirectory(${${PACKAGE_ID}_PATH} ${CMAKE_BINARY_DIR}/depsb/${PACKAGE_PATH_HASH})
-  endif()
 
-  set(CMAKEPKG_PACKAGE_LIST
-    ${CMAKEPKG_PACKAGE_LIST}
-    ${PACKAGE_ID}
-  )
-  set(CMAKEPKG_PACKAGE_LIST ${CMAKEPKG_PACKAGE_LIST} CACHE INTERNAL "All dependencies requested with CMakePkg" FORCE)
-  set(${PACKAGE_ID}_LOADED  ON                       CACHE INTERNAL "Indicates that the ${PACKAGE_ID} dependency was loaded")
+    # append the package to the package list
+    set(PACKAGE_LIST
+      ${CMAKEPKG_PACKAGE_LIST}
+      ${PACKAGE_PATH}
+    )
+    list(SORT PACKAGE_LIST COMPARE STRING)
+    list(REMOVE_DUPLICATES PACKAGE_LIST)
+    set(CMAKEPKG_PACKAGE_LIST ${PACKAGE_LIST} CACHE INTERNAL "All dependencies requested with CMakePkg" FORCE)
+  endif()
 endfunction()
 
 function(_add_module_load_dependencies)
+  # parse args
   cmake_parse_arguments(DEPENDENCY_LIST
     ""
     ""
     "PUBLIC;PRIVATE;INTERFACE"
     ${ARGN}
   )
+
+  # load public dependencies
   foreach(DEPENDENCY ${DEPENDENCY_LIST_PUBLIC})
     _add_module_load_dependency(${DEPENDENCY})
   endforeach()
+
+  # load private dependencies
   foreach(DEPENDENCY ${DEPENDENCY_LIST_PRIVATE})
     _add_module_load_dependency(${DEPENDENCY})
   endforeach()
+
+  # load interface dependencies
   foreach(DEPENDENCY ${DEPENDENCY_LIST_INTERFACE})
     _add_module_load_dependency(${DEPENDENCY})
   endforeach()
+
+  # load dependencies with unspecified visibility
   foreach(DEPENDENCY ${DEPENDENCY_LIST_UNPARSED_ARGUMENTS})
     _add_module_load_dependency(${DEPENDENCY})
   endforeach()
@@ -345,12 +426,15 @@ function(_convert_dependencies_to_libraries DEPENDENCIES VARIABLE)
 endfunction()
 
 macro(_add_module_link_libraries)
+  # parse arguments
   cmake_parse_arguments(LIBRARY_LIST
     ""
     ""
     "PUBLIC;PRIVATE;INTERFACE"
     ${ARG_LINK_LIBRARIES}
   )
+
+  # parse sub arguments
   cmake_parse_arguments(DEPENDENCY_LIST
     ""
     ""
@@ -358,11 +442,13 @@ macro(_add_module_link_libraries)
     ${ARG_DEPENDENCIES}
   )
 
+  # convert dependencies to libraries
   _convert_dependencies_to_libraries("${DEPENDENCY_LIST_PUBLIC}"                  DEPENDENCIES_PUBLIC)
   _convert_dependencies_to_libraries("${DEPENDENCY_LIST_PRIVATE}"                 DEPENDENCIES_PRIVATE)
   _convert_dependencies_to_libraries("${DEPENDENCY_LIST_INTERFACE}"               DEPENDENCIES_INTERFACE)
   _convert_dependencies_to_libraries("${DEPENDENCY_LIST_UNPARSED_ARGUMENTS}"      DEPENDENCIES_PUBLIC)
 
+  # adjust parameters
   if (LIBRARY_LIST_PUBLIC)
     set(LIBRARIES_PUBLIC "PUBLIC;${LIBRARY_LIST_PUBLIC}")
   endif()
@@ -382,6 +468,7 @@ macro(_add_module_link_libraries)
     set(DEPENDENCIES_INTERFACE "INTERFACE;${DEPENDENCIES_INTERFACE}")
   endif()
 
+  # link libraries
   target_link_libraries(${module_name}
     ${LIBRARIES_PUBLIC}
     ${LIBRARIES_PRIVATE}
@@ -393,27 +480,32 @@ macro(_add_module_link_libraries)
 endmacro()
 
 macro(_add_module_load_compiler_config)
+  # set the config if not already set
   if (NOT DEFINED CMAKEPKG_COMPILER_CONFIG)
     set(CMAKEPKG_COMPILER_CONFIG ${CMAKE_SYSTEM_NAME}::${CMAKE_SYSTEM_PROCESSOR} CACHE INTERNAL "CMakePkg compiler configuration.")
   endif()
 
+  # check if the config was already loaded
   if (NOT DEFINED CMAKEPKG_COMPILER_CONFIG_LOADED)
+    # normalize config name to file path
     string(REPLACE "::" "_" CMAKEPKG_COMPILER_CONFIG_FILE ${CMAKEPKG_COMPILER_CONFIG})
     set(COMPILER_CONFIG_FILE ${CMAKEPKG_SOURCE_DIR}/Compiler/${CMAKEPKG_COMPILER_CONFIG_FILE}.cmake)
+
+    # load the config file if it exists
     if (EXISTS ${COMPILER_CONFIG_FILE})
       message(STATUS "Loading ${CMAKEPKG_COMPILER_CONFIG} configuration")
       include(${COMPILER_CONFIG_FILE})
     endif()
+
+    # set config loaded flag
     set(CMAKEPKG_COMPILER_CONFIG_LOADED ON CACHE INTERNAL "CMakePkg compiler configuration loaded.")
   endif()
 endmacro()
 
 macro(_add_module)
-  if (NOT "${type}" STREQUAL "INTERFACE")
-    if (BUILD_UNIT_TESTS)
-      set(DEFINES_BUILD_UNIT_TESTS BUILD_UNIT_TESTS)
-    endif()
+  _add_module_set_root()
 
+  if (NOT "${type}" STREQUAL "INTERFACE")
     target_compile_definitions(${module_name}
       PRIVATE
         $<$<BOOL:"${CMAKEPKG_DEFINE}">:${CMAKEPKG_DEFINE}>
@@ -517,7 +609,11 @@ macro(_add_module)
     )
   endif()
 
+  # generate revision file
   _add_module_generate_revision(${module_name})
+
+  # generate tags files
+  _add_module_generate_tags_file()
 endmacro()
 
 #
@@ -567,19 +663,28 @@ endmacro()
 #  Generates specified file output types from the target.
 #
 function(add_module_library module_name type)
+  # parse arguments
   _add_module_parse_args(${ARGN})
+
+  # collect sources
   _add_module_load_compiler_config()
 
+  # check if the library is an interface
   if ("${type}" STREQUAL "INTERFACE")
+    # add interface library
     add_library(${module_name} INTERFACE)
   else()
+    # collect sources
     _add_module_collect_sources()
+
+    # add library
     add_library(${module_name} ${type}
       ${ARG_SOURCES}
       ${${module_name}_SOURCES}
     )
   endif()
 
+  # add generic module
   _add_module()
 endfunction()
 
@@ -630,15 +735,22 @@ endfunction()
 #  Generates specified file output types from the target.
 #
 function(add_module_executable module_name)
+  # parse arguments
   _add_module_parse_args(${ARGN})
+
+  # collect sources
   _add_module_collect_sources()
+
+  # load compiler config
   _add_module_load_compiler_config()
 
+  # add executable
   add_executable(${module_name}
     ${ARG_SOURCES}
     ${${module_name}_SOURCES}
   )
 
+  # add generic module
   _add_module()
 endfunction()
 
@@ -689,17 +801,28 @@ endfunction()
 #  Generates specified file output types from the target.
 #
 function(add_module_test module_name)
+  # parse arguments
   _add_module_parse_args(${ARGN})
+
+  # enable tests
+  _add_module_enable_tests()
+
+  # collect sources
   _add_module_collect_sources()
+
+  # load compiler config
   _add_module_load_compiler_config()
 
+  # add test module executable
   add_executable(${module_name}
     ${ARG_SOURCES}
     ${${module_name}_SOURCES}
   )
 
+  # add generic module
   _add_module()
 
+  # add test target
   add_test(
     NAME
       ${module_name}
@@ -726,7 +849,10 @@ endfunction()
 #     List of doxygen parameters used for creating Doxyfile
 #
 function(add_module_docs project_name)
+  # load compiler config
   _add_module_load_compiler_config()
+
+  # parse args
   cmake_parse_arguments(ARG
     ""
     ""
@@ -734,7 +860,9 @@ function(add_module_docs project_name)
     ${ARGN}
   )
 
+  # generate Doxygen docs
   if (ARG_DOXYGEN)
+    # redirect Doxygen options 
     foreach (CONFIG ${ARG_DOXYGEN})
       string(REPLACE "=" ";" CONFIG ${CONFIG})
       list(GET CONFIG 0 KEY)
@@ -743,12 +871,14 @@ function(add_module_docs project_name)
       set(DOXYGEN_${KEY} ${VALUE})
     endforeach()
 
+    # set some Doxygen rules
     set(DOXYGEN_OUTPUT_DIRECTORY    "${CMAKE_INSTALL_PREFIX}/docs")
     set(DOXYGEN_CREATE_SUBDIRS      YES)
     set(DOXYGEN_BUILTIN_STL_SUPPORT YES)
     set(DOXYGEN_EXTRACT_ALL         YES)
     set(DOXYGEN_GENERATE_TREEVIEW   YES)
 
+    # find Doxygen package
     find_package(Doxygen REQUIRED
       OPTIONAL_COMPONENTS
         dot
@@ -756,8 +886,10 @@ function(add_module_docs project_name)
         dia
     )
 
+    # get list of source files
     get_target_property(SOURCE_LIST ${project_name} SOURCES)
 
+    # add Doxygen target
     doxygen_add_docs(${project_name}-docs
         ${SOURCE_LIST}
       WORKING_DIRECTORY
