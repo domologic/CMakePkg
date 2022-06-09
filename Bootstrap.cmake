@@ -29,6 +29,12 @@
 #
 #   CMAKEPKG_TAG_FILE
 #     File with git tags of the packages used to checkout. Each package is separated by a ':' from the tag name.
+#     The tag file starts with a "---TAGS BEGIN---" and may end with a "---TAGS END---".
+#     During each buikd, CMakePkg will generate a tag file containing all packages and their commit ids as Build/TagsFile. 
+#     Annotating tags as version to the master repository:
+#        git tag -a v0.13.4 -m --file=Build/TagsFile <commit-id>
+#     Retrieving the tags from an annotaged tag in the master repository:
+#        git tag -l --format=%(contents) v0.13.4 > TagsFile
 #
 #   CMAKEPKG_BRANCH
 #     Specifies the CMakePkg branch that should be checked out. Default is master
