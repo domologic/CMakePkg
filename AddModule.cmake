@@ -9,8 +9,8 @@
 #   add_module_docs
 #
 
-set(TAGS_FILE_MARKER_BEGIN "---TAGS BEGIN---")
-set(TAGS_FILE_MARKER_END   "---TAGS END---")
+set(COMMITID_FILE_MARKER_BEGIN "---COMMITID BEGIN---")
+set(COMMITID_FILE_MARKER_END   "---COMMITID END---")
 
 macro(_add_module_parse_args)
   set(_MULTI_OPTIONS
@@ -37,42 +37,42 @@ macro(_add_module_parse_args)
 endmacro()
 
 function(_add_module_set_root)
-  # set root module in cache if not already set and load tags file
+  # set root module in cache if not already set and load commit id file
   if (NOT DEFINED CACHE{CMAKEPKG_ROOT_MODULE})
     set(CMAKEPKG_ROOT_MODULE ${module_name} CACHE INTERNAL "Name of the CMakePkg root module.")
-    _add_module_load_tags_file()
+    _add_module_load_commitid_file()
   endif()
 endfunction()
 
-function(_add_module_load_tags_file)
-  # do nothing if no tags file was specified
-  if (NOT DEFINED CMAKEPKG_TAG_FILE)
+function(_add_module_load_commitid_file)
+  # do nothing if no commit id file was specified
+  if (NOT DEFINED CMAKEPKG_COMMITID_FILE)
     return()
   endif()
 
-  # check if specified tags file exists
-  if (NOT EXISTS ${CMAKEPKG_TAG_FILE})
-    message(WARNING "Tags file '${CMAKEPKG_TAG_FILE}' does not exist!")
+  # check if specified commit id file exists
+  if (NOT EXISTS ${CMAKEPKG_COMMITID_FILE})
+    message(WARNING "Commit id file '${CMAKEPKG_COMMITID_FILE}' does not exist!")
     return()
   endif()
 
-  # split tags file to lines
-  message(STATUS "Loading Tags File '${CMAKEPKG_TAG_FILE}'")
-  file(STRINGS ${CMAKEPKG_TAG_FILE} CMAKEPKG_TAGS REGEX "^[ ]*[^#].*")
+  # split commit id file to lines
+  message(STATUS "Loading commit id File '${CMAKEPKG_COMMITID_FILE}'")
+  file(STRINGS ${CMAKEPKG_COMMITID_FILE} CMAKEPKG_COMMITIDS REGEX "^[ ]*[^#].*")
 
-  # iterate over each line in the tags file
-  set(TAGS_BEGIN OFF)
-  foreach (LINE IN LISTS CMAKEPKG_TAGS)
-    # check if tags segment was detected
-    if (NOT TAGS_BEGIN)
+  # iterate over each line in the commit id file
+  set(COMMITID_BEGIN OFF)
+  foreach (LINE IN LISTS CMAKEPKG_COMMITIDS)
+    # check if commit id segment was detected
+    if (NOT COMMITID_BEGIN)
       # if the segment was not detected check if the line contains the begin marker
-      if ("${LINE}" STREQUAL "${TAGS_FILE_MARKER_BEGIN}")
-        set(TAGS_BEGIN ON)
+      if ("${LINE}" STREQUAL "${COMMITID_FILE_MARKER_BEGIN}")
+        set(COMMITID_BEGIN ON)
       endif()
       continue()
     else()
       # if the segment was detected check if line contains the end marker
-      if ("${LINE}" STREQUAL "${TAGS_FILE_MARKER_END}")
+      if ("${LINE}" STREQUAL "${COMMITID_FILE_MARKER_END}")
         return()
       endif()
     endif()
@@ -83,35 +83,36 @@ function(_add_module_load_tags_file)
     # split the line on colon symbol
     string(REPLACE ":" ";" EXPR "${EXPR}")
     list(GET EXPR 0 PACKAGE_ID)
-    list(GET EXPR 1 PACKAGE_TAG)
+    list(GET EXPR 1 PACKAGE_COMMITID)
 
     # get package id usable in cmake
     string(REPLACE "/" ";" PACKAGE_ID "${PACKAGE_ID}")
     list(GET PACKAGE_ID -1 PACKAGE_ID)
 
-    # set package tag to cache
-    set("${PACKAGE_ID}_TAG" "${PACKAGE_TAG}" CACHE INTERNAL "Revision of the ${PACKAGE_ID} package")
+    # set package commit id to cache
+	message(STATUS "  Package ${PACKAGE_ID}: ${PACKAGE_COMMITID}")
+    set("${PACKAGE_ID}_COMMITID" "${PACKAGE_COMMITID}" CACHE INTERNAL "Revision of the ${PACKAGE_ID} package")
   endforeach()
 endfunction()
 
-function(_add_module_generate_tags_file)
+function(_add_module_generate_commitid_file)
   # do nothing if the current module is not root
   if (NOT ${CMAKEPKG_ROOT_MODULE} STREQUAL ${module_name})
     return()
   endif()
 
-  # set the tags file path if its missing
-  if (NOT DEFINED CMAKEPKG_TAG_FILE_PATH)
-    set(CMAKEPKG_TAG_FILE_PATH ${CMAKE_BINARY_DIR}/TagsFile)
+  # set the commit id file path if its missing
+  if (NOT DEFINED CMAKEPKG_COMMITID_OUT_FILE)
+    set(CMAKEPKG_COMMITID_OUT_FILE ${CMAKE_BINARY_DIR}/CMakePkgCommitIds)
   endif()
 
-  # delete the tags file if it already exists
-  if (EXISTS ${CMAKEPKG_TAG_FILE_PATH})
-    file(REMOVE ${CMAKEPKG_TAG_FILE_PATH})
+  # delete the commit id file if it already exists
+  if (EXISTS ${CMAKEPKG_COMMITID_OUT_FILE})
+    file(REMOVE ${CMAKEPKG_COMMITID_OUT_FILE})
   endif()
 
   # write the begin marker
-  file(APPEND ${CMAKEPKG_TAG_FILE_PATH} "${TAGS_FILE_MARKER_BEGIN}\n")
+  file(APPEND ${CMAKEPKG_COMMITID_OUT_FILE} "${COMMITID_FILE_MARKER_BEGIN}\n")
 
   # iterate over all known packages
   foreach(PACKAGE ${CMAKEPKG_PACKAGE_LIST})
@@ -124,17 +125,17 @@ function(_add_module_generate_tags_file)
       WORKING_DIRECTORY
         "${${PACKAGE_ID}_SOURCE_DIR}"
       OUTPUT_VARIABLE
-        MODULE_TAG
+        MODULE_COMMITID
       OUTPUT_STRIP_TRAILING_WHITESPACE
       ERROR_QUIET
     )
 
-    # append the package to the tags file
-    file(APPEND ${CMAKEPKG_TAG_FILE_PATH} "${PACKAGE}: ${MODULE_TAG}\n")
+    # append the package to the commit id file
+    file(APPEND ${CMAKEPKG_COMMITID_OUT_FILE} "${PACKAGE}: ${MODULE_COMMITID}\n")
   endforeach()
 
   # write the end marker
-  file(APPEND ${CMAKEPKG_TAG_FILE_PATH} "${TAGS_FILE_MARKER_END}")
+  file(APPEND ${CMAKEPKG_COMMITID_OUT_FILE} "${COMMITID_FILE_MARKER_END}")
 endfunction()
 
 macro(_add_module_enable_tests)
@@ -270,14 +271,14 @@ function(_add_module_load_dependency PACKAGE)
   set(PACKAGE_URL ${CMAKEPKG_GIT_ROOT}/${PACKAGE_PATH}.git)
 
   # get package tag
-  if (DEFINED ${PACKAGE_ID}_TAG)
-    set(PACKAGE_TAG "${${PACKAGE_ID}_TAG}")
+  if (DEFINED ${PACKAGE_ID}_COMMITID)
+    set(PACKAGE_COMMITID "${${PACKAGE_ID}_COMMITID}")
   else()
     list(LENGTH PACKAGE_DATA PACKAGE_DATA_LENGTH)
     if (PACKAGE_DATA_LENGTH EQUAL 2)
-      list(GET PACKAGE_DATA 1 PACKAGE_TAG)
+      list(GET PACKAGE_DATA 1 PACKAGE_COMMITID)
     else()
-      set(PACKAGE_TAG master)
+      set(PACKAGE_COMMITID master)
     endif()
   endif()
 
@@ -291,12 +292,12 @@ function(_add_module_load_dependency PACKAGE)
 
   # download the package if the path does not exist
   if (NOT EXISTS ${${PACKAGE_ID}_PATH})
-    message(STATUS "Loading package ${PACKAGE}...")
+    message(STATUS "Loading package ${PACKAGE} using commit id ${PACKAGE_COMMITID}...")
 
     # try shallow clone on given package tag
     execute_process(
       COMMAND
-        ${GIT_EXECUTABLE} clone -b ${PACKAGE_TAG} --depth 1 ${PACKAGE_URL} --quiet ${${PACKAGE_ID}_PATH}
+        ${GIT_EXECUTABLE} clone -b ${PACKAGE_COMMITID} --depth 1 ${PACKAGE_URL} --quiet ${${PACKAGE_ID}_PATH}
       RESULT_VARIABLE
         RESULT
       OUTPUT_QUIET
@@ -319,7 +320,7 @@ function(_add_module_load_dependency PACKAGE)
       else()
         execute_process(
           COMMAND
-            ${GIT_EXECUTABLE} checkout -b ${PACKAGE_TAG} ${PACKAGE_TAG}
+            ${GIT_EXECUTABLE} checkout -b ${PACKAGE_COMMITID} ${PACKAGE_COMMITID}
           WORKING_DIRECTORY
             ${${PACKAGE_ID}_PATH}
           RESULT_VARIABLE
@@ -612,8 +613,8 @@ macro(_add_module)
   # generate revision file
   _add_module_generate_revision(${module_name})
 
-  # generate tags files
-  _add_module_generate_tags_file()
+  # generate commit id files
+  _add_module_generate_commitid_file()
 endmacro()
 
 #

@@ -13,7 +13,8 @@
 # Important Variables:
 #
 #   CMAKEPKG_BOOTSTRAP_FILE
-#     Path to the local copy of this bootstrap file. If this variable is not specified the file will be downloaded from the default GitHub location.
+#     Path to the local copy of this bootstrap file. If this variable is not specified the file will be downloaded from the
+#     default GitHub location.
 #
 #   CMAKEPKG_PRIVATE_KEY_FILE
 #     Path to file holding the ssh private key, used by git to check out. This makes only sense in case of a git@... URL
@@ -27,14 +28,20 @@
 #   CMAKEPKG_SOURCE_DIR
 #     Path to the local copy of the CMakePkg. Default is ${CMAKE_CURRENT_BINARY_DIR}/CMakePkgFiles.
 #
-#   CMAKEPKG_TAG_FILE
-#     File with git tags of the packages used to checkout. Each package is separated by a ':' from the tag name.
-#     The tag file starts with a "---TAGS BEGIN---" and may end with a "---TAGS END---".
-#     During each buikd, CMakePkg will generate a tag file containing all packages and their commit ids as Build/TagsFile. 
-#     Annotating tags as version to the master repository:
-#        git tag -a v0.13.4 -m --file=Build/TagsFile <commit-id>
-#     Retrieving the tags from an annotaged tag in the master repository:
-#        git tag -l --format=%(contents) v0.13.4 > TagsFile
+#   CMAKEPKG_COMMITID_FILE
+#     Text-based file defining commit ids of each package to used for the checkout. Each line defines a commit id of a single
+#     package. The package name is separated by a ':' from the commit id.
+#     The tag file has to start with a "---COMMITID BEGIN---" line and may end with a "---COMMITID END---" line. Example:
+#       ---COMMITID BEGIN--- 
+#       Domologic/DatabaseSystem: 9ad56776abb5c7061e6ad14a058c8b393ec3b3dd
+#       Domologic/LMDBxx: cc64d31469693aad74b68c664afbc6cc4c5c039f
+#       Extern/zstd: 745243abdd133142161da0071b4357f20bf91b1f
+#       ---COMMITID END---
+#     During each build, CMakePkg will generate a tag file containing all packages and their current commit ids as 'Build/CMakePkgCommitIds'.
+#     Example to annotate a commit id file to a version tag (v0.13.4) in the master repository:
+#        git tag -a v0.13.4 --file=Build/CMakePkgCommitIds <commit-id>
+#     Example to retrieve a commit id file from an annotaged tag in the master repository:
+#        git tag -l --format="%(contents)" v0.13.4 > CMakePkgCommitIds
 #
 #   CMAKEPKG_BRANCH
 #     Specifies the CMakePkg branch that should be checked out. Default is master
