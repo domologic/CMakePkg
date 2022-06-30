@@ -12,29 +12,29 @@ else()
     HINTS
       "C:/Program Files"
       "C:/Program Files/GCC"
-      "C:/Program Files/GCC/gcc-arm-none-eabi-win32-4.9-DAVE4"
-      "C:/Program Files/GCC/gcc-arm-none-eabi-win32-4.9-DAVE4/bin"
+      "C:/Program Files/GCC/gcc-arm-none-eabi-10.3-2021.10"
+      "C:/Program Files/GCC/gcc-arm-none-eabi-10.3-2021.10/bin"
       "/opt"
-      "/opt/gcc-arm-none-eabi-win32-4.9-DAVE4"
+      "/opt/gcc-arm-none-eabi-10.3-2021.10"
   )
   if (TOOLCHAIN_PATH)
     get_filename_component(TOOLCHAIN_PATH "${TOOLCHAIN_PATH}" DIRECTORY)
     set(TOOLCHAIN_PATH "${TOOLCHAIN_PATH}/arm-none-eabi")
   else()
     if (WIN32)
-      set(TOOLCHAIN_PATH  "C:/Program Files/GCC/gcc-arm-none-eabi-win32-4.9-DAVE4/bin/arm-none-eabi")
+      set(TOOLCHAIN_PATH  "C:/Program Files/GCC/gcc-arm-none-eabi-10.3-2021.10/bin/arm-none-eabi")
     else()
-      set(TOOLCHAIN_PATH  "/opt/gcc-arm-none-eabi-win32-4.9-DAVE4/bin/arm-none-eabi")
+      set(TOOLCHAIN_PATH  "/opt/gcc-arm-none-eabi-10.3-2021.10/bin/arm-none-eabi")
     endif()
   endif()
 endif()
 
-set(TOOLCHAIN_COMPILE_FLAGS "-mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -nostartfiles -specs=nano.specs -specs=nosys.specs")
-set(TOOLCHAIN_ASM_FLAGS     "-xassembler-with-cpp")
+set(TOOLCHAIN_COMPILE_FLAGS "-mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -specs=nosys.specs")
+set(TOOLCHAIN_ASM_FLAGS     "${TOOLCHAIN_COMPILE_FLAGS} -xassembler-with-cpp")
 
 # Platform description
-set(CMAKE_SYSTEM_NAME         "Generic"                           CACHE STRING "" FORCE)
-set(CMAKE_SYSTEM_PROCESSOR    "arm"                               CACHE STRING "" FORCE)
+set(CMAKE_SYSTEM_NAME         "Generic"                           CACHE STRING "")
+set(CMAKE_SYSTEM_PROCESSOR    "arm"                               CACHE STRING "")
 
 # Available tools in the toolchain
 set(CMAKE_ADDR2LINE           ${TOOLCHAIN_PATH}-addr2line.exe     CACHE STRING "" FORCE)
