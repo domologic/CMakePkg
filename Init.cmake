@@ -7,7 +7,7 @@ include_guard(GLOBAL)
 message(STATUS "Loading CMakePkg...")
 
 if ("${CMAKE_SYSTEM_NAME}" STREQUAL "")
-  message(FATAL_ERROR "\${CMAKE_SYSTEM_NAME} not set. Set \${CMAKE_SYSTEM_NAME} like: \"cmake -DCMAKE_SYSTEM_NAME=<name>\"")
+  message(WARNING "\${CMAKE_SYSTEM_NAME} not set. Set \${CMAKE_SYSTEM_NAME} like: \"cmake -DCMAKE_SYSTEM_NAME=<name>\"")
 endif()
 
 option(CMAKEPKG_PIC      "Use position independent code" ON)
