@@ -27,6 +27,7 @@ macro(_add_module_parse_args)
     DEPENDENCIES
     RESOURCES
     OBJCOPY
+    DOT
   )
   cmake_parse_arguments(ARG
     ""
@@ -607,6 +608,12 @@ macro(_add_module)
   if (ARG_OBJCOPY)
     target_objcopy(${module_name}
       ${ARG_OBJCOPY}
+    )
+  endif()
+
+  if (ARG_DOT)
+    target_dot(${module_name}
+      ${ARG_DOT}
     )
   endif()
 

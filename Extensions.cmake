@@ -143,3 +143,18 @@ function(target_objcopy target)
     endif()
   endforeach()
 endfunction()
+
+function(target_dot ${module_name})
+  cmake_parse_arguments(ARG_DOT
+    ""
+    "FORMAT"
+    ""
+    ${ARGN}
+  )
+  add_custom_command(TARGET ${module_name} POST_BUILD
+    COMMAND
+      dot -T${ARG_DOT_FORMAT} ${CMAKE_BINARY_DIR}/${module_name}.dot -o ${CMAKE_INSTALL_PREFIX}/${module_name}.${ARG_DOT_FORMAT}
+    COMMENT
+      "Generating Graphviz ${ARG_DOT_FORMAT} for ${module_name}."
+  )
+endfunction()
