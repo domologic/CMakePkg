@@ -641,6 +641,7 @@ endmacro()
 #   [DEPENDENCIES]
 #   [RESOURCES]
 #   [OBJCOPY]
+#   [DOT]
 # )
 #
 # Creates <name> library target with the add_library function.
@@ -669,6 +670,8 @@ endmacro()
 #  List of files or directories which will be copied to the binary folder.
 # OBJCOPY
 #  Generates specified file output types from the target.
+# DOT
+#  Generates specified dot file from the target.
 #
 function(add_module_library module_name type)
   # parse arguments
@@ -713,6 +716,7 @@ endfunction()
 #   [DEPENDENCIES]
 #   [RESOURCES]
 #   [OBJCOPY]
+#   [DOT]
 # )
 #
 # Creates <name> executable target with the add_executable function.
@@ -741,6 +745,8 @@ endfunction()
 #  List of files or directories which will be copied to the binary folder.
 # OBJCOPY
 #  Generates specified file output types from the target.
+# DOT
+#  Generates specified dot file from the target.
 #
 function(add_module_executable module_name)
   # parse arguments
@@ -779,6 +785,7 @@ endfunction()
 #   [DEPENDENCIES]
 #   [RESOURCES]
 #   [OBJCOPY]
+#   [DOT]
 # )
 #
 # Creates <name> executable target with the add_executable function and includes it as a test with the add_test function.
@@ -807,6 +814,8 @@ endfunction()
 #  List of files or directories which will be copied to the binary folder.
 # OBJCOPY
 #  Generates specified file output types from the target.
+# DOT
+#  Generates specified dot file from the target.
 #
 function(add_module_test module_name)
   # parse arguments
@@ -870,6 +879,10 @@ function(add_module_docs project_name)
 
   # generate Doxygen docs
   if (ARG_DOXYGEN)
+    if (NOT DEFINED CACHE{DOXYGEN_EXECUTABLE})
+      message(FATAL_ERROR "Failed to generate doxygen project: doxygen was not found!")
+    endif()
+
     # redirect Doxygen options 
     foreach (CONFIG ${ARG_DOXYGEN})
       string(REPLACE "=" ";" CONFIG ${CONFIG})
@@ -885,14 +898,6 @@ function(add_module_docs project_name)
     set(DOXYGEN_BUILTIN_STL_SUPPORT YES)
     set(DOXYGEN_EXTRACT_ALL         YES)
     set(DOXYGEN_GENERATE_TREEVIEW   YES)
-
-    # find Doxygen package
-    find_package(Doxygen REQUIRED
-      OPTIONAL_COMPONENTS
-        dot
-        mscgen
-        dia
-    )
 
     # get list of source files
     get_target_property(SOURCE_LIST ${project_name} SOURCES)

@@ -6,10 +6,6 @@ include_guard(GLOBAL)
 
 message(STATUS "Loading CMakePkg...")
 
-if ("${CMAKE_SYSTEM_NAME}" STREQUAL "")
-  message(WARNING "\${CMAKE_SYSTEM_NAME} not set. Set \${CMAKE_SYSTEM_NAME} like: \"cmake -DCMAKE_SYSTEM_NAME=<name>\"")
-endif()
-
 option(CMAKEPKG_PIC      "Use position independent code" ON)
 
 if (NOT DEFINED CMAKEPKG_C_STD)
@@ -35,6 +31,14 @@ set(CMAKE_POSITION_INDEPENDENT_CODE   ${CMAKEPKG_PIC})
 set_property(GLOBAL
   PROPERTY
     USE_FOLDERS ON
+)
+
+find_package(Doxygen
+  OPTIONAL_COMPONENTS
+    dot
+    mscgen
+    dia
+  QUIET
 )
 
 enable_testing()
