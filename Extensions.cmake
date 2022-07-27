@@ -1,4 +1,69 @@
 #
+# Defines a usable variable that can be ovewritten from extern location.
+#
+# define_variable(<variable_name>
+#   <value>...
+# )
+#
+# <variable_name>
+#   Specifies the name of the variable.
+# <value>
+#   Specifies one or more values associated with the variable.
+#
+macro(define_variable variable default_value)
+  if (NOT DEFINED ${variable})
+    set(${variable} ${default_value})
+    message(WARNING "Variable '${variable}' was not specified. Setting to default value '${default_value}'.")
+  endif()
+endmacro()
+
+#
+# Defines a usable cache variable that can be ovewritten from extern location.
+#
+# define_variable_cache(<variable_name>
+#   <value>...
+#   <type>
+#   <docstring>
+#   [FORCE]
+# )
+#
+# <variable_name>
+#   Specifies the name of the variable.
+# <value>
+#   Specifies one or more values associated with the variable.
+# <type>
+#   Specifies the type of the variable. Allowed types are:
+#     BOOL
+#       Boolean ON/OFF value.
+#     FILEPATH
+#       Path to a file on disk.
+#     PATH
+#       Path to a directory on disk.
+#     STRING
+#       A line of text.
+#     INTERNAL
+#       Any type. Does not show in cmake-gui.
+#  [FORCE]
+#    
+function(define_variable_cache variable default_value type docstring)
+  cmake_parse_arguments(DEFINE_VARIABLE_CACHE_ARGS
+    "FORCE"
+    ""
+    ""
+    ${ARGN}
+  )
+
+  if (DEFINE_VARIABLE_CACHE_ARGS_FORCE)
+    set(DEFINE_VARIABLE_CACHE_FORCE FORCE)
+  endif()
+
+  if (NOT DEFINED CACHE{variable})
+    set(${variable} ${default_value} CACHE ${type} ${docstring} ${DEFINE_VARIABLE_CACHE_FORCE})
+    message(WARNING "Variable '${variable}' was not specified. Setting to default value '${default_value}'.")
+  endif()
+endfunction()
+
+#
 # Adds a post build objcopy event to the given target.
 #
 # target_objcopy(<target>
@@ -144,16 +209,33 @@ function(target_objcopy target)
   endforeach()
 endfunction()
 
+#
+# Adds a post build dot event to the given target.
+#
+# target_dot(<target>
+#   FORMAT
+#     <format>
+# )
+#
+# <format>
+#   Specifies the format the dot event should generate
+#
 function(target_dot ${module_name})
+  if (NOT DEFINED CACHE{DOXYGEN_DOT_EXECUTABLE})
+    message(WARNING "Cannot create dot target: doxygen was not found. Skipping.")
+    return()
+  endif()
+
   cmake_parse_arguments(ARG_DOT
     ""
     "FORMAT"
     ""
     ${ARGN}
   )
+
   add_custom_command(TARGET ${module_name} POST_BUILD
     COMMAND
-      dot -T${ARG_DOT_FORMAT} ${CMAKE_BINARY_DIR}/${module_name}.dot -o ${CMAKE_INSTALL_PREFIX}/${module_name}.${ARG_DOT_FORMAT}
+      dot -T${ARG_DOT_FORMAT} ${CMAKE_BINARY_DIR}/${module_name}.dot -o ${CMAKE_INSTALL_PREFIX}/${module_name}.${ARG_DOT_FORMAT} || (exit 0)
     COMMENT
       "Generating Graphviz ${ARG_DOT_FORMAT} for ${module_name}."
   )

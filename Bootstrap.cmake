@@ -16,6 +16,9 @@
 #     Path to the local copy of this bootstrap file. If this variable is not specified the file will be downloaded from the
 #     default GitHub location.
 #
+#   CMAKEPKG_USERINIT_FILE
+#     Path to the file containing user specific init information.
+#
 #   CMAKEPKG_PRIVATE_KEY_FILE
 #     Path to file holding the ssh private key, used by git to check out. This makes only sense in case of a git@... URL
 #
@@ -50,6 +53,16 @@
 include_guard(GLOBAL)
 
 find_package(Git QUIET REQUIRED)
+
+if (DEFINED CMAKEPKG_USERINIT_FILE)
+  if (EXISTS ${CMAKEPKG_USERINIT_FILE})
+    include(${CMAKEPKG_USERINIT_FILE})
+  endif()
+else()
+  if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/UserInit.cmake)
+    include(${CMAKE_CURRENT_SOURCE_DIR}/UserInit.cmake)
+  endif()
+endif()
 
 if (DEFINED CMAKEPKG_PRIVATE_KEY_FILE)
   set(ENV{GIT_SSH_COMMAND} "ssh -F /dev/null -i ${CMAKEPKG_PRIVATE_KEY_FILE} -o 'StrictHostKeyChecking=no' -o 'UserKnownHostsFile=${CMAKE_BINARY_DIR}/known_hosts'")
