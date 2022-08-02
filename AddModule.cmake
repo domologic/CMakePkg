@@ -317,7 +317,7 @@ function(_add_module_load_dependency PACKAGE)
       )
 
       if (NOT ${RESULT} EQUAL "0")
-        message(FATAL_ERROR "Could not clone CMakePkg sources from ${CMAKEPKG_PROJECT_ROOT_URL}")
+        message(FATAL_ERROR "Could not clone '${PACKAGE}' from '${PACKAGE_URL}'.")
       else()
         execute_process(
           COMMAND
@@ -331,7 +331,7 @@ function(_add_module_load_dependency PACKAGE)
         )
 
         if (NOT ${RESULT} EQUAL "0")
-          message(FATAL_ERROR "Could not clone CMakePkg sources from ${CMAKEPKG_PROJECT_ROOT_URL}")
+          message(FATAL_ERROR "Could not checkout '${PACKAGE_COMMITID}' for package '${PACKAGE}' at '${PACKAGE_URL}'")
         endif()
       endif()
     endif()
