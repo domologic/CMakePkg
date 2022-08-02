@@ -122,7 +122,7 @@ if (NOT EXISTS ${CMAKEPKG_SOURCE_DIR})
   )
 
   if (NOT ${RESULT} EQUAL "0")
-    message(FATAL_ERROR "Could not clone CMakePkg sources from ${CMAKEPKG_REMOTE_ORIGIN}")
+    message(FATAL_ERROR "Could not clone CMakePkg from '${CMAKEPKG_REMOTE_ORIGIN}' at branch '${CMAKEPKG_BRANCH}'.")
   endif()
 endif()
 
