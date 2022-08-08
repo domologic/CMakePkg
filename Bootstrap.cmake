@@ -52,8 +52,72 @@
 
 include_guard(GLOBAL)
 
-find_package(Git QUIET REQUIRED)
+#
+# Defines a usable variable that can be ovewritten from extern location.
+#
+# define_variable(<variable_name>
+#   <value>...
+# )
+#
+# <variable_name>
+#   Specifies the name of the variable.
+# <value>
+#   Specifies one or more values associated with the variable.
+#
+macro(define_variable variable default_value)
+  if (NOT DEFINED ${variable})
+    set(${variable} ${default_value})
+    message(WARNING "Variable '${variable}' was not specified. Setting to default value '${default_value}'.")
+  endif()
+endmacro()
 
+#
+# Defines a usable cache variable that can be ovewritten from extern location.
+#
+# define_variable_cache(<variable_name>
+#   <value>...
+#   <type>
+#   <docstring>
+#   [FORCE]
+# )
+#
+# <variable_name>
+#   Specifies the name of the variable.
+# <value>
+#   Specifies one or more values associated with the variable.
+# <type>
+#   Specifies the type of the variable. Allowed types are:
+#     BOOL
+#       Boolean ON/OFF value.
+#     FILEPATH
+#       Path to a file on disk.
+#     PATH
+#       Path to a directory on disk.
+#     STRING
+#       A line of text.
+#     INTERNAL
+#       Any type. Does not show in cmake-gui.
+#  [FORCE]
+#    
+function(define_variable_cache variable default_value type docstring)
+  cmake_parse_arguments(DEFINE_VARIABLE_CACHE_ARGS
+    "FORCE"
+    ""
+    ""
+    ${ARGN}
+  )
+
+  if (DEFINE_VARIABLE_CACHE_ARGS_FORCE)
+    set(DEFINE_VARIABLE_CACHE_FORCE FORCE)
+  endif()
+
+  if (NOT DEFINED CACHE{variable})
+    set(${variable} ${default_value} CACHE ${type} ${docstring} ${DEFINE_VARIABLE_CACHE_FORCE})
+    message(WARNING "Variable '${variable}' was not specified. Setting to default value '${default_value}'.")
+  endif()
+endfunction()
+
+# load user init if available
 if (DEFINED CMAKEPKG_USERINIT_FILE)
   if (EXISTS ${CMAKEPKG_USERINIT_FILE})
     include(${CMAKEPKG_USERINIT_FILE})
@@ -64,10 +128,15 @@ else()
   endif()
 endif()
 
+# find Git
+find_package(Git QUIET REQUIRED)
+
+# modify ssh command to use private key if specified
 if (DEFINED CMAKEPKG_PRIVATE_KEY_FILE)
   set(ENV{GIT_SSH_COMMAND} "ssh -F /dev/null -i ${CMAKEPKG_PRIVATE_KEY_FILE} -o 'StrictHostKeyChecking=no' -o 'UserKnownHostsFile=${CMAKE_BINARY_DIR}/known_hosts'")
 endif()
 
+# set branch if not defined
 if (NOT DEFINED CMAKEPKG_BRANCH)
   set(CMAKEPKG_BRANCH "master" CACHE INTERNAL "CMakePkg repository branch")
 endif()
