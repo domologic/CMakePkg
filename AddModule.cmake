@@ -854,10 +854,14 @@ endfunction()
 # Add a apidocs target for the given module.
 #
 # add_module_docs(<name>
+#   [EXTRA_SOURCES <filesOrDirs...>]
 #   [DOXYGEN <config>]
 # )
 #
 # <name> needs to be a valid module created with add_module_library or add_module_executable
+#
+# EXTRA_SOURCES
+#   List of extra files and directories that should be included.
 #
 # DOXYGEN
 #   Use Doxygen as generator. Currently this is the only option supported.
@@ -873,7 +877,7 @@ function(add_module_docs project_name)
   cmake_parse_arguments(ARG
     ""
     ""
-    "DOXYGEN"
+    "DOXYGEN;EXTRA_SOURCES"
     ${ARGN}
   )
 
@@ -905,6 +909,7 @@ function(add_module_docs project_name)
     # add Doxygen target
     doxygen_add_docs(${project_name}-docs
         ${SOURCE_LIST}
+        ${ARG_EXTRA_SOURCES}
       WORKING_DIRECTORY
         ${CMAKE_CURRENT_SOURCE_DIR}
       COMMENT
