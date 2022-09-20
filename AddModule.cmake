@@ -508,36 +508,38 @@ macro(_add_module)
   _add_module_set_root()
 
   if (NOT "${type}" STREQUAL "INTERFACE")
-    target_compile_definitions(${module_name}
-      PRIVATE
-        $<$<BOOL:"${CMAKEPKG_DEFINE}">:${CMAKEPKG_DEFINE}>
-        $<$<AND:$<BOOL:"${CMAKEPKG_DEFINE_DEBUG}">,$<CONFIG:Debug>>:${CMAKEPKG_DEFINE_DEBUG}>
-        $<$<AND:$<BOOL:"${CMAKEPKG_DEFINE_RELEASE}">,$<CONFIG:Release>>:${CMAKEPKG_DEFINE_RELEASE}>
-        ${DEFINES_BUILD_UNIT_TESTS}
-    )
-    target_compile_options(${module_name}
-      PRIVATE
-        $<$<AND:$<BOOL:"${CMAKEPKG_FLAGS}">,$<OR:$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>>:${CMAKEPKG_FLAGS}>
-        $<$<AND:$<BOOL:"${CMAKEPKG_FLAGS_DEBUG}">,$<OR:$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>,$<CONFIG:Debug>>:${CMAKEPKG_FLAGS_DEBUG}>
-        $<$<AND:$<BOOL:"${CMAKEPKG_FLAGS_RELEASE}">,$<OR:$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>,$<CONFIG:Release>>:${CMAKEPKG_FLAGS_RELEASE}>
-        $<$<AND:$<BOOL:"${CMAKEPKG_FLAGS_C}">,$<COMPILE_LANGUAGE:C>>:${CMAKEPKG_FLAGS_C}>
-        $<$<AND:$<BOOL:"${CMAKEPKG_FLAGS_C_DEBUG}">,$<COMPILE_LANGUAGE:C>,$<CONFIG:Debug>>:${CMAKEPKG_FLAGS_C_DEBUG}>
-        $<$<AND:$<BOOL:"${CMAKEPKG_FLAGS_C_RELEASE}">,$<COMPILE_LANGUAGE:C>,$<CONFIG:Release>>:${CMAKEPKG_FLAGS_C_RELEASE}>
-        $<$<AND:$<BOOL:"${CMAKEPKG_FLAGS_CXX}">,$<COMPILE_LANGUAGE:CXX>>:${CMAKEPKG_FLAGS_CXX}>
-        $<$<AND:$<BOOL:"${CMAKEPKG_FLAGS_CXX_DEBUG}">,$<COMPILE_LANGUAGE:CXX>,$<CONFIG:Debug>>:${CMAKEPKG_FLAGS_CXX_DEBUG}>
-        $<$<AND:$<BOOL:"${CMAKEPKG_FLAGS_CXX_RELEASE}">,$<COMPILE_LANGUAGE:CXX>,$<CONFIG:Release>>:${CMAKEPKG_FLAGS_CXX_RELEASE}>
-    )
-    target_link_options(${module_name}
-      PRIVATE
-        $<$<BOOL:"${CMAKEPKG_LINK}">:${CMAKEPKG_LINK}>
-        $<$<AND:$<BOOL:"${CMAKEPKG_LINK_DEBUG}">,$<CONFIG:Debug>>:${CMAKEPKG_LINK_DEBUG}>
-        $<$<AND:$<BOOL:"${CMAKEPKG_LINK_RELEASE}">,$<CONFIG:Release>>:${CMAKEPKG_LINK_RELEASE}>
-    )
-    set_target_properties(${module_name}
-      PROPERTIES
-        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_INSTALL_PREFIX}
-        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_INSTALL_PREFIX}
-    )
+    if (NOT CMAKEPKG_ZEPHYR)
+      target_compile_definitions(${module_name}
+        PRIVATE
+          $<$<BOOL:"${CMAKEPKG_DEFINE}">:${CMAKEPKG_DEFINE}>
+          $<$<AND:$<BOOL:"${CMAKEPKG_DEFINE_DEBUG}">,$<CONFIG:Debug>>:${CMAKEPKG_DEFINE_DEBUG}>
+          $<$<AND:$<BOOL:"${CMAKEPKG_DEFINE_RELEASE}">,$<CONFIG:Release>>:${CMAKEPKG_DEFINE_RELEASE}>
+          ${DEFINES_BUILD_UNIT_TESTS}
+      )
+      target_compile_options(${module_name}
+        PRIVATE
+          $<$<AND:$<BOOL:"${CMAKEPKG_FLAGS}">,$<OR:$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>>:${CMAKEPKG_FLAGS}>
+          $<$<AND:$<BOOL:"${CMAKEPKG_FLAGS_DEBUG}">,$<OR:$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>,$<CONFIG:Debug>>:${CMAKEPKG_FLAGS_DEBUG}>
+          $<$<AND:$<BOOL:"${CMAKEPKG_FLAGS_RELEASE}">,$<OR:$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>,$<CONFIG:Release>>:${CMAKEPKG_FLAGS_RELEASE}>
+          $<$<AND:$<BOOL:"${CMAKEPKG_FLAGS_C}">,$<COMPILE_LANGUAGE:C>>:${CMAKEPKG_FLAGS_C}>
+          $<$<AND:$<BOOL:"${CMAKEPKG_FLAGS_C_DEBUG}">,$<COMPILE_LANGUAGE:C>,$<CONFIG:Debug>>:${CMAKEPKG_FLAGS_C_DEBUG}>
+          $<$<AND:$<BOOL:"${CMAKEPKG_FLAGS_C_RELEASE}">,$<COMPILE_LANGUAGE:C>,$<CONFIG:Release>>:${CMAKEPKG_FLAGS_C_RELEASE}>
+          $<$<AND:$<BOOL:"${CMAKEPKG_FLAGS_CXX}">,$<COMPILE_LANGUAGE:CXX>>:${CMAKEPKG_FLAGS_CXX}>
+          $<$<AND:$<BOOL:"${CMAKEPKG_FLAGS_CXX_DEBUG}">,$<COMPILE_LANGUAGE:CXX>,$<CONFIG:Debug>>:${CMAKEPKG_FLAGS_CXX_DEBUG}>
+          $<$<AND:$<BOOL:"${CMAKEPKG_FLAGS_CXX_RELEASE}">,$<COMPILE_LANGUAGE:CXX>,$<CONFIG:Release>>:${CMAKEPKG_FLAGS_CXX_RELEASE}>
+      )
+      target_link_options(${module_name}
+        PRIVATE
+          $<$<BOOL:"${CMAKEPKG_LINK}">:${CMAKEPKG_LINK}>
+          $<$<AND:$<BOOL:"${CMAKEPKG_LINK_DEBUG}">,$<CONFIG:Debug>>:${CMAKEPKG_LINK_DEBUG}>
+          $<$<AND:$<BOOL:"${CMAKEPKG_LINK_RELEASE}">,$<CONFIG:Release>>:${CMAKEPKG_LINK_RELEASE}>
+      )
+      set_target_properties(${module_name}
+        PROPERTIES
+          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_INSTALL_PREFIX}
+          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_INSTALL_PREFIX}
+      )
+    endif()
     target_include_directories(${module_name}
       PUBLIC
         ${CMAKE_BINARY_DIR}/Revision
@@ -693,6 +695,14 @@ function(add_module_library module_name type)
       ${ARG_SOURCES}
       ${${module_name}_SOURCES}
     )
+
+    # inject Zephyr dependency if running in Zephyr mode.
+    if (CMAKEPKG_ZEPHYR)
+      target_link_libraries(${module_name}
+        PUBLIC
+          zephyr_interface
+      )
+    endif()
   endif()
 
   # add generic module
