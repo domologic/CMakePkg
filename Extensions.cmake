@@ -157,7 +157,7 @@ endfunction()
 # <format>
 #   Specifies the format the dot event should generate
 #
-function(target_dot ${module_name})
+function(target_dot TARGET)
   if (NOT DEFINED CACHE{DOXYGEN_DOT_EXECUTABLE})
     message(WARNING "Cannot create dot target: doxygen was not found. Skipping.")
     return()
@@ -170,10 +170,10 @@ function(target_dot ${module_name})
     ${ARGN}
   )
 
-  add_custom_command(TARGET ${module_name} POST_BUILD
+  add_custom_command(TARGET ${TARGET} POST_BUILD
     COMMAND
-      dot -T${ARG_DOT_FORMAT} ${CMAKE_BINARY_DIR}/${module_name}.dot -o ${CMAKE_INSTALL_PREFIX}/${module_name}.${ARG_DOT_FORMAT} || (exit 0)
+      dot -T${ARG_DOT_FORMAT} ${CMAKE_BINARY_DIR}/${TARGET}.dot -o ${CMAKE_INSTALL_PREFIX}/${TARGET}.${ARG_DOT_FORMAT} || (exit 0)
     COMMENT
-      "Generating Graphviz ${ARG_DOT_FORMAT} for ${module_name}."
+      "Generating Graphviz ${ARG_DOT_FORMAT} for ${TARGET}."
   )
 endfunction()
