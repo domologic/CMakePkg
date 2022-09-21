@@ -64,7 +64,7 @@ include_guard(GLOBAL)
 # [ARGS]
 #   Specifies optional arguments that should be passed to objcopy. See objcopy documentation for more details.
 #
-function(target_objcopy target)
+function(target_objcopy TARGET)
   if (NOT DEFINED CMAKE_OBJCOPY)
     return()
   endif()
@@ -136,11 +136,11 @@ function(target_objcopy target)
         set(PARAM_SUFFIX ".${OUTPUT_FORMAT}")
       endif()
 
-      add_custom_command(TARGET ${target} POST_BUILD
+      add_custom_command(TARGET ${TARGET} POST_BUILD
         COMMAND
-          ${CMAKE_OBJCOPY} -O ${OUTPUT_FORMAT} ${PARAM_ARGS} $<TARGET_FILE:${target}> $<IF:$<BOOL:${PARAM_OUTPUT_DIRECTORY}>,${PARAM_OUTPUT_DIRECTORY},$<TARGET_FILE_DIR:${target}>>/$<IF:$<BOOL:${PARAM_PREFIX}>,${PARAM_PREFIX},$<TARGET_FILE_PREFIX:${target}>>$<IF:$<BOOL:${PARAM_OUTPUT_NAME}>,${PARAM_OUTPUT_NAME},$<TARGET_FILE_BASE_NAME:${target}>>${PARAM_SUFFIX}
+          ${CMAKE_OBJCOPY} -O ${OUTPUT_FORMAT} ${PARAM_ARGS} $<TARGET_FILE:${TARGET}> $<IF:$<BOOL:${PARAM_OUTPUT_DIRECTORY}>,${PARAM_OUTPUT_DIRECTORY},$<TARGET_FILE_DIR:${TARGET}>>/$<IF:$<BOOL:${PARAM_PREFIX}>,${PARAM_PREFIX},$<TARGET_FILE_PREFIX:${TARGET}>>$<IF:$<BOOL:${PARAM_OUTPUT_NAME}>,${PARAM_OUTPUT_NAME},$<TARGET_FILE_BASE_NAME:${TARGET}>>${PARAM_SUFFIX}
         COMMENT
-          "Generating ${OUTPUT_FORMAT} for ${target}."
+          "Generating ${OUTPUT_FORMAT} for ${TARGET}."
       )
     endif()
   endforeach()
