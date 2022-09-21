@@ -895,6 +895,13 @@ function(add_package_docs PACKAGE_NAME)
       list(GET CONFIG 0 KEY)
       list(GET CONFIG 1 VALUE)
 
+      # normalize bool values for Doxyfile
+      if (${VALUE} STREQUAL ON)
+        set(VALUE YES)
+      elseif(${VALUE} STREQUAL OFF)
+        set(VALUE NO)
+      endif()
+
       set(DOXYGEN_${KEY} ${VALUE})
     endforeach()
 
