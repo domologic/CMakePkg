@@ -32,7 +32,7 @@ endfunction()
 #
 # DEPRECATED: Use add_package_docs
 #
-function(add_package_docs PACKAGE_NAME)
+function(add_module_docs PACKAGE_NAME)
   _add_module_warning()
   add_package_docs(${PACKAGE_NAME} ${ARGN})
 endfunction()
