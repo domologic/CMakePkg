@@ -442,8 +442,7 @@ endmacro()
 
 macro(_add_package_collect_source_files CURRENT_DIR)
   # check if directory is excluded
-  list(FIND ARGN "${CURRENT_DIR}" IS_EXCLUDED)
-  if (IS_EXCLUDED EQUAL -1)
+  if (NOT ${CURRENT_DIR} IN_LIST SOURCE_DIR_EXCLUDE)
     # glob all files with common C/C++ extensions
     file(GLOB CURRENT_DIR_COLLECTED_SOURCES
       ${CURRENT_DIR}/*.c
@@ -484,11 +483,11 @@ function(_add_package_collect_sources)
 
     # iterate over all specified directories
     foreach(PATH ${SOURCE_DIR_PATH})
-      _add_package_collect_source_files(${PATH} ${SOURCE_DIR_EXCLUDE})
+      _add_package_collect_source_files(${PATH})
     endforeach()
 
     # remove files from exclude list
-    list(REMOVE_ITEM COLLECTED_SOURCES ${ARGN})
+    list(REMOVE_ITEM COLLECTED_SOURCES ${SOURCE_DIR_EXCLUDE})
 
     # set result in parent scope
     set(${PACKAGE_NAME}_SOURCES "${COLLECTED_SOURCES}" PARENT_SCOPE)
