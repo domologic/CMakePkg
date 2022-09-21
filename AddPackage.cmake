@@ -896,12 +896,10 @@ function(add_package_docs PACKAGE_NAME)
       set(DOXYGEN_${KEY} ${VALUE})
     endforeach()
 
-    # set some Doxygen rules
-    set(DOXYGEN_OUTPUT_DIRECTORY    "${CMAKE_INSTALL_PREFIX}/docs")
-    set(DOXYGEN_CREATE_SUBDIRS      YES)
-    set(DOXYGEN_BUILTIN_STL_SUPPORT YES)
-    set(DOXYGEN_EXTRACT_ALL         YES)
-    set(DOXYGEN_GENERATE_TREEVIEW   YES)
+    # define output directory if not specified
+    if (NOT DOXYGEN_OUTPUT_DIRECTORY)
+      set(DOXYGEN_OUTPUT_DIRECTORY    "${CMAKE_INSTALL_PREFIX}/docs")
+    endif()
 
     # get list of source files
     get_target_property(SOURCE_LIST ${PACKAGE_NAME} SOURCES)
