@@ -220,37 +220,6 @@ function(_add_package_generate_revision PACKAGE_NAME_ORIG)
   message(STATUS "Loaded package ${PACKAGE_NAME_ORIG} ${PACKAGE_VERSION} ${PACKAGE_TIMESTAMP}")
 endfunction()
 
-function(_add_package_collect_source_files CURRENT_DIR VARIABLE)
-  list(FIND ARGN "${CURRENT_DIR}" IS_EXCLUDED)
-  if (IS_EXCLUDED EQUAL -1)
-    file(GLOB COLLECTED_SOURCES
-      ${CURRENT_DIR}/*.c
-      ${CURRENT_DIR}/*.cpp
-      ${CURRENT_DIR}/*.cxx
-      ${CURRENT_DIR}/*.c++
-      ${CURRENT_DIR}/*.cc
-      ${CURRENT_DIR}/*.h
-      ${CURRENT_DIR}/*.hpp
-      ${CURRENT_DIR}/*.hxx
-      ${CURRENT_DIR}/*.h++
-      ${CURRENT_DIR}/*.hh
-      ${CURRENT_DIR}/*.inl
-      ${CURRENT_DIR}/*.inc
-      ${CURRENT_DIR}/*.inl.hpp
-      ${CURRENT_DIR}/*.inc.hpp
-    )
-    list(APPEND ${VARIABLE} ${COLLECTED_SOURCES})
-
-    file(GLOB SUB_DIRECTORIES ${CURRENT_DIR}/*)
-    foreach(SUB_DIRECTORY ${SUB_DIRECTORIES})
-      if (IS_DIRECTORY ${SUB_DIRECTORY})
-        _add_package_collect_source_files(${SUB_DIRECTORY} ${VARIABLE} ${ARGN})
-      endif()
-    endforeach()
-    set(${VARIABLE} ${${VARIABLE}} PARENT_SCOPE)
-  endif()
-endfunction()
-
 function(_add_package_load_dependency PACKAGE)
   # split PACKAGE into path and tag
   string(REPLACE "@" ";" PACKAGE_DATA "${PACKAGE}")
@@ -378,20 +347,6 @@ function(_add_package_load_dependencies)
   endforeach()
 endfunction()
 
-function(_add_package_collect_sources)
-  if (ARG_SOURCE_DIR)
-    cmake_parse_arguments(SOURCE_DIR
-      ""
-      "PATH"
-      "EXCLUDE"
-      ${ARG_SOURCE_DIR}
-    )
-
-    _add_package_collect_source_files(${SOURCE_DIR_PATH} ${PACKAGE_NAME}_SOURCES ${SOURCE_DIR_EXCLUDE})
-    set(${PACKAGE_NAME}_SOURCES "${${PACKAGE_NAME}_SOURCES}" PARENT_SCOPE)
-  endif()
-endfunction()
-
 function(_convert_dependencies_to_libraries DEPENDENCIES VARIABLE)
   set(RESULT "")
   foreach (DEPENDENCY ${DEPENDENCIES})
@@ -484,6 +439,61 @@ macro(_add_package_link_libraries)
     )
   endif()
 endmacro()
+
+macro(_add_package_collect_source_files CURRENT_DIR)
+  # check if directory is excluded
+  list(FIND ARGN "${CURRENT_DIR}" IS_EXCLUDED)
+  if (IS_EXCLUDED EQUAL -1)
+    # glob all files with common C/C++ extensions
+    file(GLOB CURRENT_DIR_COLLECTED_SOURCES
+      ${CURRENT_DIR}/*.c
+      ${CURRENT_DIR}/*.c++
+      ${CURRENT_DIR}/*.cc
+      ${CURRENT_DIR}/*.cpp
+      ${CURRENT_DIR}/*.cxx
+      ${CURRENT_DIR}/*.h
+      ${CURRENT_DIR}/*.h++
+      ${CURRENT_DIR}/*.hh
+      ${CURRENT_DIR}/*.hpp
+      ${CURRENT_DIR}/*.hxx
+      ${CURRENT_DIR}/*.inc
+      ${CURRENT_DIR}/*.inc.hpp
+      ${CURRENT_DIR}/*.inl
+      ${CURRENT_DIR}/*.inl.hpp
+    )
+    list(APPEND COLLECTED_SOURCES ${CURRENT_DIR_COLLECTED_SOURCES})
+
+    # collect all files in sub directories recursively
+    file(GLOB SUB_DIRECTORIES ${CURRENT_DIR}/*)
+    foreach(SUB_DIRECTORY ${SUB_DIRECTORIES})
+      if (IS_DIRECTORY ${SUB_DIRECTORY})
+        _add_package_collect_source_files(${SUB_DIRECTORY} ${ARGN})
+      endif()
+    endforeach()
+  endif()
+endmacro()
+
+function(_add_package_collect_sources)
+  if (ARG_SOURCE_DIR)
+    cmake_parse_arguments(SOURCE_DIR
+      ""
+      ""
+      "PATH;EXCLUDE"
+      ${ARG_SOURCE_DIR}
+    )
+
+    # iterate over all specified directories
+    foreach(PATH ${SOURCE_DIR_PATH})
+      _add_package_collect_source_files(${PATH} ${SOURCE_DIR_EXCLUDE})
+    endforeach()
+
+    # remove files from exclude list
+    list(REMOVE_ITEM COLLECTED_SOURCES ${ARGN})
+
+    # set result in parent scope
+    set(${PACKAGE_NAME}_SOURCES "${COLLECTED_SOURCES}" PARENT_SCOPE)
+  endif()
+endfunction()
 
 macro(_add_package_load_compiler_config)
   # set the config if not already set
