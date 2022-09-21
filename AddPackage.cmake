@@ -430,14 +430,6 @@ macro(_add_package_link_libraries)
     ${DEPENDENCIES_PRIVATE}
     ${DEPENDENCIES_INTERFACE}
   )
-
-  # inject Zephyr dependency if running in Zephyr mode.
-  if (CMAKEPKG_ZEPHYR)
-    target_link_libraries(${PACKAGE_NAME}
-      PUBLIC
-        zephyr_interface
-    )
-  endif()
 endmacro()
 
 macro(_add_package_collect_source_files CURRENT_DIR)
@@ -550,6 +542,12 @@ macro(_add_package)
         PROPERTIES
           LIBRARY_OUTPUT_DIRECTORY ${CMAKE_INSTALL_PREFIX}
           RUNTIME_OUTPUT_DIRECTORY ${CMAKE_INSTALL_PREFIX}
+      )
+    else()
+      # inject Zephyr dependency if running in Zephyr mode.
+      target_link_libraries(${PACKAGE_NAME}
+        PUBLIC
+          zephyr_interface
       )
     endif()
     target_include_directories(${PACKAGE_NAME}
