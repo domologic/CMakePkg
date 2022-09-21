@@ -1,10 +1,10 @@
 #pragma once
 
-namespace @MODULE_NAME@ {
-    constexpr auto kVersion   = "@MODULE_VERSION@";
-    constexpr auto kTimestamp = "@MODULE_TIMESTAMP@";
-    constexpr auto kDate      = "@MODULE_DATE@";
-    constexpr auto kYear      = @MODULE_YEAR@;
+namespace @PACKAGE_NAME@ {
+    constexpr auto kVersion   = "@PACKAGE_VERSION@";
+    constexpr auto kTimestamp = "@PACKAGE_TIMESTAMP@";
+    constexpr auto kDate      = "@PACKAGE_DATE@";
+    constexpr auto kYear      = @PACKAGE_YEAR@;
 
     /**
      * DEPRECATED
@@ -13,30 +13,30 @@ namespace @MODULE_NAME@ {
         /**
          * DEPRECATED
          */
-        [[deprecated]] constexpr auto kVersion   = "@MODULE_VERSION@";
+        [[deprecated]] constexpr auto kVersion   = "@PACKAGE_VERSION@";
         /**
          * DEPRECATED
          */
-        [[deprecated]] constexpr auto kRevision  = "@MODULE_REVISION@";
+        [[deprecated]] constexpr auto kRevision  = "@PACKAGE_REVISION@";
         /**
          * DEPRECATED
          */
-        [[deprecated]] constexpr auto kTag       = "@MODULE_TAG@";
+        [[deprecated]] constexpr auto kTag       = "@PACKAGE_TAG@";
         /**
          * DEPRECATED
          */
-        [[deprecated]] constexpr auto kTimestamp = "@MODULE_TIMESTAMP@";
+        [[deprecated]] constexpr auto kTimestamp = "@PACKAGE_TIMESTAMP@";
         /**
          * DEPRECATED
          */
-        [[deprecated]] constexpr auto kDate      = "@MODULE_DATE@";
+        [[deprecated]] constexpr auto kDate      = "@PACKAGE_DATE@";
         /**
          * DEPRECATED
          */
-        [[deprecated]] constexpr auto kYear      = @MODULE_YEAR@;
+        [[deprecated]] constexpr auto kYear      = @PACKAGE_YEAR@;
         /**
          * DEPRECATED
          */
-        [[deprecated]] constexpr auto kBranch    = "@MODULE_BRANCH@";
+        [[deprecated]] constexpr auto kBranch    = "@PACKAGE_BRANCH@";
     }
 }
