@@ -139,10 +139,6 @@ function(_add_package_generate_commitid_file)
   file(APPEND ${CMAKEPKG_COMMITID_OUT_FILE} "${COMMITID_FILE_MARKER_END}")
 endfunction()
 
-macro(_add_package_enable_tests)
-  set(DEFINES_BUILD_UNIT_TESTS BUILD_UNIT_TESTS)
-endmacro()
-
 function(_add_package_generate_revision PACKAGE_NAME_ORIG)
   # Create C++ compatible name of this package, used by the template Revision.hpp.cmake
   string(REGEX REPLACE "-" "_" PACKAGE_NAME "${PACKAGE_NAME_ORIG}") 
@@ -522,7 +518,6 @@ macro(_add_package)
           $<$<BOOL:"${CMAKEPKG_DEFINE}">:${CMAKEPKG_DEFINE}>
           $<$<AND:$<BOOL:"${CMAKEPKG_DEFINE_DEBUG}">,$<CONFIG:Debug>>:${CMAKEPKG_DEFINE_DEBUG}>
           $<$<AND:$<BOOL:"${CMAKEPKG_DEFINE_RELEASE}">,$<CONFIG:Release>>:${CMAKEPKG_DEFINE_RELEASE}>
-          ${DEFINES_BUILD_UNIT_TESTS}
       )
       target_compile_options(${PACKAGE_NAME}
         PRIVATE
@@ -830,9 +825,6 @@ endfunction()
 function(add_package_test PACKAGE_NAME)
   # parse arguments
   _add_package_parse_args(${ARGN})
-
-  # enable tests
-  _add_package_enable_tests()
 
   # collect sources
   _add_package_collect_sources()
