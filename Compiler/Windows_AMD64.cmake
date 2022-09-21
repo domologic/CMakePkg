@@ -65,7 +65,7 @@ set(FLAGS_DEBUG
   /Od
   /RTC1
   /ZI
-  /sdl
+  /sdl-
 )
 set(FLAGS_RELEASE
   /GL
