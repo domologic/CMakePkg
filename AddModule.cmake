@@ -1,7 +1,7 @@
 macro(_add_module_warning)
   if (NOT CMAKEPKG_DISABLE_ADDMODULE_WARNINGS)
     string(REPLACE "module" "package" _ADDMODULE_NEW_FUNC_NAME ${CMAKE_CURRENT_FUNCTION})
-    #message(WARNING "CMakePkg function '${CMAKE_CURRENT_FUNCTION}' is deprecated! Use '${_ADDMODULE_NEW_FUNC_NAME}' instead. Set 'CMAKEPKG_DISABLE_ADDMODULE_WARNINGS' to disable this warning.")
+    message(WARNING "CMakePkg function '${CMAKE_CURRENT_FUNCTION}' is deprecated! Use '${_ADDMODULE_NEW_FUNC_NAME}' instead. Set 'CMAKEPKG_DISABLE_ADDMODULE_WARNINGS' to disable this warning.")
   endif()
 endmacro()
 
