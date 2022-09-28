@@ -45,5 +45,6 @@ enable_testing()
 
 include(${CMAKEPKG_SOURCE_DIR}/AddModule.cmake)
 include(${CMAKEPKG_SOURCE_DIR}/AddPackage.cmake)
+include(${CMAKEPKG_SOURCE_DIR}/Config.cmake)
 include(${CMAKEPKG_SOURCE_DIR}/Extensions.cmake)
 include(${CMAKEPKG_SOURCE_DIR}/Zephyr.cmake)

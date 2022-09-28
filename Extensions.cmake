@@ -177,25 +177,3 @@ function(target_dot TARGET)
       "Generating Graphviz ${ARG_DOT_FORMAT} for ${TARGET}."
   )
 endfunction()
-
-#
-# Provides an option that the user can optionally select.
-#
-# cmakepkg_option(<variable> <type> <value> <description>)
-#
-# <variable>
-#   Name of the variable.
-# <type>
-#   Type of the variable
-# <value>
-#   Default value used when the option is not defined by user.
-# <description>
-#   Description of the option.
-#
-function(cmakepkg_option VARIABLE TYPE VALUE DESCRIPTION)
-  if (${TYPE} STREQUAL BOOL)
-    option(${VARIABLE} "${DESCRIPTION}" ${VALUE})
-  else()
-    set(${VARIABLE} "${VALUE}" CACHE ${TYPE} "${DESCRIPTION}")
-  endif()
-endfunction()
