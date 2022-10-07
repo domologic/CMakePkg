@@ -4,7 +4,7 @@ macro(_zephyr_init_parse_args)
   cmake_parse_arguments(ARG
     ""
     "CONDITION"
-    "CONFIG"
+    "CONFIG;DEVICE_TREE_OVERLAY"
     ${ARGN}
   )
 endmacro()
@@ -48,6 +48,10 @@ function(_zephyr_init_config)
   endforeach()
 endfunction()
 
+macro(_zephyr_init_devicetree_overlay)
+  set(DTC_OVERLAY_FILE ${ARGN})
+endmacro()
+
 #
 # Initializes the Zephyr SDK.
 #
@@ -76,6 +80,11 @@ function(zephyr_init BOARD)
   # init Zephyr configuration
   if (ARG_CONFIG)
     _zephyr_init_config(${ARG_CONFIG})
+  endif()
+
+  # add device tree overlay files
+  if (ARG_DEVICE_TREE_OVERLAY)
+    _zephyr_init_devicetree_overlay(${ARG_DEVICE_TREE_OVERLAY})
   endif()
 
   # enable Zephyr build
