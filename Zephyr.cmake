@@ -4,7 +4,7 @@ macro(_zephyr_init_parse_args)
   cmake_parse_arguments(ARG
     ""
     "CONDITION"
-    "CONFIG;DEVICE_TREE_OVERLAY"
+    "CONFIG;BOARD_ROOT;DEVICETREE_ROOT;DEVICETREE_OVERLAY"
     ${ARGN}
   )
 endmacro()
@@ -48,6 +48,14 @@ function(_zephyr_init_config)
   endforeach()
 endfunction()
 
+macro(_zephyr_init_board_root)
+  set(BOARD_ROOT ${ARGN})
+endmacro()
+
+macro(_zephyr_init_devicetree_root)
+  set(DTS_ROOT ${ARGN})
+endmacro()
+
 macro(_zephyr_init_devicetree_overlay)
   set(DTC_OVERLAY_FILE ${ARGN})
 endmacro()
@@ -82,9 +90,19 @@ function(zephyr_init BOARD)
     _zephyr_init_config(${ARG_CONFIG})
   endif()
 
+  # set board root
+  if (ARG_BOARD_ROOT)
+    _zephyr_init_board_root(${ARG_BOARD_ROOT})
+  endif()
+
+  # set device tree root
+  if (ARG_DEVICETREE_ROOT)
+    _zephyr_init_devicetree_root(${ARG_DEVICETREE_ROOT})
+  endif()
+
   # add device tree overlay files
-  if (ARG_DEVICE_TREE_OVERLAY)
-    _zephyr_init_devicetree_overlay(${ARG_DEVICE_TREE_OVERLAY})
+  if (ARG_DEVICETREE_OVERLAY)
+    _zephyr_init_devicetree_overlay(${ARG_DEVICETREE_OVERLAY})
   endif()
 
   # enable Zephyr build
