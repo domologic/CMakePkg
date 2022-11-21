@@ -35,7 +35,7 @@
 #     Text-based file defining commit ids of each package to used for the checkout. Each line defines a commit id of a single
 #     package. The package name is separated by a ':' from the commit id.
 #     The tag file has to start with a "---COMMITID BEGIN---" line and may end with a "---COMMITID END---" line. Example:
-#       ---COMMITID BEGIN--- 
+#       ---COMMITID BEGIN---
 #       Domologic/DatabaseSystem: 9ad56776abb5c7061e6ad14a058c8b393ec3b3dd
 #       Domologic/LMDBxx: cc64d31469693aad74b68c664afbc6cc4c5c039f
 #       Extern/zstd: 745243abdd133142161da0071b4357f20bf91b1f
@@ -98,7 +98,7 @@ endmacro()
 #     INTERNAL
 #       Any type. Does not show in cmake-gui.
 #  [FORCE]
-#    
+#
 function(define_variable_cache variable default_value type docstring)
   cmake_parse_arguments(DEFINE_VARIABLE_CACHE_ARGS
     "FORCE"

@@ -1,14 +1,14 @@
 TODO, 15.09.2021
 * Terminologie
-** Die Namensbestandteile der Packages sollten durchgängig mit 
+** Die Namensbestandteile der Packages sollten durchgängig mit
    ${DOMAIN}/${REPOSITORY} benannt werden
 ** "MODUL" sollte auch besser "Package" genannt werden
 *** diese Terminologie wird auch bei npm verwendet
-    - "A package is a file or directory that is described by a package.json file. A package must 
-	  contain a package.json file in order to be published to the npm registry. 
-	  For more information on creating a package.json file, see "Creating a package.json file".
-	- "A module is any file or directory in the node_modules directory that can be loaded by the Node.js require() 
-	  function."
+    - "A package is a file or directory that is described by a package.json file. A package must
+      contain a package.json file in order to be published to the npm registry.
+      For more information on creating a package.json file, see "Creating a package.json file".
+    - "A module is any file or directory in the node_modules directory that can be loaded by the Node.js require()
+      function."
 ** Template Revision.hpp.cmake: verwendet auch den Begriff "MODUL", ebenso wie add_module etc.
 * die Revision.hpp-Dateien sollten im Verzeichnis ${Build}/_deps/{package_id}-revision erzeugt werden. Dazu muss dem
   _add_module_generate_revision vermutlich die package_id übergeben werden

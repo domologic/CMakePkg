@@ -91,7 +91,7 @@ function(_add_package_load_commitid_file)
     list(GET PACKAGE_ID -1 PACKAGE_ID)
 
     # set package commit id to cache
-	message(STATUS "  Package ${PACKAGE_ID}: ${PACKAGE_COMMITID}")
+    message(STATUS "  Package ${PACKAGE_ID}: ${PACKAGE_COMMITID}")
     set("${PACKAGE_ID}_COMMITID" "${PACKAGE_COMMITID}" CACHE INTERNAL "Revision of the ${PACKAGE_ID} package")
   endforeach()
 endfunction()
@@ -141,7 +141,7 @@ endfunction()
 
 function(_add_package_generate_revision PACKAGE_NAME_ORIG)
   # Create C++ compatible name of this package, used by the template Revision.hpp.cmake
-  string(REGEX REPLACE "-" "_" PACKAGE_NAME "${PACKAGE_NAME_ORIG}") 
+  string(REGEX REPLACE "-" "_" PACKAGE_NAME "${PACKAGE_NAME_ORIG}")
 
   set(PACKAGE_VERSION   "unknown")
   set(PACKAGE_REVISION  "unknown")
@@ -896,7 +896,7 @@ function(add_package_docs PACKAGE_NAME)
       message(FATAL_ERROR "Failed to generate doxygen project: doxygen was not found!")
     endif()
 
-    # redirect Doxygen options 
+    # redirect Doxygen options
     foreach (CONFIG ${ARG_DOXYGEN})
       string(REPLACE "=" ";" CONFIG ${CONFIG})
       list(GET CONFIG 0 KEY)
