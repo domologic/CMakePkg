@@ -74,6 +74,9 @@ endmacro()
 #   Each entry should not contain any spaces and should separate the key from value with an equal sign.
 #
 function(zephyr_init BOARD)
+  # set cmake platform identifier
+  set(ZEPHYR ON CACHE BOOL "True when the target system is Zephyr")
+
   # parse args
   _zephyr_init_parse_args(${ARGN})
 
