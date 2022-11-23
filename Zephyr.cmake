@@ -23,10 +23,6 @@ macro(_zephyr_init_condition)
   endif()
 endmacro()
 
-function(_zephyr_init_flag VAL)
-  set(CMAKEPKG_ZEPHYR ${VAL} CACHE INTERNAL "" FORCE)
-endfunction()
-
 function(_zephyr_init_config)
   foreach (CONFIG IN LISTS ARGN)
     # split config on equal sign
@@ -74,14 +70,8 @@ endmacro()
 #   Each entry should not contain any spaces and should separate the key from value with an equal sign.
 #
 function(zephyr_init BOARD)
-  # set cmake platform identifier
-  set(ZEPHYR ON CACHE BOOL "True when the target system is Zephyr")
-
   # parse args
   _zephyr_init_parse_args(${ARGN})
-
-  # reset Zephyr build
-  _zephyr_init_flag(OFF)
 
   # check if condition is specified and true
   if (ARG_CONDITION)
@@ -109,7 +99,7 @@ function(zephyr_init BOARD)
   endif()
 
   # enable Zephyr build
-  _zephyr_init_flag(ON)
+  set(ZEPHYR ON CACHE BOOL "True when the target system is Zephyr")
 
   # set options for Zephyr
   set(NO_BUILD_TYPE_WARNING     ON)
@@ -162,7 +152,7 @@ endfunction()
 #
 function(zephyr_app PACKAGE_NAME)
   # check if Zephyr build is enabled
-  if (CMAKEPKG_ZEPHYR)
+  if (ZEPHYR)
     # set package name
     set(PACKAGE_NAME app)
 
