@@ -513,7 +513,7 @@ macro(_add_package)
   _add_package_set_root()
 
   if (NOT "${PACKAGE_TYPE}" STREQUAL "INTERFACE")
-    if (NOT CMAKEPKG_ZEPHYR)
+    if (NOT ZEPHYR)
       target_compile_definitions(${PACKAGE_NAME}
         PRIVATE
           $<$<BOOL:"${CMAKEPKG_DEFINE}">:${CMAKEPKG_DEFINE}>
