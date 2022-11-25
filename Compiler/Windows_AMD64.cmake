@@ -83,7 +83,6 @@ set(FLAGS_RELEASE
 # C flags
 set(FLAGS_C
   /TC
-  /std:c17
 )
 #set(FLAGS_C_DEBUG
 #)
@@ -93,7 +92,6 @@ set(FLAGS_C
 # C++ flags
 set(FLAGS_CXX
   /TP
-  /std:c++17
 )
 #set(FLAGS_CXX_DEBUG
 #)
