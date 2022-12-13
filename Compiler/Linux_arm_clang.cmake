@@ -29,7 +29,7 @@ set(FLAGS_DEBUG
 set(FLAGS_RELEASE
   -ggdb3
   -O3
-  -flto
+  -flto=auto
   -ffunction-sections
   -fdata-sections
   -fmerge-all-constants

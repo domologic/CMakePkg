@@ -27,7 +27,7 @@ set(FLAGS_DEBUG
 )
 set(FLAGS_RELEASE
   -O3
-  -flto
+  -flto=auto
   -fno-fat-lto-objects
   -fmerge-all-constants
   -faggressive-loop-optimizations
