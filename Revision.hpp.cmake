@@ -1,7 +1,12 @@
 #pragma once
 
 namespace @PACKAGE_NAME@ {
-    constexpr auto kVersion   = "@PACKAGE_VERSION@";
+    constexpr auto kVersion      = "@PACKAGE_VERSION@";
+    constexpr auto kVersionMajor = @PACKAGE_VERSION_MAJOR@;
+    constexpr auto kVersionMinor = @PACKAGE_VERSION_MINOR@;
+    constexpr auto kVersionPatch = @PACKAGE_VERSION_PATCH@;
+    constexpr auto kVersionTweak = @PACKAGE_VERSION_TWEAK@;
+
     constexpr auto kTimestamp = "@PACKAGE_TIMESTAMP@";
     constexpr auto kDate      = "@PACKAGE_DATE@";
     constexpr auto kYear      = @PACKAGE_YEAR@;

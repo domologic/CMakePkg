@@ -142,12 +142,17 @@ endfunction()
 function(_add_package_generate_revision PACKAGE_NAME_ORIG)
   # Create C++ compatible name of this package, used by the template Revision.hpp.cmake
   string(REGEX REPLACE "-" "_" PACKAGE_NAME "${PACKAGE_NAME_ORIG}")
+  string(TOUPPER ${PACKAGE_NAME} PACKAGE_NAME_UPPER)
 
-  set(PACKAGE_VERSION   "unknown")
-  set(PACKAGE_REVISION  "unknown")
-  set(PACKAGE_TIMESTAMP "1970-01-01 00:00:00 +0000")
-  set(PACKAGE_DATE      "19700101")
-  set(PACKAGE_YEAR      "1970")
+  set(PACKAGE_VERSION       "unknown")
+  set(PACKAGE_VERSION_MAJOR 0)
+  set(PACKAGE_VERSION_MINOR 0)
+  set(PACKAGE_VERSION_PATCH 0)
+  set(PACKAGE_VERSION_TWEAK 0)
+  set(PACKAGE_REVISION      "unknown")
+  set(PACKAGE_TIMESTAMP     "1970-01-01 00:00:00 +0000")
+  set(PACKAGE_DATE          "19700101")
+  set(PACKAGE_YEAR          "1970")
 
   # PACKAGE_VERSION is the version tag
   execute_process(
@@ -202,7 +207,23 @@ function(_add_package_generate_revision PACKAGE_NAME_ORIG)
 
   # fix package version if not version is available from git history
   if ("${PACKAGE_VERSION}" STREQUAL "unknown" OR "${PACKAGE_VERSION}" STREQUAL "")
-    set(PACKAGE_VERSION ${PACKAGE_REVISION})
+    if (${PACKAGE_NAME}_VERSION)
+      set(PACKAGE_VERSION ${${PACKAGE_NAME}_VERSION})
+      if (${PACKAGE_NAME}_VERSION_MAJOR)
+        set(PACKAGE_VERSION_MAJOR ${${PACKAGE_NAME}_VERSION_MAJOR})
+      endif()
+      if (${PACKAGE_NAME}_VERSION_MINOR)
+        set(PACKAGE_VERSION_MINOR ${${PACKAGE_NAME}_VERSION_MINOR})
+      endif()
+      if (${PACKAGE_NAME}_VERSION_PATCH)
+        set(PACKAGE_VERSION_PATCH ${${PACKAGE_NAME}_VERSION_PATCH})
+      endif()
+      if (${PACKAGE_NAME}_VERSION_MAJOR)
+        set(PACKAGE_VERSION_TWEAK ${${PACKAGE_NAME}_VERSION_TWEAK})
+      endif()
+    else()
+      set(PACKAGE_VERSION ${PACKAGE_REVISION})
+    endif()
   endif()
 
   # generate version info file
@@ -214,6 +235,13 @@ function(_add_package_generate_revision PACKAGE_NAME_ORIG)
   configure_file(
     ${CMAKEPKG_SOURCE_DIR}/Revision.hpp.cmake
     ${CMAKE_BINARY_DIR}/Revision/${PACKAGE_NAME_ORIG}/Revision.hpp
+    @ONLY
+  )
+
+  # generate revision file
+  configure_file(
+    ${CMAKEPKG_SOURCE_DIR}/revision.h.cmake
+    ${CMAKE_BINARY_DIR}/Revision/${PACKAGE_NAME_ORIG}/revision.h
     @ONLY
   )
 
