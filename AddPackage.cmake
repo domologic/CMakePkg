@@ -41,6 +41,7 @@ function(_add_package_set_root)
   # set root package in cache if not already set and load commit id file
   if (NOT DEFINED CACHE{CMAKEPKG_ROOT_PACKAGE})
     set(CMAKEPKG_ROOT_PACKAGE ${PACKAGE_NAME} CACHE INTERNAL "Name of the CMakePkg root package.")
+    set(CMAKEPKG_ROOT_PACKAGE_SOURCE_PATH ${CMAKE_CURRENT_SOURCE_DIR} CACHE INTERNAL "Path to the source directory of the CMakePkg root package.")
     _add_package_load_commitid_file()
   endif()
 endfunction()
