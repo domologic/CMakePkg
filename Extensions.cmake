@@ -197,7 +197,7 @@ function(cmakepkg_generate)
 
   execute_process(
     COMMAND
-      python -B ${CMAKE_CURRENT_SOURCE_DIR}/scripts/${ARG_GENERATOR}.py --namespace=${ARG_NAMESPACE} --path=${ARG_PATH} --output=${ARG_OUTPUT} --dump-deps
+      python -B ${CMAKE_CURRENT_SOURCE_DIR}/scripts/${ARG_GENERATOR}.py --namespace=${ARG_NAMESPACE} --path=${ARG_PATH} --output=${ARG_OUTPUT} --cmake
     WORKING_DIRECTORY
       ${CMAKE_CURRENT_BINARY_DIR}
     RESULT_VARIABLE
@@ -212,11 +212,17 @@ function(cmakepkg_generate)
     message(FATAL_ERROR "${ARG_ERROR_PREFIX}: ${GENERATOR_OUTPUT}")
   endif()
 
+  list(GET 0 ${GENERATOR_OUTPUT} GENERATOR_DEPENDS)
+  list(GET 1 ${GENERATOR_OUTPUT} GENERATOR_OUTPUT)
+
+  string(REPLACE "||" ";" ${GENERATOR_DEPENDS} GENERATOR_DEPENDS)
+  string(REPLACE "||" ";" ${GENERATOR_OUTPUT}  GENERATOR_OUTPUT)
+
   add_custom_command(
     COMMAND
       python -B ${CMAKE_CURRENT_SOURCE_DIR}/scripts/${ARG_GENERATOR}.py --namespace=${ARG_NAMESPACE} --path=${ARG_PATH} --output=${ARG_OUTPUT}
     DEPENDS
-      ${LVGL_STYLE_SOURCES}
+      ${GENERATOR_DEPENDS}
     OUTPUT
       ${GENERATOR_OUTPUT}
     WORKING_DIRECTORY
