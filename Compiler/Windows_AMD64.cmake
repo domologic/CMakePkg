@@ -57,6 +57,7 @@ set(FLAGS
   /d2FH4
   /diagnostics:caret
   /permissive-
+  /utf-8
   /volatile:iso
 )
 set(FLAGS_DEBUG
