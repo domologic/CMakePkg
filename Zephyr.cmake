@@ -40,6 +40,7 @@ function(_zephyr_init_config)
     endif()
 
     # set config to cmake cache
+    set(${CONFIG_KEY} ${CONFIG_VAL} CACHE INTERNAL "" FORCE)
     set(CONFIG_${CONFIG_KEY} ${CONFIG_VAL} CACHE INTERNAL "" FORCE)
   endforeach()
 endfunction()
