@@ -177,3 +177,39 @@ function(zephyr_app PACKAGE_NAME)
     add_package_executable(${PACKAGE_NAME} ${ARGN})
   endif()
 endfunction()
+
+#
+# Defines a post build python task.
+#
+# zephyr_post_build(<script>
+#   [ARGS]
+#   [COMMENT]
+# )
+#
+# <script>
+#   Name of the script file.
+#
+# ARGS
+#   Arguments that should be passed to the script.
+# COMMENT
+#  Optional comment that describes the post build task.
+#
+function(zephyr_post_build SCRIPT)
+  cmake_parse_arguments(ARG
+    ""
+    "COMMENT"
+    "ARGS"
+    ${ARGN}
+  )
+
+  if (ZEPHYR)
+    add_custom_target(zephyr_post_build_${SCRIPT} ALL
+      DEPENDS
+        zephyr_final
+      COMMAND
+        python ${CMAKE_CURRENT_SOURCE_DIR}/scripts/${SCRIPT}.py ${ARG_ARGS}
+      COMMENT
+        ${ARG_COMMENT}
+    )
+  endif()
+endfunction()
