@@ -230,6 +230,7 @@ function(_add_package_generate_revision PACKAGE_NAME_ORIG)
 
   # generate version info file
   if (${CMAKEPKG_ROOT_PACKAGE} STREQUAL ${PACKAGE_NAME_ORIG})
+    set(CMAKEPKG_ROOT_PACKAGE_VERSION ${PACKAGE_VERSION} CACHE INTERNAL "" FORCE)
     file(WRITE ${CMAKE_BINARY_DIR}/Version ${PACKAGE_VERSION})
   endif()
 
