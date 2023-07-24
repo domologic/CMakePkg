@@ -4,7 +4,7 @@ macro(_zephyr_init_parse_args)
   cmake_parse_arguments(ARG
     ""
     "CONDITION"
-    "CONFIG;BOARD_ROOT;DEVICETREE_ROOT;DEVICETREE_OVERLAY"
+    "CONFIG;BOARD_ROOT;DEVICETREE_ROOT;DEVICETREE_OVERLAY;COMPILE_DEFINITIONS"
     ${ARGN}
   )
 endmacro()
@@ -108,6 +108,11 @@ function(zephyr_init BOARD)
 
   # load Zephyr
   find_package(Zephyr REQUIRED)
+
+  # add compile definitions
+  if (ARG_COMPILE_DEFINITIONS)
+    zephyr_compile_definitions(${ARG_COMPILE_DEFINITIONS})
+  endif()
 endfunction()
 
 #
