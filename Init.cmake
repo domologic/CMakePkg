@@ -6,7 +6,8 @@ include_guard(GLOBAL)
 
 message(STATUS "Loading CMakePkg...")
 
-option(CMAKEPKG_PIC      "Use position independent code" ON)
+option(CMAKEPKG_PIC      "Use position independent code"  ON)
+option(CMAKEPKG_LTO      "Enable link time optimization"  OFF)
 
 if (NOT DEFINED CMAKEPKG_C_STD)
   set(CMAKEPKG_C_STD   11)
@@ -24,9 +25,10 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH OFF)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS     ON)
 
-set(CMAKE_C_STANDARD                  ${CMAKEPKG_C_STD})
-set(CMAKE_CXX_STANDARD                ${CMAKEPKG_CXX_STD})
-set(CMAKE_POSITION_INDEPENDENT_CODE   ${CMAKEPKG_PIC})
+set(CMAKE_C_STANDARD                    ${CMAKEPKG_C_STD})
+set(CMAKE_CXX_STANDARD                  ${CMAKEPKG_CXX_STD})
+set(CMAKE_POSITION_INDEPENDENT_CODE     ${CMAKEPKG_PIC})
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION  ${CMAKEPKG_LTO})
 
 set_property(GLOBAL
   PROPERTY
