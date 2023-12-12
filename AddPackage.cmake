@@ -191,20 +191,12 @@ function(_add_package_generate_revision PACKAGE_NAME_ORIG)
     ERROR_QUIET
   )
 
-  # PACKAGE_DATE is the date of the last commit
-  execute_process(
-    COMMAND
-      ${GIT_EXECUTABLE} show -s --format=%cd --date=short
-    WORKING_DIRECTORY
-      ${PROJECT_SOURCE_DIR}
-    OUTPUT_VARIABLE
-      PACKAGE_DATE
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-    ERROR_QUIET
-  )
+  # PACKAGE_DATE & PACKAGE_TIME is the date and time of the last commit
+  string(REPLACE " " ";" _PACKAGE_TIMESTAMP_LIST ${TIMESTAMP})
+  list(GET _PACKAGE_TIMESTAMP_LIST 0 PACKAGE_DATE)
+  list(GET _PACKAGE_TIMESTAMP_LIST 1 PACKAGE_TIME)
 
   # PACKAGE_YEAR is the year of the last commit
-  string(REGEX REPLACE "-" "" PACKAGE_DATE "${PACKAGE_DATE}")
   string(SUBSTRING "${PACKAGE_DATE}" 0 4 PACKAGE_YEAR)
 
   # fix package version if not version is available from git history
