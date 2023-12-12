@@ -37,6 +37,7 @@ namespace @PACKAGE_NAME@ {
 
     constexpr auto kTimestamp = "@PACKAGE_TIMESTAMP@";
     constexpr auto kDate      = "@PACKAGE_DATE@";
+    constexpr auto kTime      = "@PACKAGE_TIME@";
     constexpr auto kYear      = @PACKAGE_YEAR@;
 
     /**
