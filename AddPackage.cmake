@@ -153,7 +153,8 @@ function(_add_package_generate_revision PACKAGE_NAME_ORIG)
   set(PACKAGE_VERSION_TWEAK 0)
   set(PACKAGE_REVISION      "unknown")
   set(PACKAGE_TIMESTAMP     "1970-01-01 00:00:00 +0000")
-  set(PACKAGE_DATE          "19700101")
+  set(PACKAGE_DATE          "1970-01-01")
+  set(PACKAGE_TIME          "00:00:00")
   set(PACKAGE_YEAR          "1970")
 
   # PACKAGE_VERSION is the version tag
@@ -192,7 +193,7 @@ function(_add_package_generate_revision PACKAGE_NAME_ORIG)
   )
 
   # PACKAGE_DATE & PACKAGE_TIME is the date and time of the last commit
-  string(REPLACE " " ";" _PACKAGE_TIMESTAMP_LIST ${TIMESTAMP})
+  string(REPLACE " " ";" _PACKAGE_TIMESTAMP_LIST ${PACKAGE_TIMESTAMP})
   list(GET _PACKAGE_TIMESTAMP_LIST 0 PACKAGE_DATE)
   list(GET _PACKAGE_TIMESTAMP_LIST 1 PACKAGE_TIME)
 
