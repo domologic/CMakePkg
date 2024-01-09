@@ -43,7 +43,13 @@ function(_add_package_set_root)
     set(CMAKEPKG_ROOT_PACKAGE ${PACKAGE_NAME} CACHE INTERNAL "Name of the CMakePkg root package.")
     set(CMAKEPKG_ROOT_PACKAGE_SOURCE_PATH ${CMAKE_CURRENT_SOURCE_DIR} CACHE INTERNAL "Path to the source directory of the CMakePkg root package.")
     set(CMAKEPKG_ROOT_PACKAGE_BINARY_PATH ${CMAKE_CURRENT_BINARY_DIR} CACHE INTERNAL "Path to the binary directory of the CMakePkg root package.")
+
     _add_package_load_commitid_file()
+  endif()
+
+  if (${CMAKEPKG_ROOT_PACKAGE} STREQUAL ${PACKAGE_NAME})
+    string(REPLACE "." "_" PROJECT_NAME_FULL "${PROJECT_VERSION}")
+    set(PROJECT_NAME_FULL ${PROJECT_NAME}_${PROJECT_NAME_FULL} CACHE INTERNAL "Project name with version" FORCE)
   endif()
 endfunction()
 
@@ -255,8 +261,6 @@ function(_add_package_generate_revision PACKAGE_NAME_ORIG)
     ${CMAKE_BINARY_DIR}/Revision/${PACKAGE_NAME_ORIG}/revision.h
     @ONLY
   )
-
-  set(PROJECT_NAME_FULL  ${PROJECT_NAME}_${PROJECT_VERSION_MAJOR}_${PROJECT_VERSION_MINOR}_${PROJECT_VERSION_PATCH}_${PROJECT_VERSION_TWEAK} CACHE INTERNAL "Project name with version")
 
   message(STATUS "Loaded package ${PACKAGE_NAME_ORIG} ${PACKAGE_VERSION} ${PACKAGE_TIMESTAMP}")
 endfunction()
