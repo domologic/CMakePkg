@@ -53,6 +53,8 @@ include_guard(GLOBAL)
 #
 # Every output format can be further customized:
 #
+# [PROJECT_AS_OUTPUT_NAME]
+#  The project name should be used as the output filename.
 # [PREFIX]
 #   Specifies optional custom prefix of the output file.
 # [SUFFIX]
@@ -126,7 +128,7 @@ function(target_objcopy TARGET)
       string(REPLACE "_" "-" "${OUTPUT_FORMAT}" OUTPUT_FORMAT)
 
       cmake_parse_arguments(PARAM
-        ""
+        "PROJECT_AS_OUTPUT_NAME"
         "PREFIX;SUFFIX;OUTPUT_NAME;OUTPUT_DIRECTORY"
         "ARGS"
         ${OUTPUT_FORMAT_${KNOWN_OUTPUT_FORMAT}}
@@ -134,6 +136,10 @@ function(target_objcopy TARGET)
 
       if (NOT DEFINED PARAM_SUFFIX)
         set(PARAM_SUFFIX ".${OUTPUT_FORMAT}")
+      endif()
+
+      if (DEFINED PARAM_PROJECT_AS_OUTPUT_NAME)
+        set(PARAM_OUTPUT_NAME ${PROJECT_NAME_FULL})
       endif()
 
       add_custom_command(TARGET ${TARGET} POST_BUILD
