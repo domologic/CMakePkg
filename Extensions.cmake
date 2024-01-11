@@ -138,7 +138,7 @@ function(target_objcopy TARGET)
         set(PARAM_SUFFIX ".${OUTPUT_FORMAT}")
       endif()
 
-      if (DEFINED PARAM_PROJECT_AS_OUTPUT_NAME)
+      if (PARAM_PROJECT_AS_OUTPUT_NAME)
         set(PARAM_OUTPUT_NAME ${PROJECT_NAME_FULL})
       endif()
 
