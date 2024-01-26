@@ -555,8 +555,13 @@ macro(_add_package_load_compiler_config)
 endmacro()
 
 macro(_add_package)
+  # set root project
   _add_package_set_root()
 
+  # generate revision file
+  _add_package_generate_revision(${PACKAGE_NAME})
+
+  # load compile and link options
   if (NOT "${PACKAGE_TYPE}" STREQUAL "INTERFACE")
     if (NOT ZEPHYR)
       target_compile_definitions(${PACKAGE_NAME}
@@ -676,9 +681,6 @@ macro(_add_package)
       ${ARG_DOT}
     )
   endif()
-
-  # generate revision file
-  _add_package_generate_revision(${PACKAGE_NAME})
 
   # generate commit id files
   _add_package_generate_commitid_file()
