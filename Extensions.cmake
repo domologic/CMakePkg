@@ -184,15 +184,11 @@ function(target_dot TARGET)
   )
 endfunction()
 
-function(cmakepkg_generate)
+function(cmakepkg_generate GENERATOR)
   set(_ONE_VALUE_ARGS
-    GENERATOR
     NAMESPACE
     PATH
     OUTPUT
-    SOURCES
-    ERROR_PREFIX
-    DESCRIPTION
   )
   cmake_parse_arguments(ARG
     ""
@@ -200,44 +196,12 @@ function(cmakepkg_generate)
     ""
     ${ARGN}
   )
-
   execute_process(
     COMMAND
-      python -B ${CMAKE_CURRENT_SOURCE_DIR}/scripts/${ARG_GENERATOR}.py --namespace=${ARG_NAMESPACE} --path=${ARG_PATH} --output=${ARG_OUTPUT} --cmake
+      python -B -O ${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate_${GENERATOR}.py --namespace=${ARG_NAMESPACE} --path=${ARG_PATH} --output=${ARG_OUTPUT}
     WORKING_DIRECTORY
       ${CMAKE_CURRENT_BINARY_DIR}
-    RESULT_VARIABLE
-      GENERATOR_RESULT
-    OUTPUT_VARIABLE
-      GENERATOR_OUTPUT
     ENCODING
       UTF8
   )
-
-  if (NOT ${GENERATOR_RESULT} STREQUAL 0)
-    message(FATAL_ERROR "${ARG_ERROR_PREFIX}: ${GENERATOR_OUTPUT}")
-  endif()
-
-  list(GET 0 ${GENERATOR_OUTPUT} GENERATOR_DEPENDS)
-  list(GET 1 ${GENERATOR_OUTPUT} GENERATOR_OUTPUT)
-
-  string(REPLACE "||" ";" ${GENERATOR_DEPENDS} GENERATOR_DEPENDS)
-  string(REPLACE "||" ";" ${GENERATOR_OUTPUT}  GENERATOR_OUTPUT)
-
-  add_custom_command(
-    COMMAND
-      python -B ${CMAKE_CURRENT_SOURCE_DIR}/scripts/${ARG_GENERATOR}.py --namespace=${ARG_NAMESPACE} --path=${ARG_PATH} --output=${ARG_OUTPUT}
-    DEPENDS
-      ${GENERATOR_DEPENDS}
-    OUTPUT
-      ${GENERATOR_OUTPUT}
-    WORKING_DIRECTORY
-      ${CMAKE_CURRENT_BINARY_DIR}
-    COMMENT
-      ${ARG_DESCRIPTION}
-  )
-
-  if (ARG_SOURCES)
-    set(${ARG_SOURCES} ${GENERATOR_OUTPUT} PARENT_SCOPE)
-  endif()
 endfunction()
