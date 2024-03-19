@@ -196,9 +196,15 @@ function(cmakepkg_generate GENERATOR)
     ""
     ${ARGN}
   )
+
+  if (NOT DEFINED CMAKEPKG_PYTHON)
+    find_package(Python 3.12 REQUIRED)
+    set(CMAKEPKG_PYTHON "${CMAKEPKG_PYTHON}" CACHE INTERNAL "CmakePkg found python executable" FORCE)
+  endif()
+
   execute_process(
     COMMAND
-      python -B -O ${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate_${GENERATOR}.py --namespace=${ARG_NAMESPACE} --path=${ARG_PATH} --output=${ARG_OUTPUT}
+      ${CMAKEPKG_PYTHON} -B -O ${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate_${GENERATOR}.py --namespace=${ARG_NAMESPACE} --path=${ARG_PATH} --output=${ARG_OUTPUT}
     WORKING_DIRECTORY
       ${CMAKE_CURRENT_BINARY_DIR}
     ENCODING
