@@ -199,7 +199,7 @@ function(cmakepkg_generate GENERATOR)
 
   if (NOT DEFINED CMAKEPKG_PYTHON)
     find_package(Python 3.12 REQUIRED)
-    set(CMAKEPKG_PYTHON "${CMAKEPKG_PYTHON}" CACHE INTERNAL "CmakePkg found python executable" FORCE)
+    set(CMAKEPKG_PYTHON "${Python_EXECUTABLE}" CACHE INTERNAL "CmakePkg found python executable" FORCE)
   endif()
 
   execute_process(
