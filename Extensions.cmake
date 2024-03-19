@@ -184,6 +184,33 @@ function(target_dot TARGET)
   )
 endfunction()
 
+function(python_execute)
+  set(_ONE_VALUE_ARGS
+    SCRIPT
+    WORKING_DIRECTORY
+  )
+  cmake_parse_arguments(ARG
+    ""
+    "${_ONE_VALUE_ARGS}"
+    "ARGS"
+    ${ARGN}
+  )
+
+  if (NOT DEFINED CMAKEPKG_PYTHON)
+    find_package(Python 3.12 REQUIRED)
+    set(CMAKEPKG_PYTHON "${Python_EXECUTABLE}" CACHE INTERNAL "CmakePkg found python executable" FORCE)
+  endif()
+
+  execute_process(
+    COMMAND
+      ${CMAKEPKG_PYTHON} ${ARG_SCRIPT} ${ARG_ARGS}
+    WORKING_DIRECTORY
+      ${ARG_WORKING_DIRECTORY}
+    ENCODING
+      UTF8
+  )
+endfunction()
+
 function(cmakepkg_generate GENERATOR)
   set(_ONE_VALUE_ARGS
     NAMESPACE
@@ -197,17 +224,14 @@ function(cmakepkg_generate GENERATOR)
     ${ARGN}
   )
 
-  if (NOT DEFINED CMAKEPKG_PYTHON)
-    find_package(Python 3.12 REQUIRED)
-    set(CMAKEPKG_PYTHON "${Python_EXECUTABLE}" CACHE INTERNAL "CmakePkg found python executable" FORCE)
-  endif()
-
-  execute_process(
-    COMMAND
-      ${CMAKEPKG_PYTHON} -B -O ${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate_${GENERATOR}.py --namespace=${ARG_NAMESPACE} --path=${ARG_PATH} --output=${ARG_OUTPUT}
+  python_execute(
+    SCRIPT
+      ${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate_${GENERATOR}.py
     WORKING_DIRECTORY
       ${CMAKE_CURRENT_BINARY_DIR}
-    ENCODING
-      UTF8
+    ARGS
+      --namespace=${ARG_NAMESPACE}
+      --path=${ARG_PATH}
+      --output=${ARG_OUTPUT}
   )
 endfunction()
