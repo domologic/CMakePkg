@@ -145,6 +145,13 @@ function(_add_package_generate_commitid_file)
 
   # write the end marker
   file(APPEND ${CMAKEPKG_COMMITID_OUT_FILE} "${COMMITID_FILE_MARKER_END}")
+
+  file(
+    COPY
+      ${CMAKEPKG_COMMITID_OUT_FILE}
+    DESTINATION
+      ${CMAKE_INSTALL_PREFIX}
+  )
 endfunction()
 
 function(_add_package_generate_revision PACKAGE_NAME_ORIG)
