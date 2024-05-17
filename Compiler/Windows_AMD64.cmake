@@ -80,7 +80,6 @@ set(FLAGS_RELEASE
   /O2
   /Ob3
   /Qpar
-  /Zi
 )
 
 # C flags
@@ -102,14 +101,15 @@ set(FLAGS_CXX
 #)
 
 # Linker flags
-set(LINK
-  /DEBUG:FULL
-)
+#set(LINK
+#)
 set(LINK_DEBUG
+  /DEBUG:FULL
   /OPT:NOICF
   /OPT:NOREF
 )
 set(LINK_RELEASE
+  /DEBUG:NONE
   /LTCG
   /OPT:ICF
   /OPT:REF
@@ -128,6 +128,6 @@ set(CMAKEPKG_FLAGS_C           ${FLAGS_C}           CACHE INTERNAL "CMakePkg c f
 set(CMAKEPKG_FLAGS_CXX         ${FLAGS_CXX}         CACHE INTERNAL "CMakePkg c++ flags")
 #set(CMAKEPKG_FLAGS_CXX_DEBUG   ${FLAGS_CXX_DEBUG}   CACHE INTERNAL "CMakePkg c++ debug flags")
 #set(CMAKEPKG_FLAGS_CXX_RELEASE ${FLAGS_CXX_RELEASE} CACHE INTERNAL "CMakePkg c++ release flags")
-set(CMAKEPKG_LINK              ${LINK}              CACHE INTERNAL "CMakePkg linker flags")
+#set(CMAKEPKG_LINK              ${LINK}              CACHE INTERNAL "CMakePkg linker flags")
 set(CMAKEPKG_LINK_DEBUG        ${LINK_DEBUG}        CACHE INTERNAL "CMakePkg linker debug flags")
 set(CMAKEPKG_LINK_RELEASE      ${LINK_RELEASE}      CACHE INTERNAL "CMakePkg linker release flags")
