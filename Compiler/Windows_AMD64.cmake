@@ -66,7 +66,7 @@ set(FLAGS
   /volatile:iso
 )
 set(FLAGS_DEBUG
-  /MDd
+  /MTd
   /Ob0
   /Od
   /RTC1
@@ -75,7 +75,7 @@ set(FLAGS_DEBUG
 set(FLAGS_RELEASE
   /GL
   /Gw
-  /MD
+  /MT
   /MP
   /O2
   /Ob3
