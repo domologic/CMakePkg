@@ -46,7 +46,6 @@ set(FLAGS
   /QIntel-jcc-erratum
   /Qfast_transcendentals
   /W3
-  /Zc:__STDC__
   /Zc:__cplusplus
   /Zc:checkGwOdr
   /Zc:enumTypes
