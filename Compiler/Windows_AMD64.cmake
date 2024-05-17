@@ -40,23 +40,29 @@ set(DEFINE_RELEASE
 set(FLAGS
   /EHsc
   /GA
-  /GF
   /GR
-  /GT
   /Oi
   /Ot
   /QIntel-jcc-erratum
+  /Qfast_transcendentals
   /W3
+  /Zc:__STDC__
   /Zc:__cplusplus
+  /Zc:checkGwOdr
+  /Zc:enumTypes
   /Zc:inline
+  /Zc:preprocessor
   /Zc:referenceBinding
-  /Zc:rvalueCast
+  /Zc:templateScope
   /Zc:throwingNew
+  /Zc:trigraphs
   /arch:AVX2
   /bigobj
   /d2FH4
   /diagnostics:caret
+  /jumptablerdata
   /permissive-
+  /sdl-
   /utf-8
   /volatile:iso
 )
@@ -66,19 +72,16 @@ set(FLAGS_DEBUG
   /Od
   /RTC1
   /ZI
-  /sdl-
 )
 set(FLAGS_RELEASE
   /GL
-  /Gy
+  /Gw
   /MD
   /MP
   /O2
   /Ob3
-  /Qfast_transcendentals
   /Qpar
   /Zi
-  /sdl-
 )
 
 # C flags
