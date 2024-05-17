@@ -18,6 +18,7 @@ endif()
 
 set(CMAKE_MODULE_PATH                 ${CMAKEPKG_SOURCE_DIR}/Module)
 set(CMAKE_CONFIGURATION_TYPES         "Debug;Release" CACHE STRING "" FORCE)
+set(CMAKE_MSVC_RUNTIME_LIBRARY        "")
 
 set(CMAKE_SKIP_BUILD_RPATH            ON)
 set(CMAKE_BUILD_WITH_INSTALL_RPATH    OFF)
