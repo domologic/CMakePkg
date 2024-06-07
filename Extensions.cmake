@@ -208,6 +208,8 @@ function(python_execute)
       ${ARG_WORKING_DIRECTORY}
     ENCODING
       UTF8
+    COMMAND_ERROR_IS_FATAL
+      ANY
   )
 endfunction()
 
