@@ -80,6 +80,10 @@
  */
 #define @PACKAGE_NAME_UPPER@_TIMESTAMP            "@PACKAGE_TIMESTAMP@"
 /**
+ * Build timestamp of the @PACKAGE_NAME@ package.
+ */
+#define @PACKAGE_NAME_UPPER@_TIMESTAMP_BUILD      "@PACKAGE_TIMESTAMP_BUILD@"
+/**
  * Date of the @PACKAGE_NAME@ package.
  */
 #define @PACKAGE_NAME_UPPER@_DATE                 "@PACKAGE_DATE@"
