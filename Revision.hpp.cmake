@@ -81,6 +81,10 @@ namespace @PACKAGE_NAME@ {
      */
     constexpr auto kTimestamp       = "@PACKAGE_TIMESTAMP@";
     /**
+     * Build timestamp of the @PACKAGE_NAME@ package.
+     */
+    constexpr auto kTimestampBuild  = @PACKAGE_TIMESTAMP_BUILD@;
+    /**
      * Date of the @PACKAGE_NAME@ package.
      */
     constexpr auto kDate            = "@PACKAGE_DATE@";

@@ -204,6 +204,9 @@ function(_add_package_generate_revision PACKAGE_NAME_ORIG)
   # PACKAGE_YEAR is the year of the last commit
   string(SUBSTRING "${PACKAGE_DATE}" 0 4 PACKAGE_YEAR)
 
+  # PACAKGE_TIMESTAMP_BUILD is the raw timestamp of the build
+  string(TIMESTAMP PACKAGE_TIMESTAMP_BUILD "%s" UTC)
+
   # fix package version if not version is available from git history
   if ("${PACKAGE_VERSION}" STREQUAL "unknown" OR "${PACKAGE_VERSION}" STREQUAL "" OR NOT "${PACKAGE_VERSION_RESULT}" STREQUAL "0")
     set(PACKAGE_VERSION ${${PACKAGE_NAME}_VERSION})
