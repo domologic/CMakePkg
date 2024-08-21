@@ -173,22 +173,13 @@ function(_add_package_generate_revision PACKAGE_NAME_ORIG)
   # PACKAGE_VERSION is the version tag
   execute_process(
     COMMAND
-      ${GIT_EXECUTABLE} tag --points-at HEAD
+      ${GIT_EXECUTABLE} describe --tags --dirty --first-parent --match "v*"
     WORKING_DIRECTORY
-      ${CMAKE_SOURCE_DIR}
+      ${CMAKE_CURRENT_SOURCE_DIR}
     OUTPUT_VARIABLE
       PACKAGE_VERSION
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-  )
-
-  # PACKAGE_REVISION is the short hash of the latest commit
-  execute_process(
-    COMMAND
-      ${GIT_EXECUTABLE} rev-parse --short HEAD
-    WORKING_DIRECTORY
-      ${PROJECT_SOURCE_DIR}
-    OUTPUT_VARIABLE
-      PACKAGE_REVISION
+    RESULT_VARIABLE
+      PACKAGE_VERSION_RESULT
     OUTPUT_STRIP_TRAILING_WHITESPACE
     ERROR_QUIET
   )
@@ -214,26 +205,23 @@ function(_add_package_generate_revision PACKAGE_NAME_ORIG)
   string(SUBSTRING "${PACKAGE_DATE}" 0 4 PACKAGE_YEAR)
 
   # fix package version if not version is available from git history
-  if ("${PACKAGE_VERSION}" STREQUAL "unknown" OR "${PACKAGE_VERSION}" STREQUAL "")
-    if (${PACKAGE_NAME}_VERSION)
-      set(PACKAGE_VERSION ${${PACKAGE_NAME}_VERSION})
-      if (${PACKAGE_NAME}_VERSION_MAJOR)
-        set(PACKAGE_VERSION_MAJOR ${${PACKAGE_NAME}_VERSION_MAJOR})
-      endif()
-      if (${PACKAGE_NAME}_VERSION_MINOR)
-        set(PACKAGE_VERSION_MINOR ${${PACKAGE_NAME}_VERSION_MINOR})
-      endif()
-      if (${PACKAGE_NAME}_VERSION_PATCH)
-        set(PACKAGE_VERSION_PATCH ${${PACKAGE_NAME}_VERSION_PATCH})
-      endif()
-      if (${PACKAGE_NAME}_VERSION_MAJOR)
-        set(PACKAGE_VERSION_TWEAK ${${PACKAGE_NAME}_VERSION_TWEAK})
-      endif()
-    else()
-      set(PACKAGE_VERSION ${PACKAGE_REVISION})
+  if ("${PACKAGE_VERSION}" STREQUAL "unknown" OR "${PACKAGE_VERSION}" STREQUAL "" OR NOT "${PACKAGE_VERSION_RESULT}" STREQUAL "0")
+    set(PACKAGE_VERSION ${${PACKAGE_NAME}_VERSION})
+    if (${PACKAGE_NAME}_VERSION_MAJOR)
+      set(PACKAGE_VERSION_MAJOR ${${PACKAGE_NAME}_VERSION_MAJOR})
+    endif()
+    if (${PACKAGE_NAME}_VERSION_MINOR)
+      set(PACKAGE_VERSION_MINOR ${${PACKAGE_NAME}_VERSION_MINOR})
+    endif()
+    if (${PACKAGE_NAME}_VERSION_PATCH)
+      set(PACKAGE_VERSION_PATCH ${${PACKAGE_NAME}_VERSION_PATCH})
+    endif()
+    if (${PACKAGE_NAME}_VERSION_MAJOR)
+      set(PACKAGE_VERSION_TWEAK ${${PACKAGE_NAME}_VERSION_TWEAK})
     endif()
   else()
-    string(REPLACE "." ";" PACKAGE_VERSION_LIST ${PACKAGE_VERSION})
+    string(SUBSTRING ${PACKAGE_VERSION} 1 -1 PACKAGE_VERSION)
+    string(REGEX REPLACE "\\.|\-" ";" PACKAGE_VERSION_LIST ${PACKAGE_VERSION})
     list(LENGTH PACKAGE_VERSION_LIST PACKAGE_VERSION_LIST_LEN)
     if (PACKAGE_VERSION_LIST_LEN GREATER_EQUAL 1)
       list(GET PACKAGE_VERSION_LIST 0 PACKAGE_VERSION_MAJOR)
@@ -246,6 +234,9 @@ function(_add_package_generate_revision PACKAGE_NAME_ORIG)
     endif()
     if (PACKAGE_VERSION_LIST_LEN GREATER_EQUAL 4)
       list(GET PACKAGE_VERSION_LIST 3 PACKAGE_VERSION_TWEAK)
+    endif()
+    if (PACKAGE_VERSION_LIST_LEN GREATER_EQUAL 5)
+      list(GET PACKAGE_VERSION_LIST 4 PACKAGE_VERSION_COMMIT_ID)
     endif()
   endif()
 
@@ -270,6 +261,17 @@ function(_add_package_generate_revision PACKAGE_NAME_ORIG)
   )
 
   message(STATUS "Loaded package ${PACKAGE_NAME_ORIG} ${PACKAGE_VERSION} ${PACKAGE_TIMESTAMP}")
+
+  unset(PACKAGE_VERSION)
+  unset(PACKAGE_VERSION_MAJOR)
+  unset(PACKAGE_VERSION_MINOR)
+  unset(PACKAGE_VERSION_PATCH)
+  unset(PACKAGE_VERSION_TWEAK)
+  unset(PACKAGE_REVISION)
+  unset(PACKAGE_TIMESTAMP)
+  unset(PACKAGE_DATE)
+  unset(PACKAGE_TIME)
+  unset(PACKAGE_YEAR)
 endfunction()
 
 function(_add_package_load_dependency PACKAGE)
