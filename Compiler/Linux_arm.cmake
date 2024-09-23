@@ -17,8 +17,8 @@ set(DEFINE_RELEASE
 
 # Global flags
 set(FLAGS
-  -rdynamic
-  -shared-libgcc
+  -fno-gnu-tm
+  -fuse-ld=gold
 )
 set(FLAGS_DEBUG
   -ggdb3
@@ -29,6 +29,10 @@ set(FLAGS_RELEASE
   -O3
   -fmerge-all-constants
   -faggressive-loop-optimizations
+  -flto=auto
+  -fwhole-program
+  -fdata-sections
+  -ffunction-sections
 )
 
 # C flags
@@ -48,8 +52,12 @@ set(FLAGS_RELEASE
 #)
 
 # Linker flags
-#set(LINK
-#)
+set(LINK
+  LINKER:--gc-sections
+  LINKER:--compress-debug-sections=zlib
+  LINKER:--disable-linker-version
+  LINKER:-z noexecstack
+)
 #set(LINK_DEBUG
 #)
 #set(LINK_RELEASE
@@ -68,6 +76,6 @@ set(CMAKEPKG_FLAGS_RELEASE     ${FLAGS_RELEASE}     CACHE INTERNAL "CMakePkg com
 #set(CMAKEPKG_FLAGS_CXX         ${FLAGS_CXX}         CACHE INTERNAL "CMakePkg c++ flags")
 #set(CMAKEPKG_FLAGS_CXX_DEBUG   ${FLAGS_CXX_DEBUG}   CACHE INTERNAL "CMakePkg c++ debug flags")
 #set(CMAKEPKG_FLAGS_CXX_RELEASE ${FLAGS_CXX_RELEASE} CACHE INTERNAL "CMakePkg c++ release flags")
-#set(CMAKEPKG_LINK              ${LINK}              CACHE INTERNAL "CMakePkg linker flags")
+set(CMAKEPKG_LINK              ${LINK}              CACHE INTERNAL "CMakePkg linker flags")
 #set(CMAKEPKG_LINK_DEBUG        ${LINK_DEBUG}        CACHE INTERNAL "CMakePkg linker debug flags")
 #set(CMAKEPKG_LINK_RELEASE      ${LINK_RELEASE}      CACHE INTERNAL "CMakePkg linker release flags")
