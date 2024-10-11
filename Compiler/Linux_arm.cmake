@@ -22,10 +22,12 @@ set(FLAGS
 )
 set(FLAGS_DEBUG
   -ggdb3
+  -gz=zlib
   -O0
 )
 set(FLAGS_RELEASE
-  -ggdb3
+  -g1
+  -gz=zlib
   -O3
   -fmerge-all-constants
   -faggressive-loop-optimizations
