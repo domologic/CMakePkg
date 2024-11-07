@@ -154,6 +154,34 @@ function(_add_package_generate_commitid_file)
   )
 endfunction()
 
+function(_add_package_build_data_preserve)
+  if (NOT ${CMAKEPKG_ROOT_PACKAGE} STREQUAL ${PACKAGE_NAME})
+    return()
+  endif()
+
+  if (NOT CMAKEPKG_BUILD_DATA_PRESERVE)
+    return()
+  endif()
+
+  file(READ ${CMAKE_BINARY_DIR}/Version PACKAGE_VERSION)
+  string(TIMESTAMP PACKAGE_TIMESTAMP "%Y%m%d%H%M%S")
+
+  file(ARCHIVE_CREATE
+    OUTPUT
+      ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME}-${PACKAGE_VERSION}-${PACKAGE_TIMESTAMP}-src.tar.xz
+    PATHS
+      ${CMAKEPKG_BOOTSTRAP_FILE}
+      ${CMAKE_BINARY_DIR}/CMakePkg
+      ${CMAKE_BINARY_DIR}/deps
+    FORMAT
+      gnutar
+    COMPRESSION
+      XZ
+    COMPRESSION_LEVEL
+      9
+  )
+endfunction()
+
 function(_add_package_generate_revision PACKAGE_NAME_ORIG)
   # Create C++ compatible name of this package, used by the template Revision.hpp.cmake
   string(REGEX REPLACE "-" "_" PACKAGE_NAME "${PACKAGE_NAME_ORIG}")
@@ -698,6 +726,9 @@ macro(_add_package)
 
   # generate commit id files
   _add_package_generate_commitid_file()
+
+  # preserve build data
+  _add_package_build_data_preserve()
 endmacro()
 
 #
