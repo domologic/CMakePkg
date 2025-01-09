@@ -44,6 +44,19 @@ function(_add_package_set_root)
     set(CMAKEPKG_ROOT_PACKAGE_SOURCE_PATH ${CMAKE_CURRENT_SOURCE_DIR} CACHE INTERNAL "Path to the source directory of the CMakePkg root package.")
     set(CMAKEPKG_ROOT_PACKAGE_BINARY_PATH ${CMAKE_CURRENT_BINARY_DIR} CACHE INTERNAL "Path to the binary directory of the CMakePkg root package.")
 
+    # get root package branch
+    execute_process(
+      COMMAND
+        ${GIT_EXECUTABLE} rev-parse --abbrev-ref HEAD
+      WORKING_DIRECTORY
+        ${CMAKE_CURRENT_SOURCE_DIR}
+      OUTPUT_VARIABLE
+        CMAKEPKG_ROOT_PACKAGE_BRANCH
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+      ERROR_QUIET
+    )
+    set(CMAKEPKG_ROOT_PACKAGE_BRANCH ${CMAKEPKG_ROOT_PACKAGE_BRANCH} CACHE INTERNAL "Repository branch of the CMakePkg root package.")
+
     _add_package_load_commitid_file()
   endif()
 
@@ -337,7 +350,20 @@ function(_add_package_load_dependency PACKAGE)
     if (PACKAGE_DATA_LENGTH EQUAL 2)
       list(GET PACKAGE_DATA 1 PACKAGE_COMMITID)
     else()
-      set(PACKAGE_COMMITID master)
+      execute_process(
+        COMMAND
+          ${GIT_EXECUTABLE} ls-remote --exit-code --heads ${PACKAGE_URL} refs/heads/${CMAKEPKG_ROOT_PACKAGE_BRANCH}
+        RESULT_VARIABLE
+          PACKAGE_ROOT_BRANCH_AVAILABLE
+        OUTPUT_QUIET
+        ERROR_QUIET
+      )
+
+      if ("${PACKAGE_ROOT_BRANCH_AVAILABLE}" STREQUAL "0")
+        set(PACKAGE_COMMITID ${CMAKEPKG_ROOT_PACKAGE_BRANCH})
+      else()
+        set(PACKAGE_COMMITID master)
+      endif()
     endif()
   endif()
 
