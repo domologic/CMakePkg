@@ -237,3 +237,40 @@ function(cmakepkg_generate GENERATOR)
       --output=${ARG_OUTPUT}
   )
 endfunction()
+
+function(cmakepkg_configure_file FILE_PATH)
+  cmake_parse_arguments(ARG
+    ""
+    "LIST_FILES_INDENT;LIST_FILES_BASE_DIR"
+    "LIST_FILES"
+    ${ARGN}
+  )
+
+  if (ARG_LIST_FILES_INDENT)
+    set(CMAKEPKG_CONFIG_LIST_FILES_INDENT "")
+    foreach(IDX RANGE 1 ${ARG_LIST_FILES_INDENT})
+      string(APPEND CMAKEPKG_CONFIG_LIST_FILES_INDENT "    ")
+    endforeach()
+  endif()
+
+  if (ARG_LIST_FILES)
+    set(CMAKEPKG_CONFIG_LISTED_FILES "")
+    foreach(ENTRY ${ARG_LIST_FILES})
+      file(GLOB_RECURSE ENTRY_FILES
+        LIST_DIRECTORIES false
+        ${ARG_LIST_FILES_BASE_DIR}/${ENTRY}/*
+      )
+
+      foreach(ENTRY_FILE ${ENTRY_FILES})
+        string(REPLACE "${ARG_LIST_FILES_BASE_DIR}/" "" ENTRY_FILE "${ENTRY_FILE}")
+        string(APPEND CMAKEPKG_CONFIG_LISTED_FILES "\n${CMAKEPKG_CONFIG_LIST_FILES_INDENT}\"${ENTRY_FILE}\",")
+      endforeach()
+    endforeach()
+  endif()
+
+  configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/${FILE_PATH}.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/${FILE_PATH}
+    @ONLY
+  )
+endfunction()
