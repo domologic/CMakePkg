@@ -242,7 +242,7 @@ function(cmakepkg_configure_file FILE_PATH)
   cmake_parse_arguments(ARG
     ""
     "LIST_FILES_INDENT;LIST_FILES_BASE_DIR"
-    "LIST_FILES"
+    "LIST_FILES;LIST_FILES_IGNORE"
     ${ARGN}
   )
 
@@ -263,7 +263,9 @@ function(cmakepkg_configure_file FILE_PATH)
 
       foreach(ENTRY_FILE ${ENTRY_FILES})
         string(REPLACE "${ARG_LIST_FILES_BASE_DIR}/" "" ENTRY_FILE "${ENTRY_FILE}")
-        string(APPEND CMAKEPKG_CONFIG_LISTED_FILES "\n${CMAKEPKG_CONFIG_LIST_FILES_INDENT}\"${ENTRY_FILE}\",")
+        if (NOT ${ENTRY_FILE} IN_LIST ARG_LIST_FILES_IGNORE)
+          string(APPEND CMAKEPKG_CONFIG_LISTED_FILES "\n${CMAKEPKG_CONFIG_LIST_FILES_INDENT}\"${ENTRY_FILE}\",")
+        endif()
       endforeach()
     endforeach()
   endif()
