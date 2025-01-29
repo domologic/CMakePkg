@@ -17,8 +17,6 @@ set(DEFINE_RELEASE
 
 # Global flags
 set(FLAGS
-  -rdynamic
-  -shared-libgcc
   -march=native
 )
 set(FLAGS_DEBUG
@@ -26,16 +24,8 @@ set(FLAGS_DEBUG
   -Og
 )
 set(FLAGS_RELEASE
-  -O3
-  -flto=auto
-  -fno-fat-lto-objects
-  -fmerge-all-constants
-  -faggressive-loop-optimizations
-  -fgcse-sm
-  -fgcse-las
-  -fgcse-after-reload
-  -fdevirtualize-speculatively
-  -fdevirtualize-at-ltrans
+  -ggdb
+  -O2
 )
 
 # C flags
