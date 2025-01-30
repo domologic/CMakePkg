@@ -28,9 +28,8 @@ set(FLAGS_DEBUG
 set(FLAGS_RELEASE
   -g1
   -gz=zlib
-  -O3
+  -O2
   -fmerge-all-constants
-  -faggressive-loop-optimizations
   -flto=auto
   -fwhole-program
   -fdata-sections
