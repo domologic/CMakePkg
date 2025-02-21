@@ -24,8 +24,13 @@ set(FLAGS_DEBUG
   -Og
 )
 set(FLAGS_RELEASE
-  -ggdb
+  -ggdb3
   -O2
+  -fmerge-all-constants
+  -flto=auto
+  -fwhole-program
+  -fdata-sections
+  -ffunction-sections
 )
 
 # C flags
