@@ -18,6 +18,7 @@ set(DEFINE_RELEASE
 # Global flags
 set(FLAGS
   -march=native
+  -ftrivial-auto-var-init=zero
 )
 set(FLAGS_DEBUG
   -ggdb

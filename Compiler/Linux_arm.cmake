@@ -19,6 +19,7 @@ set(DEFINE_RELEASE
 set(FLAGS
   -fno-gnu-tm
   -fuse-ld=gold
+  -ftrivial-auto-var-init=zero
 )
 set(FLAGS_DEBUG
   -ggdb3
