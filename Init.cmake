@@ -11,10 +11,10 @@ option(CMAKEPKG_LTO                  "Enable link time optimization."           
 option(CMAKEPKG_BUILD_DATA_PRESERVE  "Preserve the required build data for reproducible builds."  OFF)
 
 if (NOT DEFINED CMAKEPKG_C_STD)
-  set(CMAKEPKG_C_STD   11)
+  set(CMAKEPKG_C_STD   17)
 endif()
 if (NOT DEFINED CMAKEPKG_CXX_STD)
-  set(CMAKEPKG_CXX_STD 17)
+  set(CMAKEPKG_CXX_STD 20)
 endif()
 
 set(CMAKE_MODULE_PATH                 ${CMAKEPKG_SOURCE_DIR}/Module)
