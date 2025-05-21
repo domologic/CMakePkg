@@ -9,8 +9,11 @@
 #   add_package_docs
 #
 
-set(COMMITID_FILE_MARKER_BEGIN "---COMMITID BEGIN---" CACHE INTERNAL "Begin marker for commit id file.")
-set(COMMITID_FILE_MARKER_END   "---COMMITID END---"   CACHE INTERNAL "End marker for commit id file.")
+set(_CMAKEPKG_COMMITID_FILE_MARKER_BEGIN   "---COMMITID BEGIN---"                         CACHE INTERNAL "CMakePkg begin marker for commit id file.")
+set(_CMAKEPKG_COMMITID_FILE_MARKER_END     "---COMMITID END---"                           CACHE INTERNAL "CMakePkg end marker for commit id file.")
+set(_CMAKEPKG_COMPILER_DEFAULT_CATEGORIES  DEFINE FLAGS FLAGS_C FLAGS_CXX FLAGS_ASM LINK  CACHE INTERNAL "CMakePkg compiler default categories.")
+set(_CMAKEPKG_COMPILER_DEFAULT_BUILDTYPES  DEBUG RELEASE RELWITHDEBINFO MINSIZEREL        CACHE INTERNAL "CMakePkg default build types.")
+
 
 macro(_add_package_parse_args)
   set(_MULTI_VALUE_ARGS
@@ -36,6 +39,7 @@ macro(_add_package_parse_args)
     ${ARGN}
   )
 endmacro()
+
 
 function(_add_package_set_root)
   # set root package in cache if not already set and load commit id file
@@ -66,6 +70,7 @@ function(_add_package_set_root)
   endif()
 endfunction()
 
+
 function(_add_package_load_commitid_file)
   # do nothing if no commit id file was specified
   if (NOT DEFINED CMAKEPKG_COMMITID_FILE)
@@ -88,13 +93,13 @@ function(_add_package_load_commitid_file)
     # check if commit id segment was detected
     if (NOT COMMITID_BEGIN)
       # if the segment was not detected check if the line contains the begin marker
-      if ("${LINE}" STREQUAL "${COMMITID_FILE_MARKER_BEGIN}")
+      if ("${LINE}" STREQUAL "${_CMAKEPKG_COMMITID_FILE_MARKER_BEGIN}")
         set(COMMITID_BEGIN ON)
       endif()
       continue()
     else()
       # if the segment was detected check if line contains the end marker
-      if ("${LINE}" STREQUAL "${COMMITID_FILE_MARKER_END}")
+      if ("${LINE}" STREQUAL "${_CMAKEPKG_COMMITID_FILE_MARKER_END}")
         return()
       endif()
     endif()
@@ -117,6 +122,7 @@ function(_add_package_load_commitid_file)
   endforeach()
 endfunction()
 
+
 function(_add_package_generate_commitid_file)
   # do nothing if the current package is not root
   if (NOT ${CMAKEPKG_ROOT_PACKAGE} STREQUAL ${PACKAGE_NAME})
@@ -134,7 +140,7 @@ function(_add_package_generate_commitid_file)
   endif()
 
   # write the begin marker
-  file(APPEND ${CMAKEPKG_COMMITID_OUT_FILE} "${COMMITID_FILE_MARKER_BEGIN}\n")
+  file(APPEND ${CMAKEPKG_COMMITID_OUT_FILE} "${_CMAKEPKG_COMMITID_FILE_MARKER_BEGIN}\n")
 
   # iterate over all known packages
   foreach(PACKAGE ${CMAKEPKG_PACKAGE_LIST})
@@ -157,7 +163,7 @@ function(_add_package_generate_commitid_file)
   endforeach()
 
   # write the end marker
-  file(APPEND ${CMAKEPKG_COMMITID_OUT_FILE} "${COMMITID_FILE_MARKER_END}")
+  file(APPEND ${CMAKEPKG_COMMITID_OUT_FILE} "${_CMAKEPKG_COMMITID_FILE_MARKER_END}")
 
   file(
     COPY
@@ -166,6 +172,7 @@ function(_add_package_generate_commitid_file)
       ${CMAKE_INSTALL_PREFIX}
   )
 endfunction()
+
 
 function(_add_package_build_data_preserve)
   if (NOT ${CMAKEPKG_ROOT_PACKAGE} STREQUAL ${PACKAGE_NAME})
@@ -201,6 +208,7 @@ function(_add_package_build_data_preserve)
       9
   )
 endfunction()
+
 
 function(_add_package_generate_revision PACKAGE_NAME_ORIG)
   # Create C++ compatible name of this package, used by the template Revision.hpp.cmake
@@ -326,6 +334,7 @@ function(_add_package_generate_revision PACKAGE_NAME_ORIG)
   unset(PACKAGE_YEAR)
 endfunction()
 
+
 function(_add_package_load_dependency PACKAGE)
   # split PACKAGE into path and tag
   string(REPLACE "@" ";" PACKAGE_DATA "${PACKAGE}")
@@ -436,6 +445,7 @@ function(_add_package_load_dependency PACKAGE)
   endif()
 endfunction()
 
+
 function(_add_package_load_dependencies)
   # parse args
   cmake_parse_arguments(DEPENDENCY_LIST
@@ -465,6 +475,7 @@ function(_add_package_load_dependencies)
     _add_package_load_dependency(${DEPENDENCY})
   endforeach()
 endfunction()
+
 
 function(_convert_dependencies_to_libraries DEPENDENCIES VARIABLE)
   set(RESULT "")
@@ -496,6 +507,7 @@ function(_convert_dependencies_to_libraries DEPENDENCIES VARIABLE)
     endif()
   endif()
 endfunction()
+
 
 macro(_add_package_link_libraries)
   # parse arguments
@@ -551,6 +563,7 @@ macro(_add_package_link_libraries)
   )
 endmacro()
 
+
 macro(_add_package_collect_source_files CURRENT_DIR)
   # check if directory is excluded
   if (NOT ${CURRENT_DIR} IN_LIST SOURCE_DIR_EXCLUDE)
@@ -583,6 +596,7 @@ macro(_add_package_collect_source_files CURRENT_DIR)
   endif()
 endmacro()
 
+
 function(_add_package_collect_sources)
   if (ARG_SOURCE_DIR)
     cmake_parse_arguments(SOURCE_DIR
@@ -604,6 +618,7 @@ function(_add_package_collect_sources)
     set(${PACKAGE_NAME}_SOURCES "${COLLECTED_SOURCES}" PARENT_SCOPE)
   endif()
 endfunction()
+
 
 macro(_add_package_load_compiler_config)
   # set the config if not already set
@@ -628,6 +643,7 @@ macro(_add_package_load_compiler_config)
   endif()
 endmacro()
 
+
 macro(_add_package)
   # set root project
   _add_package_set_root()
@@ -643,21 +659,31 @@ macro(_add_package)
           $<$<BOOL:"${CMAKEPKG_DEFINE}">:${CMAKEPKG_DEFINE}>
           $<$<AND:$<BOOL:"${CMAKEPKG_DEFINE_DEBUG}">,$<CONFIG:Debug>>:${CMAKEPKG_DEFINE_DEBUG}>
           $<$<AND:$<BOOL:"${CMAKEPKG_DEFINE_RELEASE}">,$<CONFIG:Release>>:${CMAKEPKG_DEFINE_RELEASE}>
+          $<$<AND:$<BOOL:"${CMAKEPKG_DEFINE_RELWITHDEBINFO}">,$<CONFIG:RelWithDebInfo>>:${CMAKEPKG_DEFINE_RELWITHDEBINFO}>
+          $<$<AND:$<BOOL:"${CMAKEPKG_DEFINE_MINSIZEREL}">,$<CONFIG:MinSizeRel>>:${CMAKEPKG_DEFINE_MINSIZEREL}>
       )
       target_compile_options(${PACKAGE_NAME}
         PRIVATE
           $<$<AND:$<BOOL:"${CMAKEPKG_FLAGS}">,$<OR:$<COMPILE_LANGUAGE:ASM>,$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>>:${CMAKEPKG_FLAGS}>
           $<$<AND:$<BOOL:"${CMAKEPKG_FLAGS_DEBUG}">,$<OR:$<COMPILE_LANGUAGE:ASM>,$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>,$<CONFIG:Debug>>:${CMAKEPKG_FLAGS_DEBUG}>
           $<$<AND:$<BOOL:"${CMAKEPKG_FLAGS_RELEASE}">,$<OR:$<COMPILE_LANGUAGE:ASM>,$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>,$<CONFIG:Release>>:${CMAKEPKG_FLAGS_RELEASE}>
+          $<$<AND:$<BOOL:"${CMAKEPKG_FLAGS_RELWITHDEBINFO}">,$<OR:$<COMPILE_LANGUAGE:ASM>,$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>,$<CONFIG:RelWithDebInfo>>:${CMAKEPKG_FLAGS_RELWITHDEBINFO}>
+          $<$<AND:$<BOOL:"${CMAKEPKG_FLAGS_MINSIZEREL}">,$<OR:$<COMPILE_LANGUAGE:ASM>,$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>,$<CONFIG:MinSizeRel>>:${CMAKEPKG_FLAGS_MINSIZEREL}>
           $<$<AND:$<BOOL:"${CMAKEPKG_FLAGS_ASM}">,$<COMPILE_LANGUAGE:ASM>>:${CMAKEPKG_FLAGS_ASM}>
           $<$<AND:$<BOOL:"${CMAKEPKG_FLAGS_ASM_DEBUG}">,$<COMPILE_LANGUAGE:ASM>,$<CONFIG:Debug>>:${CMAKEPKG_FLAGS_ASM_DEBUG}>
           $<$<AND:$<BOOL:"${CMAKEPKG_FLAGS_ASM_RELEASE}">,$<COMPILE_LANGUAGE:ASM>,$<CONFIG:Release>>:${CMAKEPKG_FLAGS_ASM_RELEASE}>
+          $<$<AND:$<BOOL:"${CMAKEPKG_FLAGS_ASM_RELWITHDEBINFO}">,$<COMPILE_LANGUAGE:ASM>,$<CONFIG:RelWithDebInfo>>:${CMAKEPKG_FLAGS_ASM_RELWITHDEBINFO}>
+          $<$<AND:$<BOOL:"${CMAKEPKG_FLAGS_ASM_MINSIZEREL}">,$<COMPILE_LANGUAGE:ASM>,$<CONFIG:MinSizeRel>>:${CMAKEPKG_FLAGS_ASM_MINSIZEREL}>
           $<$<AND:$<BOOL:"${CMAKEPKG_FLAGS_C}">,$<COMPILE_LANGUAGE:C>>:${CMAKEPKG_FLAGS_C}>
           $<$<AND:$<BOOL:"${CMAKEPKG_FLAGS_C_DEBUG}">,$<COMPILE_LANGUAGE:C>,$<CONFIG:Debug>>:${CMAKEPKG_FLAGS_C_DEBUG}>
           $<$<AND:$<BOOL:"${CMAKEPKG_FLAGS_C_RELEASE}">,$<COMPILE_LANGUAGE:C>,$<CONFIG:Release>>:${CMAKEPKG_FLAGS_C_RELEASE}>
+          $<$<AND:$<BOOL:"${CMAKEPKG_FLAGS_C_RELWITHDEBINFO}">,$<COMPILE_LANGUAGE:C>,$<CONFIG:RelWithDebInfo>>:${CMAKEPKG_FLAGS_C_RELWITHDEBINFO}>
+          $<$<AND:$<BOOL:"${CMAKEPKG_FLAGS_C_MINSIZEREL}">,$<COMPILE_LANGUAGE:C>,$<CONFIG:MinSizeRel>>:${CMAKEPKG_FLAGS_C_MINSIZEREL}>
           $<$<AND:$<BOOL:"${CMAKEPKG_FLAGS_CXX}">,$<COMPILE_LANGUAGE:CXX>>:${CMAKEPKG_FLAGS_CXX}>
           $<$<AND:$<BOOL:"${CMAKEPKG_FLAGS_CXX_DEBUG}">,$<COMPILE_LANGUAGE:CXX>,$<CONFIG:Debug>>:${CMAKEPKG_FLAGS_CXX_DEBUG}>
           $<$<AND:$<BOOL:"${CMAKEPKG_FLAGS_CXX_RELEASE}">,$<COMPILE_LANGUAGE:CXX>,$<CONFIG:Release>>:${CMAKEPKG_FLAGS_CXX_RELEASE}>
+          $<$<AND:$<BOOL:"${CMAKEPKG_FLAGS_CXX_RELWITHDEBINFO}">,$<COMPILE_LANGUAGE:CXX>,$<CONFIG:RelWithDebInfo>>:${CMAKEPKG_FLAGS_CXX_RELWITHDEBINFO}>
+          $<$<AND:$<BOOL:"${CMAKEPKG_FLAGS_CXX_MINSIZEREL}">,$<COMPILE_LANGUAGE:CXX>,$<CONFIG:MinSizeRel>>:${CMAKEPKG_FLAGS_CXX_MINSIZEREL}>
           $<$<CXX_COMPILER_ID:GNU>:-fmacro-prefix-map=${CMAKE_CURRENT_SOURCE_DIR}=.>
       )
       target_link_options(${PACKAGE_NAME}
@@ -665,6 +691,8 @@ macro(_add_package)
           $<$<BOOL:"${CMAKEPKG_LINK}">:${CMAKEPKG_LINK}>
           $<$<AND:$<BOOL:"${CMAKEPKG_LINK_DEBUG}">,$<CONFIG:Debug>>:${CMAKEPKG_LINK_DEBUG}>
           $<$<AND:$<BOOL:"${CMAKEPKG_LINK_RELEASE}">,$<CONFIG:Release>>:${CMAKEPKG_LINK_RELEASE}>
+          $<$<AND:$<BOOL:"${CMAKEPKG_LINK_RELWITHDEBINFO}">,$<CONFIG:RelWithDebInfo>>:${CMAKEPKG_LINK_RELWITHDEBINFO}>
+          $<$<AND:$<BOOL:"${CMAKEPKG_LINK_MINSIZEREL}">,$<CONFIG:MinSizeRel>>:${CMAKEPKG_LINK_MINSIZEREL}>
       )
       set_target_properties(${PACKAGE_NAME}
         PROPERTIES
@@ -764,6 +792,38 @@ macro(_add_package)
   _add_package_build_data_preserve()
 endmacro()
 
+
+#
+# Set compiler default settings.
+#
+function(set_compiler_defaults)
+  set(_ARGS)
+  foreach(_I ${_CMAKEPKG_COMPILER_DEFAULT_CATEGORIES})
+    list(APPEND _ARGS ${_I})
+    foreach(_J ${_CMAKEPKG_COMPILER_DEFAULT_BUILDTYPES})
+      list(APPEND _ARGS ${_I}_${_J})
+    endforeach()
+  endforeach()
+
+  cmake_parse_arguments(ARG
+    ""
+    ""
+    "${_ARGS}"
+    ${ARGN}
+  )
+
+  foreach(_I ${_CMAKEPKG_COMPILER_DEFAULT_CATEGORIES})
+    if (ARG_${_I})
+      set(CMAKEPKG_${_I} ${ARG_${_I}} CACHE STRING "")
+    endif()
+    foreach(_J ${_CMAKEPKG_COMPILER_DEFAULT_BUILDTYPES})
+      if (ARG_${_I}_${_J})
+        set(CMAKEPKG_${_I}_${_J} ${ARG_${_I}_${_J}} CACHE STRING "")
+      endif()
+    endforeach()
+  endforeach()
+endfunction()
+
 #
 # Add a library package to the project using the specified source files.
 #
@@ -839,6 +899,7 @@ function(add_package_library PACKAGE_NAME PACKAGE_TYPE)
   _add_package()
 endfunction()
 
+
 #
 # Add a executable package to the project using the specified source files.
 #
@@ -907,6 +968,7 @@ function(add_package_executable PACKAGE_NAME)
   # add generic package
   _add_package()
 endfunction()
+
 
 #
 # Add a test to the project to be run by ctest.
@@ -986,6 +1048,7 @@ function(add_package_test PACKAGE_NAME)
       ${CMAKE_INSTALL_PREFIX}
   )
 endfunction()
+
 
 #
 # Add a apidocs target for the given package.

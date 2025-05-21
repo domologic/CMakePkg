@@ -3,81 +3,39 @@
 # Load compiler configuration for Linux arm platform
 #
 
-# Preprocessor definitions
-#set(DEFINE
-#)
-set(DEFINE_DEBUG
-  DEBUG
-  _DEBUG
+set_compiler_defaults(
+  # debug preprocessor definitions
+  DEFINE_DEBUG
+    DEBUG
+    _DEBUG
+  # release preprocessor definitions
+  DEFINE_RELEASE
+    NDEBUG
+    _NDEBUG
+  # compiler flags
+  FLAGS
+    -fno-gnu-tm
+    -fuse-ld=gold
+    -ftrivial-auto-var-init=zero
+  # debug compiler flags
+  FLAGS_DEBUG
+    -ggdb3
+    -gz=zlib
+    -O0
+  # release compiler flags
+  FLAGS_RELEASE
+    -g1
+    -gz=zlib
+    -O2
+    -fmerge-all-constants
+    -flto=auto
+    -fwhole-program
+    -fdata-sections
+    -ffunction-sections
+  # linker flags
+  LINK
+    LINKER:--gc-sections
+    LINKER:--compress-debug-sections=zlib
+    LINKER:--disable-linker-version
+    LINKER:-z noexecstack
 )
-set(DEFINE_RELEASE
-  NDEBUG
-  _NDEBUG
-)
-
-# Global flags
-set(FLAGS
-  -fno-gnu-tm
-  -fuse-ld=gold
-  -ftrivial-auto-var-init=zero
-)
-set(FLAGS_DEBUG
-  -ggdb3
-  -gz=zlib
-  -O0
-)
-set(FLAGS_RELEASE
-  -g1
-  -gz=zlib
-  -O2
-  -fmerge-all-constants
-  -flto=auto
-  -fwhole-program
-  -fdata-sections
-  -ffunction-sections
-)
-
-# C flags
-#set(FLAGS_C
-#)
-#set(FLAGS_C_DEBUG
-#)
-#set(FLAGS_C_RELEASE
-#)
-
-# C++ flags
-#set(FLAGS_CXX
-#)
-#set(FLAGS_CXX_DEBUG
-#)
-#set(FLAGS_CXX_RELEASE
-#)
-
-# Linker flags
-set(LINK
-  LINKER:--gc-sections
-  LINKER:--compress-debug-sections=zlib
-  LINKER:--disable-linker-version
-  LINKER:-z noexecstack
-)
-#set(LINK_DEBUG
-#)
-#set(LINK_RELEASE
-#)
-
-# store configuration in cmake cache
-#set(CMAKEPKG_DEFINE            ${DEFINE}            CACHE INTERNAL "CMakePkg definitions")
-set(CMAKEPKG_DEFINE_DEBUG      ${DEFINE_DEBUG}      CACHE INTERNAL "CMakePkg debug definitions")
-set(CMAKEPKG_DEFINE_RELEASE    ${DEFINE_RELEASE}    CACHE INTERNAL "CMakePkg release definitions")
-set(CMAKEPKG_FLAGS             ${FLAGS}             CACHE INTERNAL "CMakePkg compiler flags")
-set(CMAKEPKG_FLAGS_DEBUG       ${FLAGS_DEBUG}       CACHE INTERNAL "CMakePkg compiler debug flags")
-set(CMAKEPKG_FLAGS_RELEASE     ${FLAGS_RELEASE}     CACHE INTERNAL "CMakePkg compiler release flags")
-#set(CMAKEPKG_FLAGS_C           ${FLAGS_C}           CACHE INTERNAL "CMakePkg c flags")
-#set(CMAKEPKG_FLAGS_C_DEBUG     ${FLAGS_C_DEBUG}     CACHE INTERNAL "CMakePkg c debug flags")
-#set(CMAKEPKG_FLAGS_C_RELEASE   ${FLAGS_C_RELEASE}   CACHE INTERNAL "CMakePkg c release flags")
-#set(CMAKEPKG_FLAGS_CXX         ${FLAGS_CXX}         CACHE INTERNAL "CMakePkg c++ flags")
-#set(CMAKEPKG_FLAGS_CXX_DEBUG   ${FLAGS_CXX_DEBUG}   CACHE INTERNAL "CMakePkg c++ debug flags")
-#set(CMAKEPKG_FLAGS_CXX_RELEASE ${FLAGS_CXX_RELEASE} CACHE INTERNAL "CMakePkg c++ release flags")
-set(CMAKEPKG_LINK              ${LINK}              CACHE INTERNAL "CMakePkg linker flags")
-#set(CMAKEPKG_LINK_DEBUG        ${LINK_DEBUG}        CACHE INTERNAL "CMakePkg linker debug flags")
-#set(CMAKEPKG_LINK_RELEASE      ${LINK_RELEASE}      CACHE INTERNAL "CMakePkg linker release flags")
