@@ -4,11 +4,11 @@
 #
 
 set_compiler_defaults(
-  # release preprocessor definitions
+  # debug preprocessor definitions
   DEFINE_DEBUG
     DEBUG
     _DEBUG
-  # debug preprocessor definitions
+  # release preprocessor definitions
   DEFINE_RELEASE
     NDEBUG
     _NDEBUG

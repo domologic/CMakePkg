@@ -16,7 +16,7 @@ set_compiler_defaults(
     DEBUG
     _DEBUG
   # release preprocessor definitions
-  DEFINE_RElEASE
+  DEFINE_RELEASE
     NDEBUG
     _NDEBUG
   # compiler flags
