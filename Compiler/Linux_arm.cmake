@@ -17,6 +17,7 @@ set_compiler_defaults(
     -fno-gnu-tm
     -fuse-ld=gold
     -ftrivial-auto-var-init=zero
+    -mno-unaligned-access
   # debug compiler flags
   FLAGS_DEBUG
     -ggdb3
