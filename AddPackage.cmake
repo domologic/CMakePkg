@@ -345,11 +345,27 @@ function(_add_package_load_dependency PACKAGE)
 
   # get package id
   list(GET PACKAGE_DATA 0 PACKAGE_ID)
-  string(REGEX REPLACE "::|\/" ";" PACKAGE_ID "${PACKAGE_ID}")
-  list(GET PACKAGE_ID -1 PACKAGE_ID)
+  string(REGEX REPLACE "::|\/" "_" PACKAGE_ID "${PACKAGE_ID}")
 
-  # set package git url
-  set(PACKAGE_URL ${CMAKEPKG_GIT_ROOT}/${PACKAGE_PATH}.git)
+  # get md5 of the package path
+  string(MD5 PACKAGE_PATH_HASH "${PACKAGE_PATH}")
+
+  # set package path if not already specified
+  if (NOT DEFINED ${PACKAGE_ID}_PATH)
+    set(${PACKAGE_ID}_PATH ${CMAKE_BINARY_DIR}/deps/${PACKAGE_PATH_HASH})
+  endif()
+
+  # do nothing if binary already exists
+  if (EXISTS ${CMAKE_BINARY_DIR}/depsb/${PACKAGE_PATH_HASH})
+    return()
+  endif()
+
+  # set package url
+  if (DEFINED ${PACKAGE_ID}_URL)
+    set(PACKAGE_URL ${${PACKAGE_ID}_URL})
+  else()
+    set(PACKAGE_URL ${CMAKEPKG_GIT_ROOT}/${PACKAGE_PATH}.git)
+  endif()
 
   # get package tag
   if (DEFINED ${PACKAGE_ID}_COMMITID)
@@ -373,15 +389,9 @@ function(_add_package_load_dependency PACKAGE)
       else()
         set(PACKAGE_COMMITID master)
       endif()
+
+      set(${PACKAGE_ID}_COMMITID ${PACKAGE_COMMITID} CACHE INTERNAL "Commit identifier of the ${PACKAGE_ID} package")
     endif()
-  endif()
-
-  # get md5 of the package path
-  string(MD5 PACKAGE_PATH_HASH "${PACKAGE_PATH}")
-
-  # set package path if not already specified
-  if (NOT DEFINED ${PACKAGE_ID}_PATH)
-    set(${PACKAGE_ID}_PATH ${CMAKE_BINARY_DIR}/deps/${PACKAGE_PATH_HASH})
   endif()
 
   # download the package if the path does not exist
@@ -431,18 +441,16 @@ function(_add_package_load_dependency PACKAGE)
   endif()
 
   # load the package if not already loaded
-  if (NOT TARGET ${PACKAGE_ID})
-    add_subdirectory(${${PACKAGE_ID}_PATH} ${CMAKE_BINARY_DIR}/depsb/${PACKAGE_PATH_HASH})
+  add_subdirectory(${${PACKAGE_ID}_PATH} ${CMAKE_BINARY_DIR}/depsb/${PACKAGE_PATH_HASH})
 
-    # append the package to the package list
-    set(PACKAGE_LIST
-      ${CMAKEPKG_PACKAGE_LIST}
-      ${PACKAGE_PATH}
-    )
-    list(SORT PACKAGE_LIST COMPARE STRING)
-    list(REMOVE_DUPLICATES PACKAGE_LIST)
-    set(CMAKEPKG_PACKAGE_LIST ${PACKAGE_LIST} CACHE INTERNAL "All dependencies requested with CMakePkg" FORCE)
-  endif()
+  # append the package to the package list
+  set(PACKAGE_LIST
+    ${CMAKEPKG_PACKAGE_LIST}
+    ${PACKAGE_PATH}
+  )
+  list(SORT PACKAGE_LIST COMPARE STRING)
+  list(REMOVE_DUPLICATES PACKAGE_LIST)
+  set(CMAKEPKG_PACKAGE_LIST ${PACKAGE_LIST} CACHE INTERNAL "All dependencies requested with CMakePkg" FORCE)
 endfunction()
 
 
