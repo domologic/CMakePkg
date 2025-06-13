@@ -53,7 +53,7 @@ set_compiler_defaults(
     /Ob0
     /Od
     /RTC1
-    /ZI
+    /Zi
   # release compiler flags
   FLAGS_RELEASE
     /GL
