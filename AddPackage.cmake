@@ -345,7 +345,8 @@ function(_add_package_load_dependency PACKAGE)
 
   # get package id
   list(GET PACKAGE_DATA 0 PACKAGE_ID)
-  string(REGEX REPLACE "::|\/" "_" PACKAGE_ID "${PACKAGE_ID}")
+  string(REGEX REPLACE "::|\/" ";" PACKAGE_ID "${PACKAGE_ID}")
+  list(GET PACKAGE_ID -1 PACKAGE_ID)
 
   # get md5 of the package path
   string(MD5 PACKAGE_PATH_HASH "${PACKAGE_PATH}")
@@ -355,48 +356,44 @@ function(_add_package_load_dependency PACKAGE)
     set(${PACKAGE_ID}_PATH ${CMAKE_BINARY_DIR}/deps/${PACKAGE_PATH_HASH})
   endif()
 
-  # do nothing if binary already exists
-  if (EXISTS ${CMAKE_BINARY_DIR}/depsb/${PACKAGE_PATH_HASH})
-    return()
-  endif()
-
-  # set package url
-  if (DEFINED ${PACKAGE_ID}_URL)
-    set(PACKAGE_URL ${${PACKAGE_ID}_URL})
-  else()
-    set(PACKAGE_URL ${CMAKEPKG_GIT_ROOT}/${PACKAGE_PATH}.git)
-  endif()
-
-  # get package tag
-  if (DEFINED ${PACKAGE_ID}_COMMITID)
-    set(PACKAGE_COMMITID "${${PACKAGE_ID}_COMMITID}")
-  else()
-    list(LENGTH PACKAGE_DATA PACKAGE_DATA_LENGTH)
-    if (PACKAGE_DATA_LENGTH EQUAL 2)
-      list(GET PACKAGE_DATA 1 PACKAGE_COMMITID)
-    else()
-      execute_process(
-        COMMAND
-          ${GIT_EXECUTABLE} ls-remote --exit-code --heads ${PACKAGE_URL} refs/heads/${CMAKEPKG_ROOT_PACKAGE_BRANCH}
-        RESULT_VARIABLE
-          PACKAGE_ROOT_BRANCH_AVAILABLE
-        OUTPUT_QUIET
-        ERROR_QUIET
-      )
-
-      if ("${PACKAGE_ROOT_BRANCH_AVAILABLE}" STREQUAL "0")
-        set(PACKAGE_COMMITID ${CMAKEPKG_ROOT_PACKAGE_BRANCH})
-      else()
-        set(PACKAGE_COMMITID master)
-      endif()
-
-      set(${PACKAGE_ID}_COMMITID ${PACKAGE_COMMITID} CACHE INTERNAL "Commit identifier of the ${PACKAGE_ID} package")
-    endif()
-  endif()
-
   # download the package if the path does not exist
-  if (NOT EXISTS ${${PACKAGE_ID}_PATH})
+  if (NOT EXISTS ${CMAKE_BINARY_DIR}/depsb/${PACKAGE_PATH_HASH})
+    # set package url
+    if (DEFINED ${PACKAGE_ID}_URL)
+      set(PACKAGE_URL ${${PACKAGE_ID}_URL})
+    else()
+      set(PACKAGE_URL ${CMAKEPKG_GIT_ROOT}/${PACKAGE_PATH}.git)
+    endif()
+
+    # download the package if the path does not exist
     message(STATUS "Loading package ${PACKAGE} using commit id ${PACKAGE_COMMITID}...")
+
+    # get package tag
+    if (DEFINED ${PACKAGE_ID}_COMMITID)
+      set(PACKAGE_COMMITID "${${PACKAGE_ID}_COMMITID}")
+    else()
+      list(LENGTH PACKAGE_DATA PACKAGE_DATA_LENGTH)
+      if (PACKAGE_DATA_LENGTH EQUAL 2)
+        list(GET PACKAGE_DATA 1 PACKAGE_COMMITID)
+      else()
+        execute_process(
+          COMMAND
+            ${GIT_EXECUTABLE} ls-remote --exit-code --heads ${PACKAGE_URL} refs/heads/${CMAKEPKG_ROOT_PACKAGE_BRANCH}
+          RESULT_VARIABLE
+            PACKAGE_ROOT_BRANCH_AVAILABLE
+          OUTPUT_QUIET
+          ERROR_QUIET
+        )
+
+        if ("${PACKAGE_ROOT_BRANCH_AVAILABLE}" STREQUAL "0")
+          set(PACKAGE_COMMITID ${CMAKEPKG_ROOT_PACKAGE_BRANCH})
+        else()
+          set(PACKAGE_COMMITID master)
+        endif()
+
+        set(${PACKAGE_ID}_COMMITID ${PACKAGE_COMMITID} CACHE INTERNAL "Commit identifier of the ${PACKAGE_ID} package")
+      endif()
+    endif()
 
     # try shallow clone on given package tag
     execute_process(
@@ -441,16 +438,18 @@ function(_add_package_load_dependency PACKAGE)
   endif()
 
   # load the package if not already loaded
-  add_subdirectory(${${PACKAGE_ID}_PATH} ${CMAKE_BINARY_DIR}/depsb/${PACKAGE_PATH_HASH})
+  if (NOT TARGET ${PACKAGE_ID})
+    add_subdirectory(${${PACKAGE_ID}_PATH} ${CMAKE_BINARY_DIR}/depsb/${PACKAGE_PATH_HASH})
 
-  # append the package to the package list
-  set(PACKAGE_LIST
-    ${CMAKEPKG_PACKAGE_LIST}
-    ${PACKAGE_PATH}
-  )
-  list(SORT PACKAGE_LIST COMPARE STRING)
-  list(REMOVE_DUPLICATES PACKAGE_LIST)
-  set(CMAKEPKG_PACKAGE_LIST ${PACKAGE_LIST} CACHE INTERNAL "All dependencies requested with CMakePkg" FORCE)
+    # append the package to the package list
+    set(PACKAGE_LIST
+      ${CMAKEPKG_PACKAGE_LIST}
+      ${PACKAGE_PATH}
+    )
+    list(SORT PACKAGE_LIST COMPARE STRING)
+    list(REMOVE_DUPLICATES PACKAGE_LIST)
+    set(CMAKEPKG_PACKAGE_LIST ${PACKAGE_LIST} CACHE INTERNAL "All dependencies requested with CMakePkg" FORCE)
+  endif()
 endfunction()
 
 
