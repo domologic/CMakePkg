@@ -357,7 +357,7 @@ function(_add_package_load_dependency PACKAGE)
   endif()
 
   # download the package if the path does not exist
-  if (NOT EXISTS ${CMAKE_BINARY_DIR}/depsb/${PACKAGE_PATH_HASH})
+  if (NOT EXISTS ${${PACKAGE_ID}_PATH})
     # set package url
     if (DEFINED ${PACKAGE_ID}_URL)
       set(PACKAGE_URL ${${PACKAGE_ID}_URL})
