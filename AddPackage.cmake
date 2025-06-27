@@ -331,8 +331,13 @@ function(_add_package_generate_revision PACKAGE_NAME_ORIG)
 
   # generate version info file
   if (${CMAKEPKG_ROOT_PACKAGE} STREQUAL ${PACKAGE_NAME_ORIG})
-    set(CMAKEPKG_ROOT_PACKAGE_VERSION ${PACKAGE_VERSION} CACHE INTERNAL "" FORCE)
-    file(WRITE ${CMAKE_BINARY_DIR}/Version ${PACKAGE_VERSION})
+    if ("${PACKAGE_VERSION}" STREQUAL "")
+      set(CMAKEPKG_ROOT_PACKAGE_VERSION ${PACKAGE_VERSION_COMMIT_ID} CACHE INTERNAL "" FORCE)
+      file(WRITE ${CMAKE_BINARY_DIR}/Version ${PACKAGE_VERSION_COMMIT_ID})
+    else()
+      set(CMAKEPKG_ROOT_PACKAGE_VERSION ${PACKAGE_VERSION} CACHE INTERNAL "" FORCE)
+      file(WRITE ${CMAKE_BINARY_DIR}/Version ${PACKAGE_VERSION})
+    endif()
   endif()
 
   # generate revision file
@@ -349,7 +354,11 @@ function(_add_package_generate_revision PACKAGE_NAME_ORIG)
     @ONLY
   )
 
-  message(STATUS "Loaded package ${PACKAGE_NAME_ORIG} ${PACKAGE_VERSION} ${PACKAGE_TIMESTAMP}")
+  if ("${PACKAGE_VERSION}" STREQUAL "")
+    message(STATUS "Loaded package ${PACKAGE_NAME_ORIG} ${PACKAGE_VERSION_COMMIT_ID} ${PACKAGE_TIMESTAMP}")
+  else()
+    message(STATUS "Loaded package ${PACKAGE_NAME_ORIG} ${PACKAGE_VERSION} ${PACKAGE_TIMESTAMP}")
+  endif()
 
   unset(PACKAGE_DATE)
   unset(PACKAGE_REVISION)
