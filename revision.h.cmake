@@ -61,19 +61,10 @@
 #endif
 #undef PACKAGE_VERSION_TWEAK
 
-#cmakedefine PACKAGE_VERSION_COMMIT_ID
-#ifdef PACKAGE_VERSION_COMMIT_ID
-   /**
-    * Commit id of the @PACKAGE_NAME@ package.
-    */
-#  define @PACKAGE_NAME_UPPER@_VERSION_COMMIT_ID  @PACKAGE_VERSION_COMMIT_ID@
-#else
-   /**
-    * Commit id of the @PACKAGE_NAME@ package.
-    */
-#  define @PACKAGE_NAME_UPPER@_VERSION_COMMIT_ID  0
-#endif
-#undef PACKAGE_VERSION_COMMIT_ID
+/**
+ * Commit id of the @PACKAGE_NAME@ package.
+ */
+#define @PACKAGE_NAME_UPPER@_VERSION_COMMIT_ID    @PACKAGE_VERSION_COMMIT_ID@
 
 /**
  * Timestamp of the @PACKAGE_NAME@ package.

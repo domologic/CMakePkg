@@ -62,19 +62,10 @@ namespace @PACKAGE_NAME@ {
 #endif
 #undef PACKAGE_VERSION_TWEAK
 
-#cmakedefine PACKAGE_VERSION_COMMIT_ID
-#ifdef PACKAGE_VERSION_COMMIT_ID
     /**
      * Commit id of the @PACKAGE_NAME@ package.
      */
     constexpr auto kVersionCommitId = "@PACKAGE_VERSION_COMMIT_ID@";
-#else
-    /**
-     * Commit id of the @PACKAGE_NAME@ package.
-     */
-    constexpr auto kVersionCommitId = "";
-#endif
-#undef PACKAGE_VERSION_COMMIT_ID
 
     /**
      * Timestamp of the @PACKAGE_NAME@ package.
