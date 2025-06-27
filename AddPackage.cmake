@@ -406,7 +406,11 @@ function(_add_package_load_dependency PACKAGE)
     endif()
 
     # download the package if the path does not exist
-    message(STATUS "Loading package ${PACKAGE} using commit id ${PACKAGE_COMMITID}...")
+    if (DEFINED ${PACKAGE_ID}_COMMITID)
+      message(STATUS "Loading package ${PACKAGE} using commit id ${${PACKAGE_ID}_COMMITID}...")
+    else()
+      message(STATUS "Loading package ${PACKAGE}...")
+    endif()
 
     # get package tag
     if (DEFINED ${PACKAGE_ID}_COMMITID)
