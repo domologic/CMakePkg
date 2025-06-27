@@ -252,6 +252,35 @@ function(_add_package_generate_revision PACKAGE_NAME_ORIG)
     ERROR_QUIET
   )
 
+  # PACKAGE_VERSION_COMMIT_ID is the first 12 characters of the unique commit hash identifier
+  execute_process(
+    COMMAND
+      ${GIT_EXECUTABLE} rev-parse --short=12 HEAD
+    WORKING_DIRECTORY
+      ${PROJECT_SOURCE_DIR}
+    OUTPUT_VARIABLE
+      PACKAGE_VERSION_COMMIT_ID
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET
+  )
+
+  # PACKAGE_VERSION_DIRTY is the dirty status flag indicating unstaged changes
+  execute_process(
+    COMMAND
+      ${GIT_EXECUTABLE} diff-index --quiet HEAD --
+    WORKING_DIRECTORY
+      ${PROJECT_SOURCE_DIR}
+    OUTPUT_VARIABLE
+      PACKAGE_VERSION_DIRTY
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET
+  )
+
+  # add dirty flag to package commit id
+  if (PACKAGE_VERSION_DIRTY)
+    set(PACKAGE_VERSION_COMMIT_ID "${PACKAGE_VERSION_COMMIT_ID}+")
+  endif()
+
   # PACKAGE_DATE & PACKAGE_TIME is the date and time of the last commit
   string(REPLACE " " ";" _PACKAGE_TIMESTAMP_LIST ${PACKAGE_TIMESTAMP})
   list(GET _PACKAGE_TIMESTAMP_LIST 0 PACKAGE_DATE)
