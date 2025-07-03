@@ -215,15 +215,15 @@ function(_add_package_generate_revision PACKAGE_NAME_ORIG)
   string(REGEX REPLACE "-" "_" PACKAGE_NAME "${PACKAGE_NAME_ORIG}")
   string(TOUPPER ${PACKAGE_NAME} PACKAGE_NAME_UPPER)
 
+  set(PACKAGE_BRANCH        "unknown")
+  set(PACKAGE_DATE          "1970-01-01")
+  set(PACKAGE_TIME          "00:00:00")
+  set(PACKAGE_TIMESTAMP     "1970-01-01 00:00:00 +0000")
   set(PACKAGE_VERSION       "unknown")
   set(PACKAGE_VERSION_MAJOR 0)
   set(PACKAGE_VERSION_MINOR 0)
   set(PACKAGE_VERSION_PATCH 0)
   set(PACKAGE_VERSION_TWEAK 0)
-  set(PACKAGE_REVISION      "unknown")
-  set(PACKAGE_TIMESTAMP     "1970-01-01 00:00:00 +0000")
-  set(PACKAGE_DATE          "1970-01-01")
-  set(PACKAGE_TIME          "00:00:00")
   set(PACKAGE_YEAR          "1970")
 
   # PACKAGE_VERSION is the version tag
@@ -272,6 +272,18 @@ function(_add_package_generate_revision PACKAGE_NAME_ORIG)
       ${PROJECT_SOURCE_DIR}
     OUTPUT_VARIABLE
       PACKAGE_VERSION_DIRTY
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET
+  )
+
+  # PACKAGE_BRANCH is the checked out branch
+  execute_process(
+    COMMAND
+      ${GIT_EXECUTABLE} rev-parse --abbrev-ref HEAD
+    WORKING_DIRECTORY
+      ${PROJECT_SOURCE_DIR}
+    OUTPUT_VARIABLE
+      PACKAGE_BRANCH
     OUTPUT_STRIP_TRAILING_WHITESPACE
     ERROR_QUIET
   )
@@ -340,6 +352,10 @@ function(_add_package_generate_revision PACKAGE_NAME_ORIG)
     endif()
   endif()
 
+  if ("${PACKAGE_VERSION}" STREQUAL "")
+    set(PACKAGE_VERSION "0.0.0-${PACKAGE_BRANCH}")
+  endif()
+
   # generate revision file
   configure_file(
     ${CMAKEPKG_SOURCE_DIR}/Revision.hpp.cmake
@@ -354,12 +370,9 @@ function(_add_package_generate_revision PACKAGE_NAME_ORIG)
     @ONLY
   )
 
-  if ("${PACKAGE_VERSION}" STREQUAL "")
-    message(STATUS "Loaded package ${PACKAGE_NAME_ORIG} ${PACKAGE_VERSION_COMMIT_ID} ${PACKAGE_TIMESTAMP}")
-  else()
-    message(STATUS "Loaded package ${PACKAGE_NAME_ORIG} ${PACKAGE_VERSION} ${PACKAGE_TIMESTAMP}")
-  endif()
+  message(STATUS "Loaded package ${PACKAGE_NAME_ORIG} ${PACKAGE_VERSION_COMMIT_ID} ${PACKAGE_VERSION}")
 
+  unset(PACKAGE_BRANCH)
   unset(PACKAGE_DATE)
   unset(PACKAGE_REVISION)
   unset(PACKAGE_TIME)
