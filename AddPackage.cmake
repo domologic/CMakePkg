@@ -195,17 +195,13 @@ function(_add_package_build_data_preserve)
 
   file(ARCHIVE_CREATE
     OUTPUT
-      ${CMAKE_CURRENT_BINARY_DIR}/${_PACKAGE_BUILD_DATA_PREFIX}-${PACKAGE_VERSION}-${PACKAGE_TIMESTAMP}-src.tar.xz
+      ${CMAKE_CURRENT_BINARY_DIR}/${_PACKAGE_BUILD_DATA_PREFIX}-${PACKAGE_VERSION}-${PACKAGE_TIMESTAMP}-src.zip
     PATHS
       ${CMAKEPKG_BOOTSTRAP_FILE}
       ${CMAKE_BINARY_DIR}/CMakePkg
       ${CMAKE_BINARY_DIR}/deps
     FORMAT
-      gnutar
-    COMPRESSION
-      XZ
-    COMPRESSION_LEVEL
-      9
+      zip
   )
 endfunction()
 
