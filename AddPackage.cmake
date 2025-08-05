@@ -17,20 +17,21 @@ set(_CMAKEPKG_COMPILER_DEFAULT_BUILDTYPES  DEBUG RELEASE RELWITHDEBINFO MINSIZER
 
 macro(_add_package_parse_args)
   set(_MULTI_VALUE_ARGS
-    SOURCE_DIR
-    SOURCES
     COMPILE_DEFINITIONS
     COMPILE_FEATURES
     COMPILE_OPTIONS
+    DEPENDENCIES
+    DOT
     INCLUDE_DIRECTORIES
     LINK_DIRECTORIES
     LINK_LIBRARIES
     LINK_OPTIONS
-    PROPERTIES
-    DEPENDENCIES
-    RESOURCES
     OBJCOPY
-    DOT
+    PRECOMPILE_HEADERS
+    PROPERTIES
+    RESOURCES
+    SOURCES
+    SOURCE_DIR
   )
   cmake_parse_arguments(ARG
     ""
@@ -816,6 +817,12 @@ macro(_add_package)
     )
   endif()
 
+  if (ARG_PRECOMPILE_HEADERS)
+    target_precompile_headers(${PACKAGE_NAME}
+      ${ARG_PRECOMPILE_HEADERS}
+    )
+  endif()
+
   if (ARG_PROPERTIES)
     set_target_properties(${PACKAGE_NAME}
       PROPERTIES
@@ -888,50 +895,55 @@ endfunction()
 # Add a library package to the project using the specified source files.
 #
 # add_package_library(<name> [STATIC | SHARED | MODULE]
-#   [SOURCE_DIR]
-#   [SOURCES]
 #   [COMPILE_DEFINITIONS]
 #   [COMPILE_FEATURES]
 #   [COMPILE_OPTIONS]
+#   [DEPENDENCIES]
+#   [DOT]
 #   [INCLUDE_DIRECTORIES]
 #   [LINK_DIRECTORIES]
 #   [LINK_LIBRARIES]
 #   [LINK_OPTIONS]
-#   [PROPERTIES]
-#   [DEPENDENCIES]
-#   [RESOURCES]
 #   [OBJCOPY]
-#   [DOT]
+#   [PRECOMPILE_HEADERS]
+#   [PROPERTIES]
+#   [RESOURCES]
+#   [SOURCES]
+#   [SOURCE_DIR]
 # )
 #
 # Creates <name> library target with the add_library function.
 #
-# SOURCE_DIR
-#   Path to the directory to collect source files from.
-# SOURCES
-#   List of source files to include.
 # COMPILE_DEFINITIONS
 #   See target_compile_definitions function.
 # COMPILE_FEATURES
 #   See target_compile_features function.
 # COMPILE_OPTIONS
 #   See target_compile_options function.
+# DEPENDENCIES
+#   List of dependencies described as <group>::<project> which will be downloaded from git and included in the build process.
+# DOT
+#  Generates specified dot file from the target.
 # INCLUDE_DIRECTORIES
 #   See target_include_directories function.
 # LINK_DIRECTORIES
 #   See target_link_directories function.
 # LINK_LIBRARIES
 #   See target_link_libraries function.
+# LINK_OPTIONS
+#   See target_link_options function.
+# OBJCOPY
+#   Generates specified file output types from the target.
+# PRECOMPILE_HEADERS
+#   See target_precompile_headers function.
 # PROPERTIES
 #   See set_target_properties function.
-# DEPENDENCIES
-#   List of dependencies described as <group>::<project> which will be downloaded from git and included in the build process.
 # RESOURCES
-#  List of files or directories which will be copied to the binary folder.
-# OBJCOPY
-#  Generates specified file output types from the target.
-# DOT
-#  Generates specified dot file from the target.
+#   List of files or directories which will be copied to the binary folder.
+# SOURCES
+#   List of source files to include.
+# SOURCE_DIR
+#   Path to the directory to collect source files from.
 #
 function(add_package_library PACKAGE_NAME PACKAGE_TYPE)
   # parse arguments
@@ -964,50 +976,55 @@ endfunction()
 # Add a executable package to the project using the specified source files.
 #
 # add_package_executable(<name>
-#   [SOURCE_DIR]
-#   [SOURCES]
 #   [COMPILE_DEFINITIONS]
 #   [COMPILE_FEATURES]
 #   [COMPILE_OPTIONS]
+#   [DEPENDENCIES]
+#   [DOT]
 #   [INCLUDE_DIRECTORIES]
 #   [LINK_DIRECTORIES]
 #   [LINK_LIBRARIES]
 #   [LINK_OPTIONS]
-#   [PROPERTIES]
-#   [DEPENDENCIES]
-#   [RESOURCES]
 #   [OBJCOPY]
-#   [DOT]
+#   [PRECOMPILE_HEADERS]
+#   [PROPERTIES]
+#   [RESOURCES]
+#   [SOURCES]
+#   [SOURCE_DIR]
 # )
 #
 # Creates <name> executable target with the add_executable function.
 #
-# SOURCE_DIR
-#   Path to the directory to collect source files from.
-# SOURCES
-#   List of source files to include.
 # COMPILE_DEFINITIONS
 #   See target_compile_definitions function.
 # COMPILE_FEATURES
 #   See target_compile_features function.
 # COMPILE_OPTIONS
 #   See target_compile_options function.
+# DEPENDENCIES
+#   List of dependencies described as <group>::<project> which will be downloaded from git and included in the build process.
+# DOT
+#  Generates specified dot file from the target.
 # INCLUDE_DIRECTORIES
 #   See target_include_directories function.
 # LINK_DIRECTORIES
 #   See target_link_directories function.
 # LINK_LIBRARIES
 #   See target_link_libraries function.
+# LINK_OPTIONS
+#   See target_link_options function.
+# OBJCOPY
+#   Generates specified file output types from the target.
+# PRECOMPILE_HEADERS
+#   See target_precompile_headers function.
 # PROPERTIES
 #   See set_target_properties function.
-# DEPENDENCIES
-#   List of dependencies described as <group>::<project> which will be downloaded from git and included in the build process.
 # RESOURCES
-#  List of files or directories which will be copied to the binary folder.
-# OBJCOPY
-#  Generates specified file output types from the target.
-# DOT
-#  Generates specified dot file from the target.
+#   List of files or directories which will be copied to the binary folder.
+# SOURCES
+#   List of source files to include.
+# SOURCE_DIR
+#   Path to the directory to collect source files from.
 #
 function(add_package_executable PACKAGE_NAME)
   # parse arguments
@@ -1034,50 +1051,55 @@ endfunction()
 # Add a test to the project to be run by ctest.
 #
 # add_package_test(<name>
-#   [SOURCE_DIR]
-#   [SOURCES]
 #   [COMPILE_DEFINITIONS]
 #   [COMPILE_FEATURES]
 #   [COMPILE_OPTIONS]
+#   [DEPENDENCIES]
+#   [DOT]
 #   [INCLUDE_DIRECTORIES]
 #   [LINK_DIRECTORIES]
 #   [LINK_LIBRARIES]
 #   [LINK_OPTIONS]
-#   [PROPERTIES]
-#   [DEPENDENCIES]
-#   [RESOURCES]
 #   [OBJCOPY]
-#   [DOT]
+#   [PRECOMPILE_HEADERS]
+#   [PROPERTIES]
+#   [RESOURCES]
+#   [SOURCES]
+#   [SOURCE_DIR]
 # )
 #
 # Creates <name> executable target with the add_executable function and includes it as a test with the add_test function.
 #
-# SOURCE_DIR
-#   Path to the directory to collect source files from.
-# SOURCES
-#   List of source files to include.
 # COMPILE_DEFINITIONS
 #   See target_compile_definitions function.
 # COMPILE_FEATURES
 #   See target_compile_features function.
 # COMPILE_OPTIONS
 #   See target_compile_options function.
+# DEPENDENCIES
+#   List of dependencies described as <group>::<project> which will be downloaded from git and included in the build process.
+# DOT
+#  Generates specified dot file from the target.
 # INCLUDE_DIRECTORIES
 #   See target_include_directories function.
 # LINK_DIRECTORIES
 #   See target_link_directories function.
 # LINK_LIBRARIES
 #   See target_link_libraries function.
+# LINK_OPTIONS
+#   See target_link_options function.
+# OBJCOPY
+#   Generates specified file output types from the target.
+# PRECOMPILE_HEADERS
+#   See target_precompile_headers function.
 # PROPERTIES
 #   See set_target_properties function.
-# DEPENDENCIES
-#   List of dependencies described as <group>::<project> which will be downloaded from git and included in the build process.
 # RESOURCES
-#  List of files or directories which will be copied to the binary folder.
-# OBJCOPY
-#  Generates specified file output types from the target.
-# DOT
-#  Generates specified dot file from the target.
+#   List of files or directories which will be copied to the binary folder.
+# SOURCES
+#   List of source files to include.
+# SOURCE_DIR
+#   Path to the directory to collect source files from.
 #
 function(add_package_test PACKAGE_NAME)
   # parse arguments
