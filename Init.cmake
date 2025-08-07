@@ -54,6 +54,12 @@ set(CMAKE_CXX_FLAGS_MINSIZEREL          "" CACHE STRING "" FORCE)
 
 set(ENV{GIT_CLONE_PROTECTION_ACTIVE}    false)
 
+if (WIN32)
+  set(CMAKEPKG_ASM  ASM_MASM  CACHE STRING "Alias to system local assembler language.")
+else()
+  set(CMAKEPKG_ASM  ASM       CACHE STRING "Alias to system local assembler language.")
+endif()
+
 set_property(GLOBAL
   PROPERTY
     USE_FOLDERS ON
