@@ -21,12 +21,10 @@ set_compiler_defaults(
   # debug compiler flags
   FLAGS_DEBUG
     -ggdb3
-    -gz=zlib
     -O0
   # release compiler flags
   FLAGS_RELEASE
-    -g1
-    -gz=zlib
+    -g3
     -O2
     -fmerge-all-constants
     -flto=auto
@@ -36,7 +34,6 @@ set_compiler_defaults(
   # linker flags
   LINK
     LINKER:--gc-sections
-    LINKER:--compress-debug-sections=zlib
     LINKER:--disable-linker-version
     LINKER:-z noexecstack
 )
