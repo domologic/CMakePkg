@@ -66,6 +66,7 @@ set_compiler_defaults(
   # ASM compiler flags
   FLAGS_ASM_MASM
     /nologo
+    /quiet
   # C compiler flags
   FLAGS_C
     /TC
