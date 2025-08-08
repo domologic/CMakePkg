@@ -458,8 +458,11 @@ function(_add_package_load_dependency PACKAGE)
       RESULT_VARIABLE
         RESULT
       OUTPUT_QUIET
-      ERROR_QUIET
     )
+
+    if (NOT ${RESULT} STREQUAL 0)
+      message(FATAL_ERROR "Failed to clone commit ${PACKAGE_COMMITID} of ${PACKAGE} package from ${PACKAGE_URL}!")
+    endif()
   endif()
 
   # load the package if not already loaded
