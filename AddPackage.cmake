@@ -393,11 +393,11 @@ function(_add_package_load_dependency PACKAGE)
   # get package id
   list(GET PACKAGE_DATA 0 PACKAGE_ID)
   string(REGEX REPLACE "::|\/" "_" PACKAGE_ID "${PACKAGE_ID}")
+  string(REPLACE "-" "_" PACKAGE_ID "${PACKAGE_ID}")
 
   # get package target
   list(GET PACKAGE_DATA 0 PACKAGE_TARGET)
   string(REGEX REPLACE "::|\/" ";" PACKAGE_TARGET "${PACKAGE_TARGET}")
-  string(REPLACE "-" "_" PACKAGE_TARGET "${PACKAGE_TARGET}")
   list(GET PACKAGE_TARGET -1 PACKAGE_TARGET)
 
   # get md5 of the package path
