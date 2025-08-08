@@ -63,6 +63,9 @@ set_compiler_defaults(
     /O2
     /Ob3
     /Qpar
+  # ASM compiler flags
+  FLAGS_ASM_MASM
+    /nologo
   # C compiler flags
   FLAGS_C
     /TC
