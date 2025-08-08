@@ -210,18 +210,17 @@ endfunction()
 function(_add_package_generate_revision PACKAGE_NAME_ORIG)
   # Create C++ compatible name of this package, used by the template Revision.hpp.cmake
   string(REGEX REPLACE "-" "_" PACKAGE_NAME "${PACKAGE_NAME_ORIG}")
-  string(TOUPPER ${PACKAGE_NAME} PACKAGE_NAME_UPPER)
 
-  set(PACKAGE_BRANCH        "unknown")
-  set(PACKAGE_DATE          "1970-01-01")
-  set(PACKAGE_TIME          "00:00:00")
-  set(PACKAGE_TIMESTAMP     "1970-01-01 00:00:00 +0000")
-  set(PACKAGE_VERSION       "unknown")
-  set(PACKAGE_VERSION_MAJOR 0)
-  set(PACKAGE_VERSION_MINOR 0)
-  set(PACKAGE_VERSION_PATCH 0)
-  set(PACKAGE_VERSION_TWEAK 0)
-  set(PACKAGE_YEAR          "1970")
+  set(PACKAGE_BRANCH         "unknown")
+  set(PACKAGE_DATE           "1970-01-01")
+  set(PACKAGE_TIME           "00:00:00")
+  set(PACKAGE_TIMESTAMP      "1970-01-01 00:00:00 +0000")
+  set(PACKAGE_VERSION        "unknown")
+  set(PACKAGE_VERSION_MAJOR  0)
+  set(PACKAGE_VERSION_MINOR  0)
+  set(PACKAGE_VERSION_PATCH  0)
+  set(PACKAGE_VERSION_TWEAK  0)
+  set(PACKAGE_YEAR           "1970")
 
   # PACKAGE_VERSION is the version tag
   execute_process(
@@ -298,10 +297,10 @@ function(_add_package_generate_revision PACKAGE_NAME_ORIG)
   # PACKAGE_YEAR is the year of the last commit
   string(SUBSTRING "${PACKAGE_DATE}" 0 4 PACKAGE_YEAR)
 
-  # PACAKGE_TIMESTAMP_BUILD is the raw timestamp of the build
+  # PACKAGE_TIMESTAMP_BUILD is the raw timestamp of the build
   string(TIMESTAMP PACKAGE_TIMESTAMP_BUILD "%s" UTC)
 
-  # fix package version if not version is available from git history
+  # fix package version if no version is available from git history
   if ("${PACKAGE_VERSION}" STREQUAL "unknown" OR "${PACKAGE_VERSION}" STREQUAL "" OR NOT "${PACKAGE_VERSION_RESULT}" STREQUAL "0")
     set(PACKAGE_VERSION ${${PACKAGE_NAME}_VERSION})
     if (${PACKAGE_NAME}_VERSION_MAJOR)
@@ -321,6 +320,7 @@ function(_add_package_generate_revision PACKAGE_NAME_ORIG)
     string(REPLACE "-dirty" "" PACKAGE_VERSION ${PACKAGE_VERSION})
     string(REGEX REPLACE "\\.|\-" ";" PACKAGE_VERSION_LIST ${PACKAGE_VERSION})
     list(LENGTH PACKAGE_VERSION_LIST PACKAGE_VERSION_LIST_LEN)
+
     if (PACKAGE_VERSION_LIST_LEN GREATER_EQUAL 1)
       list(GET PACKAGE_VERSION_LIST 0 PACKAGE_VERSION_MAJOR)
     endif()
@@ -332,9 +332,6 @@ function(_add_package_generate_revision PACKAGE_NAME_ORIG)
     endif()
     if (PACKAGE_VERSION_LIST_LEN GREATER_EQUAL 4)
       list(GET PACKAGE_VERSION_LIST 3 PACKAGE_VERSION_TWEAK)
-    endif()
-    if (PACKAGE_VERSION_LIST_LEN GREATER_EQUAL 5)
-      list(GET PACKAGE_VERSION_LIST 4 PACKAGE_VERSION_COMMIT_ID)
     endif()
   endif()
 
@@ -353,14 +350,14 @@ function(_add_package_generate_revision PACKAGE_NAME_ORIG)
     set(PACKAGE_VERSION "0.0.0-${PACKAGE_BRANCH}")
   endif()
 
-  # generate revision file
+  # generate C++ revision file
   configure_file(
     ${CMAKEPKG_SOURCE_DIR}/Revision.hpp.cmake
     ${CMAKE_BINARY_DIR}/Revision/${PACKAGE_NAME_ORIG}/Revision.hpp
     @ONLY
   )
 
-  # generate revision file
+  # generate C revision file
   configure_file(
     ${CMAKEPKG_SOURCE_DIR}/revision.h.cmake
     ${CMAKE_BINARY_DIR}/Revision/${PACKAGE_NAME_ORIG}/revision.h
@@ -452,43 +449,12 @@ function(_add_package_load_dependency PACKAGE)
     # try shallow clone on given package tag
     execute_process(
       COMMAND
-        ${GIT_EXECUTABLE} clone -b ${PACKAGE_COMMITID} --depth 1 ${PACKAGE_URL} --quiet ${${PACKAGE_ID}_PATH}
+        ${GIT_EXECUTABLE} clone -b ${PACKAGE_COMMITID} ${PACKAGE_URL} --quiet ${${PACKAGE_ID}_PATH}
       RESULT_VARIABLE
         RESULT
       OUTPUT_QUIET
       ERROR_QUIET
     )
-
-    # clone the complete repository to checkout the requested tag if shallow clone fails because the requested tag does not point to a git branch or git tag
-    if (NOT ${RESULT} EQUAL "0")
-      execute_process(
-        COMMAND
-          ${GIT_EXECUTABLE} clone ${PACKAGE_URL} --quiet ${${PACKAGE_ID}_PATH}
-        RESULT_VARIABLE
-          RESULT
-        OUTPUT_QUIET
-        ERROR_QUIET
-      )
-
-      if (NOT ${RESULT} EQUAL "0")
-        message(FATAL_ERROR "Could not clone '${PACKAGE}' from '${PACKAGE_URL}'.")
-      else()
-        execute_process(
-          COMMAND
-            ${GIT_EXECUTABLE} checkout -b ${PACKAGE_COMMITID} ${PACKAGE_COMMITID}
-          WORKING_DIRECTORY
-            ${${PACKAGE_ID}_PATH}
-          RESULT_VARIABLE
-            RESULT
-          OUTPUT_QUIET
-          ERROR_QUIET
-        )
-
-        if (NOT ${RESULT} EQUAL "0")
-          message(FATAL_ERROR "Could not checkout '${PACKAGE_COMMITID}' for package '${PACKAGE}' from '${PACKAGE_URL}'")
-        endif()
-      endif()
-    endif()
   endif()
 
   # load the package if not already loaded
