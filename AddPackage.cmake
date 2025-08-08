@@ -392,8 +392,13 @@ function(_add_package_load_dependency PACKAGE)
 
   # get package id
   list(GET PACKAGE_DATA 0 PACKAGE_ID)
-  string(REGEX REPLACE "::|\/" ";" PACKAGE_ID "${PACKAGE_ID}")
-  list(GET PACKAGE_ID -1 PACKAGE_ID)
+  string(REGEX REPLACE "::|\/" "_" PACKAGE_ID "${PACKAGE_ID}")
+
+  # get package target
+  list(GET PACKAGE_DATA 0 PACKAGE_TARGET)
+  string(REGEX REPLACE "::|\/" ";" PACKAGE_TARGET "${PACKAGE_TARGET}")
+  string(REPLACE "-" "_" PACKAGE_TARGET "${PACKAGE_TARGET}")
+  list(GET PACKAGE_TARGET -1 PACKAGE_TARGET)
 
   # get md5 of the package path
   string(MD5 PACKAGE_PATH_HASH "${PACKAGE_PATH}")
@@ -458,14 +463,11 @@ function(_add_package_load_dependency PACKAGE)
   endif()
 
   # load the package if not already loaded
-  if (NOT TARGET ${PACKAGE_ID})
+  if (NOT TARGET ${PACKAGE_TARGET})
     add_subdirectory(${${PACKAGE_ID}_PATH} ${CMAKE_BINARY_DIR}/depsb/${PACKAGE_PATH_HASH})
 
     # append the package to the package list
-    set(PACKAGE_LIST
-      ${CMAKEPKG_PACKAGE_LIST}
-      ${PACKAGE_PATH}
-    )
+    list(APPEND CMAKEPKG_PACKAGE_LIST ${PACKAGE_PATH})
     list(SORT PACKAGE_LIST COMPARE STRING)
     list(REMOVE_DUPLICATES PACKAGE_LIST)
     set(CMAKEPKG_PACKAGE_LIST ${PACKAGE_LIST} CACHE INTERNAL "All dependencies requested with CMakePkg" FORCE)
