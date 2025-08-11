@@ -471,9 +471,9 @@ function(_add_package_load_dependency PACKAGE)
 
     # append the package to the package list
     list(APPEND CMAKEPKG_PACKAGE_LIST ${PACKAGE_PATH})
-    list(SORT PACKAGE_LIST COMPARE STRING)
-    list(REMOVE_DUPLICATES PACKAGE_LIST)
-    set(CMAKEPKG_PACKAGE_LIST ${PACKAGE_LIST} CACHE INTERNAL "All dependencies requested with CMakePkg" FORCE)
+    list(SORT CMAKEPKG_PACKAGE_LIST COMPARE STRING)
+    list(REMOVE_DUPLICATES CMAKEPKG_PACKAGE_LIST)
+    set(CMAKEPKG_PACKAGE_LIST ${CMAKEPKG_PACKAGE_LIST} CACHE INTERNAL "All dependencies requested with CMakePkg" FORCE)
   endif()
 endfunction()
 
