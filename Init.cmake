@@ -6,9 +6,9 @@ include_guard(GLOBAL)
 
 message(STATUS "Loading CMakePkg...")
 
-option(CMAKEPKG_PIC                  "Use position independent code."                             ON)
-option(CMAKEPKG_LTO                  "Enable link time optimization."                             OFF)
-option(CMAKEPKG_BUILD_DATA_PRESERVE  "Preserve the required build data for reproducible builds."  OFF)
+option(CMAKEPKG_PIC                       "Use position independent code."                             ON)
+option(CMAKEPKG_LTO                       "Enable link time optimization."                             OFF)
+option(CMAKEPKG_BUILD_DATA_PRESERVE       "Preserve the required build data for reproducible builds."  OFF)
 
 if (NOT DEFINED CMAKEPKG_C_STD)
   set(CMAKEPKG_C_STD   17)
