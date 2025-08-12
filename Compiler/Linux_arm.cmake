@@ -4,6 +4,10 @@
 #
 
 set_compiler_defaults(
+  # preprocessor definitions
+  DEFINE
+    _FILE_OFFSET_BITS=64
+    _TIME_BITS=64
   # debug preprocessor definitions
   DEFINE_DEBUG
     DEBUG
