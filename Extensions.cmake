@@ -188,6 +188,7 @@ function(python_execute)
   set(_ONE_VALUE_ARGS
     SCRIPT
     WORKING_DIRECTORY
+    OUTPUT
   )
   cmake_parse_arguments(ARG
     ""
@@ -210,7 +211,13 @@ function(python_execute)
       UTF8
     COMMAND_ERROR_IS_FATAL
       ANY
+    OUTPUT_VARIABLE
+      OUTPUT_RESULT
   )
+
+  if (ARG_OUTPUT)
+    set(${ARG_OUTPUT} ${OUTPUT_RESULT} PARENT_SCOPE)
+  endif()
 endfunction()
 
 function(cmakepkg_generate GENERATOR)
