@@ -5,6 +5,9 @@
 
 set_compiler_defaults(
   # debug preprocessor definitions
+  DEFINE
+    _FILE_OFFSET_BITS=64
+    _TIME_BITS=64
   DEFINE_DEBUG
     DEBUG
     _DEBUG
@@ -14,19 +17,33 @@ set_compiler_defaults(
     _NDEBUG
   # compiler flags
   FLAGS
-    -march=native
+    -fno-gnu-tm
     -ftrivial-auto-var-init=zero
+    -fuse-ld=gold
+    -march=native
   # debug compiler flags
   FLAGS_DEBUG
-    -ggdb
+    -ggdb3
     -Og
   # release compiler flags
-  FLAGS_RELEASE
-    -ggdb3
+  FLAGS_RELWITHDEBINFO
     -O2
-    -fmerge-all-constants
-    -flto=auto
-    -fwhole-program
     -fdata-sections
     -ffunction-sections
+    -flto=auto
+    -fmerge-all-constants
+    -funroll-loops
+    -fwhole-program
+    -ggdb3
+  FLAGS_RELEASE
+    -O2
+    -fdata-sections
+    -ffunction-sections
+    -flto=auto
+    -fmerge-all-constants
+    -funroll-loops
+    -fwhole-program
+  LINK
+    LINKER:--gc-sections
+    LINKER:--disable-linker-version
 )
