@@ -4,11 +4,16 @@
 #
 
 set_compiler_defaults(
-  # debug preprocessor definitions
+  # global preprocessor definitions
   DEFINE
     _FILE_OFFSET_BITS=64
     _TIME_BITS=64
+  # debug preprocessor definitions
   DEFINE_DEBUG
+    DEBUG
+    _DEBUG
+  # relwithdebinfo preprocessor definitions
+  DEFINE_RELWITHDEBINFO
     DEBUG
     _DEBUG
   # release preprocessor definitions
@@ -23,18 +28,27 @@ set_compiler_defaults(
     -march=native
   # debug compiler flags
   FLAGS_DEBUG
-    -ggdb3
     -Og
-  # release compiler flags
+    -fno-omit-frame-pointer
+    -ggdb3
+  # relwithdebinfo compiler flags
   FLAGS_RELWITHDEBINFO
     -O2
     -fdata-sections
     -ffunction-sections
     -flto=auto
     -fmerge-all-constants
+    -fno-omit-frame-pointer
     -funroll-loops
     -fwhole-program
+    -gdescribe-dies
     -ggdb3
+    -ginline-points
+    -ginternal-reset-location-views
+    -gstatement-frontiers
+    -gvariable-location-views
+    -gz=zstd
+  # release compiler flags
   FLAGS_RELEASE
     -O2
     -fdata-sections
@@ -43,7 +57,8 @@ set_compiler_defaults(
     -fmerge-all-constants
     -funroll-loops
     -fwhole-program
+  # linker flags
   LINK
-    LINKER:--gc-sections
     LINKER:--disable-linker-version
+    LINKER:--gc-sections
 )
